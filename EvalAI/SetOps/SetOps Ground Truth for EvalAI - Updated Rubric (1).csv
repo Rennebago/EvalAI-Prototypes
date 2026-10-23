@@ -1,0 +1,28 @@
+#,Category,Description,Branch Moment?,Use Case 1,Use Case 2,Use Case 3,Use Case 4,Use Case 5,Use Case 6,Use Case 7,Notes
+1,Opening & Disclosures,The agent and the creditor introduce themselves and agent provides standard or legal call disclosures and that the call will be recorded for quality assurance. ,No,,,,"If Call dropped, will need to:
+do Opening/Disclosures and some account verification, but then will want to jump back to step they left off at","If voicemail, only do Steps 1&2, then go to 8 (Closing)","If talking to Ai or required to transfer, may need to repeat certain steps","If agent wants to cover multiple accounts,
+step 1 and 8 will only happen once, 
+the other steps will happen per account
+
+MVP: may be ok to have a single playbook across multiple accounts covered on one call
+
+MVP+: ideally want to have one playbook per account, with multiple playbooks possible per a single call","Ai should not negatively score repeating steps
+
+Ai should not negatively score a VM scenario
+
+Ai should stitch together two related calls when there is a dropped call, ideally into a single scorecard
+
+Inbound vs.Outbound calls are significantly different, especially in steps 1,2 and 8"
+2,Account Verification,"The agent provides the client's name, date of birth, account number or the last four digits of their Social Security Number to locate the correct account.",No,,,,,,,,
+3,Authorization to Communicate on file (ATC),"The creditor will inform the agent if the authorization to communicate (ATC) is on file. If it is, agent will move on step 4. If it is not on file, agent must confirm method for sending ATC and processing while on the call. If ATC can not be processed on the call, agent must confrm with creditor timeline for processing.",Yes,"On File; 
+proceed to next step",Not on File Can Process on Call; proceed to next step,"Not on File Cannot Process on Call; 
+skip to closing",,,,,
+4,"Account information, Client Hardship","Agent confirms account information, such as account balance, settlement eligibility, last payment date as needed, and provides client's hardship reason if prompted.",Yes,"Eligible to Settl, 
+proceed to next step","Uneligible to settle; 
+skip to closing",,,,,,
+5,Initial Offer & Negotiation,"Agent presents a specific settlement offer, and if the creditor probes for a higher offer holds firm on the initial offer or offers a secondary settlement offer lower than the creditor's initial counter offer.  Maintains the potential for a formal rejection or counter offer from the creditor.",No,,,,,,,,"Agents should not mention %, only $ amounts"
+6,Counter Offer & Outcome,"If a counter offer is received, and the agent's offers are declined, the creditor provides a specific counter offer that the agent should check to see if it is acceptable in our system.  Whether or not a counter offer is received, the acceptance of an offer will be evaluated in this step.",Yes,"If settlement account is reached,
+proceed to next step","If unable to reach settlement terms,
+skip to Closing",,,,,,
+7,Payment Arrangement,"Following an approved offer, the agent outlines the specific payment schedule for the settlement, detailing the number of payments, their amounts, and the start date, and timeline around receiving SIF Letter",No,,,,,,,,
+8,Closing,"After discussing all accounts for the session, the agent confirms she has no more to present, thanks the representative for their help, and ends the call.",No,,,,,,,,
