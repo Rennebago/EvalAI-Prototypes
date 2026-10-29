@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EvalAI - Sales - Team Overview</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="wholesale.css" />
+    <link rel="stylesheet" href="setops.css" />
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <symbol id="i-search" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm10 2-4.35-4.35"/></symbol>
+        <symbol id="i-chevron" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></symbol>
+        <symbol id="i-calendar" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7 3v4m10-4v4M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></symbol>
+        <symbol id="i-sort" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0-6 6m6-6 6 6"/></symbol>
+        <symbol id="i-trend-up" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m3 17 6-6 4 4 8-8m0 0h-5m5 0v5"/></symbol>
+        <symbol id="i-trend-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m3 7 6 6 4-4 8 8m0 0h-5m5 0v-5"/></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+        <symbol id="i-play" viewBox="0 0 16 16"><path fill="currentColor" d="M4.5 2.8v10.4a.5.5 0 0 0 .76.43l8.3-5.2a.5.5 0 0 0 0-.86l-8.3-5.2a.5.5 0 0 0-.76.43Z"/></symbol>
+        <symbol id="i-pause" viewBox="0 0 16 16"><path fill="currentColor" d="M4 2.5h2.5v11H4v-11Zm5.5 0H12v11H9.5v-11Z"/></symbol>
+        <linearGradient id="achieve-grad" gradientUnits="userSpaceOnUse" x1="0" y1="14.4" x2="5.1" y2="8.7">
+          <stop offset="0" stop-color="#1f99ff"/>
+          <stop offset="0.5" stop-color="#3300ff"/>
+          <stop offset="1" stop-color="#1fa1ff"/>
+        </linearGradient>
+        <symbol id="i-logo-achieve" viewBox="0 0 16 16">
+          <path d="M6.86371 2.33287L3.65619 11.6659L5.08373 12.1582L6.67513 7.5283C6.99731 6.59064 7.91789 3.62012 7.91789 3.62012C7.91789 3.62012 8.83854 6.59064 9.16072 7.5283L10.606 11.7334H12.2029L8.97206 2.33287C8.84644 1.96731 8.45146 1.6001 7.91789 1.6001C7.38439 1.6001 6.98941 1.96731 6.86371 2.33287Z" fill="#1FA1FF"/>
+          <path d="M11.6031 5.04167C11.2282 4.85844 11.0725 4.40536 11.2554 4.02964C11.3862 3.76077 11.655 3.60449 11.9347 3.60449C12.0458 3.60449 12.1586 3.62913 12.2652 3.68125L16 5.35982L14.0882 8.98666C13.9054 9.36231 13.4532 9.51836 13.0784 9.33513C12.7034 9.1519 12.5478 8.69882 12.7306 8.3231C12.8414 8.09544 13.2376 7.51693 13.614 6.98434L4.59127 10.0978L4.10136 8.66584L13.1241 5.55239C12.4996 5.36475 11.8306 5.15292 11.6031 5.04167Z" fill="#3300FF"/>
+          <path d="M0 11.8789C0 10.7759 0.710234 9.83624 1.6972 9.49561L4.10135 8.66602L4.59126 10.098L2.18889 10.9262C1.79444 11.0623 1.5104 11.438 1.5104 11.8789C1.5104 12.4347 1.96164 12.8869 2.51629 12.8869C2.95627 12.8869 3.33397 12.6035 3.46988 12.208L3.68037 11.5957L5.10791 12.0881L4.8975 12.7007C4.55773 13.6895 3.61703 14.4005 2.51629 14.4005C1.12876 14.4005 0 13.2693 0 11.8789Z" fill="url(#achieve-grad)"/>
+        </symbol>
+        <symbol id="i-logo-fdr" viewBox="0 0 34 16" fill="#D02529">
+          <path d="M0 12.7932L7.57405 16C7.76957 15.4728 7.99515 14.9664 8.24631 14.4829L0 12.7932Z"/>
+          <path d="M15.0232 8.85534C15.0466 8.84987 15.0701 8.84558 15.0944 8.83966L11.8079 0.694387L13.5 9.36453C13.9677 9.15982 14.4494 8.99454 14.9462 8.87219L15.0232 8.85534Z"/>
+          <path d="M13.1301 9.5348C13.2163 9.49392 13.3024 9.45306 13.3898 9.41361L8.60114 2.05549L11.919 10.2436C12.2853 9.99191 12.6629 9.7664 13.0554 9.57099L13.1301 9.5348Z"/>
+          <path d="M11.3799 10.6391C11.5247 10.5242 11.6745 10.4141 11.8268 10.3078L5.71362 4.03259L10.5223 11.3898C10.7744 11.1432 11.037 10.9114 11.3084 10.6934L11.3799 10.6391Z"/>
+          <path d="M9.83393 12.1236C10.0285 11.8973 10.2301 11.681 10.4389 11.4728L3.25852 6.54782L9.32787 12.7556C9.47017 12.5645 9.61648 12.3799 9.76768 12.2015L9.83393 12.1236Z"/>
+          <path d="M9.24093 12.8741L1.3295 9.50612L8.34321 14.2985C8.39021 14.2128 8.43745 14.1273 8.48578 14.0423L8.54668 13.9382"/>
+          <path d="M15.215 0L15.2233 8.81051C15.7635 8.6974 16.3171 8.63385 16.8826 8.62561L15.215 0Z"/>
+          <path d="M33.8984 12.7932L26.3243 16C26.1288 15.4728 25.9032 14.9664 25.6521 14.4829L33.8984 12.7932Z"/>
+          <path d="M18.8752 8.85534C18.8517 8.84987 18.8283 8.84558 18.804 8.83966L22.0905 0.694387L20.3983 9.36453C19.9307 9.15982 19.449 8.99454 18.9522 8.87219L18.8752 8.85534Z"/>
+          <path d="M20.7683 9.5348C20.6821 9.49392 20.596 9.45306 20.5086 9.41361L25.2973 2.05549L21.9794 10.2436C21.6131 9.99191 21.2354 9.7664 20.843 9.57099L20.7683 9.5348Z"/>
+          <path d="M22.5185 10.6391C22.3737 10.5242 22.2239 10.4141 22.0716 10.3078L28.1848 4.03259L23.3761 11.3898C23.124 11.1432 22.8614 10.9114 22.59 10.6934L22.5185 10.6391Z"/>
+          <path d="M24.0645 12.1236C23.8699 11.8973 23.6683 11.681 23.4595 11.4728L30.6399 6.54782L24.5705 12.7556C24.4282 12.5645 24.2819 12.3799 24.1307 12.2015L24.0645 12.1236Z"/>
+          <path d="M24.6575 12.8741L32.5689 9.50612L25.5552 14.2985C25.5082 14.2128 25.461 14.1273 25.4126 14.0423L25.3517 13.9382"/>
+          <path d="M18.6834 0L18.6751 8.81051C18.1349 8.6974 17.5813 8.63385 17.0158 8.62561L18.6834 0Z"/>
+        </symbol>
+        <symbol id="i-sparkle" viewBox="0 0 20 20"><path fill="none" stroke="#5c8feb" stroke-width="1.5" stroke-linejoin="round" d="M8 3l1.6 4.4L14 9l-4.4 1.6L8 15l-1.6-4.4L2 9l4.4-1.6L8 3Zm8 8 .7 1.8 1.8.7-1.8.7L16 16l-.7-1.8-1.8-.7 1.8-.7L16 11Z"/></symbol>
+        <symbol id="i-check-circle" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm-4-9 3 3 5-6"/></symbol>
+        <symbol id="i-x-circle" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm-3-12 6 6m0-6-6 6"/></symbol>
+        <symbol id="i-flag" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 21V4m0 0h12l-2.5 4L17 12H5"/></symbol>
+        <symbol id="i-grid" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z"/></symbol>
+      </defs>
+    </svg>
+
+    <nav class="sidenav" aria-label="Primary">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg width="20" height="20"><use href="#i-sparkle" /></svg>
+          <span class="logo-text">Eval<small>AI</small></span>
+        </div>
+        <div class="logo-badge" id="logo-badge">Sales</div>
+      </div>
+      <a class="nav-item" id="nav-dash" href="#/" aria-current="page">
+        <span class="icon-btn"><svg width="24" height="24"><use href="#i-trend-up" /></svg></span>
+        Dashboard
+      </a>
+      <a class="nav-item" id="nav-matrix" href="#/setops/matrix" hidden>
+        <span class="icon-btn"><svg width="24" height="24"><use href="#i-grid" /></svg></span>
+        Matrix
+      </a>
+      <a class="nav-item" id="nav-complaints" href="#/wholesale/complaints" hidden>
+        <span class="icon-btn"><svg width="24" height="24"><use href="#i-flag" /></svg></span>
+        Complaints
+      </a>
+    </nav>
+
+    <header class="topbar">
+      <div class="seg" id="line-toggle" role="group" aria-label="Line of business">
+        <button type="button" data-line="Wholesale" aria-pressed="false">Wholesale</button>
+        <button type="button" data-line="Retail" aria-pressed="true">Retail</button>
+        <button type="button" data-line="SetOps" aria-pressed="false">SetOps</button>
+      </div>
+      <div class="gs" id="gs">
+        <div class="sr-box gs-bar" id="sr-box">
+          <svg width="24" height="24"><use href="#i-search" /></svg>
+          <span class="sr-toks" id="sr-toks"></span>
+          <input id="sr-input" type="text" autocomplete="off" aria-label="Smart Search: find calls by phone, address, FDR ID, Lead ID, email or name" aria-controls="sr-panel" aria-expanded="false" />
+          <button class="gs-x" id="sg-x" type="button" aria-label="Clear search and filters" hidden>×</button>
+          <button class="sr-btn" id="sr-filter-btn" type="button" aria-expanded="false" aria-controls="sr-panel">
+            Filters<span class="sr-badge" id="sr-badge" hidden></span>
+            <svg width="24" height="24"><use href="#i-chevron" /></svg>
+          </button>
+        </div>
+        <div class="gs-panel" id="sr-panel" role="region" aria-label="Smart Search options" hidden>
+          <div class="sr-group">
+            <div class="gs-head">
+              <h3>Search by</h3>
+              <div class="gs-match" id="sg-match" role="group" aria-label="Match mode">
+                <span>Match</span>
+                <button class="sr-opt" type="button" data-match="any" aria-pressed="true">Any field</button>
+                <button class="sr-opt" type="button" data-match="all" aria-pressed="false">All fields</button>
+              </div>
+            </div>
+            <div class="gs-fields" id="sg-fields">
+              <label>Phone (ANI)<input data-sf="phone" type="text" autocomplete="off" placeholder="(480) 555-0142" /></label>
+              <label>Address<input data-sf="address" type="text" autocomplete="off" placeholder="123 Main St" /></label>
+              <label>Lead ID<input data-sf="lead" type="text" autocomplete="off" placeholder="#482113" /></label>
+              <label>FDR ID<input data-sf="fdr" type="text" autocomplete="off" placeholder="FDR-48213" /></label>
+              <label>Email<input data-sf="email" type="text" autocomplete="off" placeholder="jane@example.com" /></label>
+              <label>Customer name<input data-sf="customer" type="text" autocomplete="off" placeholder="Jane Smith" /></label>
+            </div>
+            <p class="sr-hint">Fill in one or several fields. Use commas for more than one value in a field (any of them matches). "Any field" returns calls matching any value; "All fields" requires a match in every field you filled in.</p>
+          </div>
+          <div class="sr-groups" id="sr-groups"></div>
+          <div class="sr-groups">
+            <div class="sr-group">
+              <h3>Call duration (minutes)</h3>
+              <div class="sr-range">
+                <input id="sr-dur-min" type="number" min="0" step="0.5" placeholder="Min" aria-label="Minimum duration in minutes" />
+                <span>to</span>
+                <input id="sr-dur-max" type="number" min="0" step="0.5" placeholder="Max" aria-label="Maximum duration in minutes" />
+              </div>
+            </div>
+            <div class="sr-group">
+              <h3>Eligible debt (%)</h3>
+              <div class="sr-range">
+                <input id="sr-debt-min" type="number" min="0" max="100" placeholder="Min" aria-label="Minimum eligible debt percent" />
+                <span>to</span>
+                <input id="sr-debt-max" type="number" min="0" max="100" placeholder="Max" aria-label="Maximum eligible debt percent" />
+              </div>
+            </div>
+          </div>
+          <div class="gs-foot">
+            <span class="gs-count" id="sg-count" aria-live="polite"></span>
+            <button class="text-btn" id="sg-clear" type="button">Clear all</button>
+            <button class="gs-go" id="sg-go" type="button">View results</button>
+          </div>
+        </div>
+      </div>
+      <div class="dd" id="dd-role">
+        <button class="dd-trigger" type="button" aria-haspopup="listbox" aria-label="View the Sales dashboard as a UM or an SM"></button>
+        <div class="dd-menu" role="listbox"></div>
+      </div>
+      <div class="dd" id="dd-so-user" hidden>
+        <button class="dd-trigger" type="button" aria-haspopup="listbox" aria-label="Prototype only: view SetOps as a different user"></button>
+        <div class="dd-menu" role="listbox"></div>
+      </div>
+    </header>
+
+    <!-- SetOps: entry dashboard (3283:5658) -->
+    <main class="page" id="page-sodash" hidden>
+      <header class="page-header">
+        <div>
+          <h1 id="sod-h1">Welcome back, Simone</h1>
+          <p id="sod-sub">Overview at your teams call scoring and outcomes.</p>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="sod-search" type="search" placeholder="Search" aria-label="Search workgroups and agents" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-sod-wg">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sod-tag">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sod-stage">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sod-level">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sod-dir">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sod-date">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="sod-download" type="button" aria-label="Download agent performance as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="kpi-row so-kpis" id="sod-kpis" aria-label="Key metrics"></section>
+        <div class="so-split">
+          <section class="card">
+            <div class="section-head"><h2>Workgroup Performance</h2></div>
+            <div class="table-wrap"><table id="sod-wg"></table></div>
+          </section>
+          <section class="card">
+            <div class="section-head"><h2>Performance by Call Stage</h2></div>
+            <div class="table-wrap"><table id="sod-stages"></table></div>
+          </section>
+        </div>
+
+        <section class="card">
+          <div class="section-head"><h2>Agent Performance</h2></div>
+          <div class="table-wrap"><table id="sod-agents" class="wide"></table></div>
+          <nav class="pager" aria-label="Agent table pagination">
+            <div class="pager-left">
+              <button class="pg-btn pg-prev" id="sod-a-prev" type="button" aria-label="Previous page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <button class="pg-btn pg-next" id="sod-a-next" type="button" aria-label="Next page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <span class="pager-text" id="sod-a-text"></span>
+            </div>
+            <div class="dd up" id="dd-sod-a-size">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </nav>
+        </section>
+      </div>
+    </main>
+
+    <!-- SetOps: Agent Matrix (agents by call stage) -->
+    <main class="page" id="page-somatrix" hidden>
+      <a class="back" href="#/setops"><svg width="16" height="16"><use href="#i-chevron" /></svg>Dashboard</a>
+      <header class="page-header">
+        <div>
+          <h1>Agent Matrix</h1>
+          <p id="som-sub"></p>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="som-search" type="search" placeholder="Search agents" aria-label="Search agents" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-som-wg">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-som-sup">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-som-stage">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-som-level">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-som-dir">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="som-download" type="button" aria-label="Download agent matrix as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="card">
+          <div class="so-legend" id="som-legend" role="group" aria-label="Filter by performance level"></div>
+          <div class="table-wrap so-matrix-wrap"><table id="som-grid" class="so-matrix"></table></div>
+        </section>
+      </div>
+    </main>
+
+    <!-- SetOps: Call Records (drill-down from dashboard, matrix and agent view) -->
+    <main class="page" id="page-socalls" hidden>
+      <a class="back" id="sol-back" href="#/setops"><svg width="16" height="16"><use href="#i-chevron" /></svg><span id="sol-back-name">Dashboard</span></a>
+      <header class="page-header">
+        <div>
+          <h1>Call Records</h1>
+          <p id="sol-sub"></p>
+        </div>
+        <div class="filters">
+          <div class="dd" id="dd-sol-agent">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sol-wg">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sol-stage">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sol-level">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sol-tag">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-sol-dir">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="sol-download" type="button" aria-label="Download call records as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="kpi-row so-kpis" id="sol-kpis" aria-label="Key metrics"></section>
+        <section class="card">
+          <div class="section-head"><h2>Calls</h2></div>
+          <div class="table-wrap"><table id="sol-table"></table></div>
+          <nav class="pager" aria-label="Call records pagination">
+            <div class="pager-left">
+              <button class="pg-btn pg-prev" id="sol-prev" type="button" aria-label="Previous page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <button class="pg-btn pg-next" id="sol-next" type="button" aria-label="Next page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <span class="pager-text" id="sol-text"></span>
+            </div>
+            <div class="dd up" id="dd-sol-size">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </nav>
+        </section>
+      </div>
+    </main>
+
+    <!-- SetOps: agent view, outbound (2470:25844) and inbound (2470:26722) -->
+    <main class="page" id="page-soagent" hidden>
+      <a class="back" href="#/setops"><svg width="16" height="16"><use href="#i-chevron" /></svg>Dashboard</a>
+      <header class="page-header">
+        <div>
+          <div class="agent-title">
+            <span class="avatar" id="soa-avatar" aria-hidden="true"></span>
+            <h1 id="soa-name"></h1>
+          </div>
+        </div>
+        <div class="filters">
+          <div class="dd" id="dd-soa-tag">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-soa-stage">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-soa-dir">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-soa-date">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="soa-download" type="button" aria-label="Download recent calls as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="kpi-row so-kpis" id="soa-kpis" aria-label="Key metrics"></section>
+
+        <section class="card">
+          <div class="section-head"><h2>Performance by Call Stage</h2></div>
+          <div class="table-wrap"><table id="soa-stages"></table></div>
+        </section>
+
+        <section class="card">
+          <div class="section-head"><h2>Recent Calls</h2></div>
+          <div class="table-wrap"><table id="soa-calls"></table></div>
+          <nav class="pager" aria-label="Recent calls pagination">
+            <div class="pager-left">
+              <button class="pg-btn pg-prev" id="soa-c-prev" type="button" aria-label="Previous page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <button class="pg-btn pg-next" id="soa-c-next" type="button" aria-label="Next page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <span class="pager-text" id="soa-c-text"></span>
+            </div>
+            <div class="dd up" id="dd-soa-c-size">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </nav>
+        </section>
+      </div>
+    </main>
+
+    <!-- SetOps: call details, results (2893:8350) and transcript (2885:7672) -->
+    <main class="page" id="page-socall" hidden>
+      <a class="back" id="soc-back" href="#/setops"><svg width="16" height="16"><use href="#i-chevron" /></svg><span id="soc-back-name"></span></a>
+      <header class="page-header">
+        <div>
+          <h1 id="soc-title"></h1>
+        </div>
+      </header>
+
+      <div class="cd-grid">
+        <aside class="cd-side">
+          <section class="card stack" id="soc-overview"></section>
+          <section class="card stack" id="soc-steps"></section>
+          <section class="card stack" id="soc-summary"></section>
+        </aside>
+        <section class="card cd-panel">
+          <div class="cd-panel-head">
+            <div>
+              <h2>Call Details</h2>
+              <p id="soc-meta"></p>
+            </div>
+            <div class="cd-tools">
+              <div class="seg" id="soc-tabs" role="group" aria-label="Call view">
+                <button type="button" data-tab="transcript" aria-pressed="false">Transcript</button>
+                <button type="button" data-tab="results" aria-pressed="true">Results</button>
+              </div>
+              <button class="so-dl" id="soc-download" type="button" aria-label="Download call as CSV">
+                <svg width="24" height="24"><use href="#i-download" /></svg>
+              </button>
+            </div>
+          </div>
+          <div id="soc-results"></div>
+          <div id="soc-transcript" hidden></div>
+        </section>
+      </div>
+
+      <div class="player" id="soc-player">
+        <button class="player-btn" id="soc-play" type="button" aria-label="Play call"></button>
+        <div class="player-track" id="soc-track" role="slider" aria-label="Call position" tabindex="0"><i id="soc-fill"></i></div>
+        <span class="player-time" id="soc-time"></span>
+      </div>
+    </main>
+
+    <!-- Wholesale: entry dashboard (4106:13345) -->
+    <main class="page" id="page-wsdash" hidden>
+      <header class="page-header">
+        <div>
+          <h1>Welcome back, Nathan</h1>
+          <p>An overview of partners and compliance scoring.</p>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="wsd-search" type="search" placeholder="Search" aria-label="Search partners" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-wsd-date">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="wsd-download" type="button" aria-label="Download partner performance as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="kpi-row ws-kpis" id="wsd-kpis" aria-label="Key metrics"></section>
+        <div class="ws-split">
+          <section class="card">
+            <div class="section-head"><h2>Partner Performance</h2></div>
+            <div class="table-wrap"><table id="wsd-partners"></table></div>
+          </section>
+          <section class="card">
+            <div class="section-head"><h2>Category Performance</h2></div>
+            <div class="table-wrap"><table id="wsd-cats"></table></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Wholesale: partner overview (4106:14405) -->
+    <main class="page" id="page-wspartner" hidden>
+      <a class="back" href="#/wholesale"><svg width="16" height="16"><use href="#i-chevron" /></svg>Dashboard</a>
+      <header class="page-header">
+        <div>
+          <h1 id="wp-name"></h1>
+          <p>Detailed view for partner’s performance</p>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="wp-search" type="search" placeholder="Search" aria-label="Search agents and calls" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-wp-agent">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-wp-date">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="wp-download" type="button" aria-label="Download recent calls as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="kpi-row ws-kpis" id="wp-kpis" aria-label="Key metrics"></section>
+
+        <section class="card">
+          <div class="section-head"><h2>Agent Performance</h2></div>
+          <div class="table-wrap"><table id="wp-agents"></table></div>
+          <nav class="pager" aria-label="Agent table pagination">
+            <div class="pager-left">
+              <button class="pg-btn pg-prev" id="wp-a-prev" type="button" aria-label="Previous page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <button class="pg-btn pg-next" id="wp-a-next" type="button" aria-label="Next page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <span class="pager-text" id="wp-a-text"></span>
+            </div>
+            <div class="dd up" id="dd-wp-a-size">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </nav>
+        </section>
+
+        <section class="card">
+          <div class="section-head"><h2>Category Performance</h2></div>
+          <div class="table-wrap"><table id="wp-cats"></table></div>
+        </section>
+
+        <section class="card">
+          <div class="section-head"><h2>Complaints</h2><p id="wp-complaints-sub"></p></div>
+          <div class="table-wrap"><table id="wp-complaints"></table></div>
+        </section>
+
+        <section class="card">
+          <div class="section-head"><h2>Recent Calls</h2></div>
+          <div class="table-wrap"><table id="wp-calls"></table></div>
+          <nav class="pager" aria-label="Recent calls pagination">
+            <div class="pager-left">
+              <button class="pg-btn pg-prev" id="wp-c-prev" type="button" aria-label="Previous page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <button class="pg-btn pg-next" id="wp-c-next" type="button" aria-label="Next page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <span class="pager-text" id="wp-c-text"></span>
+            </div>
+            <div class="dd up" id="dd-wp-c-size">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </nav>
+        </section>
+      </div>
+    </main>
+
+    <!-- Wholesale: agent overview (4106:16429) -->
+    <main class="page" id="page-wsagent" hidden>
+      <a class="back" id="wa-back" href="#/wholesale"><svg width="16" height="16"><use href="#i-chevron" /></svg><span id="wa-back-name"></span></a>
+      <header class="page-header">
+        <div>
+          <h1 id="wa-name"></h1>
+          <div class="subheader">
+            <span class="tag"><span class="k">Partner:</span><a class="agent-link" id="wa-partner" href="#/wholesale"></a></span>
+          </div>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="wa-search" type="search" placeholder="Search" aria-label="Search calls" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-wa-date">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="wa-download" type="button" aria-label="Download recent calls as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="kpi-row ws-kpis" id="wa-kpis" aria-label="Key metrics"></section>
+
+        <section class="card">
+          <div class="section-head"><h2>Performance by Category</h2></div>
+          <div class="table-wrap"><table id="wa-cats"></table></div>
+        </section>
+
+        <section class="card">
+          <div class="section-head"><h2>Recent Calls</h2></div>
+          <div class="table-wrap"><table id="wa-calls"></table></div>
+          <nav class="pager" aria-label="Recent calls pagination">
+            <div class="pager-left">
+              <button class="pg-btn pg-prev" id="wa-c-prev" type="button" aria-label="Previous page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <button class="pg-btn pg-next" id="wa-c-next" type="button" aria-label="Next page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <span class="pager-text" id="wa-c-text"></span>
+            </div>
+            <div class="dd up" id="dd-wa-c-size">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </nav>
+        </section>
+      </div>
+    </main>
+
+    <!-- Wholesale: call details, categories (4106:20703) and transcript (4106:21230) -->
+    <main class="page" id="page-wscall" hidden>
+      <a class="back" id="wc-back" href="#/wholesale"><svg width="16" height="16"><use href="#i-chevron" /></svg><span id="wc-back-name"></span></a>
+      <header class="page-header">
+        <div>
+          <h1>Call Details</h1>
+        </div>
+        <div class="filters">
+          <label class="field" id="wc-search-field" hidden>
+            <input id="wc-search" type="search" placeholder="Search" aria-label="Search this call" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <button class="icon-btn" id="wc-download" type="button" aria-label="Download call as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="wcd-banner" id="wc-complaint" hidden></div>
+
+      <section class="card cd-panel">
+        <div class="cd-panel-head">
+          <div>
+            <h2>Call Results</h2>
+            <p id="wc-meta"></p>
+          </div>
+          <div class="cd-tools">
+            <div class="dd" id="dd-wc-sort">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+            <div class="seg" id="wc-tabs" role="group" aria-label="Call view">
+              <button type="button" data-tab="categories" aria-pressed="true">Categories</button>
+              <button type="button" data-tab="transcript" aria-pressed="false">Transcript</button>
+            </div>
+          </div>
+        </div>
+        <div id="wc-cats"></div>
+        <div id="wc-transcript" hidden></div>
+      </section>
+
+      <div class="player" id="wc-player">
+        <button class="player-btn" id="wc-play" type="button" aria-label="Play call"></button>
+        <div class="player-track" id="wc-track" role="slider" aria-label="Call position" tabindex="0"><i id="wc-fill"></i></div>
+        <span class="player-time" id="wc-time"></span>
+      </div>
+    </main>
+
+    <!-- Wholesale: complaints tracker (possible MVP+) -->
+    <main class="page" id="page-wscomplaints" hidden>
+      <header class="page-header">
+        <div>
+          <h1>Complaints</h1>
+          <p id="wcl-sub"></p>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="wcl-search" type="search" placeholder="Search" aria-label="Search complaints" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-wcl-tier">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-wcl-status">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-wcl-partner">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-wcl-role">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox" aria-label="Prototype only: view complaints as a different team"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="wcl-download" type="button" aria-label="Download complaints as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="kpi-row ws-kpis" id="wcl-kpis" aria-label="Key metrics"></section>
+
+        <section class="card">
+          <div class="section-head"><h2>Complaint Tracker</h2></div>
+          <div class="table-wrap"><table id="wcl-table"></table></div>
+          <nav class="pager" aria-label="Complaints pagination">
+            <div class="pager-left">
+              <button class="pg-btn pg-prev" id="wcl-prev" type="button" aria-label="Previous page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <button class="pg-btn pg-next" id="wcl-next" type="button" aria-label="Next page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <span class="pager-text" id="wcl-text"></span>
+            </div>
+            <div class="dd up" id="dd-wcl-size">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </nav>
+        </section>
+
+        <section class="card">
+          <div class="section-head split">
+            <div>
+              <h2>Monthly View by Partner</h2>
+              <p>Complaints grouped by the month they were received.</p>
+            </div>
+            <div class="dd" id="dd-wcm-month">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </div>
+          <div class="table-wrap"><table id="wcm-table"></table></div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Wholesale: complaint details (possible MVP+) -->
+    <main class="page" id="page-wscomplaint" hidden>
+      <a class="back" id="wcd-back" href="#/wholesale/complaints"><svg width="16" height="16"><use href="#i-chevron" /></svg><span id="wcd-back-name">Complaints</span></a>
+      <header class="page-header">
+        <div>
+          <h1 id="wcd-title"></h1>
+          <div class="subheader" id="wcd-tags"></div>
+        </div>
+      </header>
+
+      <div class="wcd-grid">
+        <aside class="wcd-col">
+          <section class="card stack" id="wcd-summary"></section>
+          <section class="card stack" id="wcd-activity"></section>
+        </aside>
+        <div class="wcd-col">
+          <section class="card stack" id="wcd-progress"></section>
+          <section class="card stack" id="wcd-call"></section>
+          <section class="card stack" id="wcd-coaching"></section>
+        </div>
+      </div>
+    </main>
+
+    <main class="page" id="page-team">
+      <a class="back" id="team-back" href="#/" hidden><svg width="16" height="16"><use href="#i-chevron" /></svg>Department Overview</a>
+      <header class="page-header">
+        <div>
+          <h1 id="team-h1">Welcome back, Keeley</h1>
+          <p id="team-sub">Overview at your team’s call scoring and outcomes</p>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="search" type="search" placeholder="Search" aria-label="Search" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-playbook" data-prefix="Select Playbook: ">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-team">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-date" data-icon="calendar">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="download" type="button" aria-label="Download agent table as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="kpi-row" id="kpis" aria-label="Key metrics"></section>
+
+        <section class="card">
+          <div class="section-head">
+            <h2>Call Flow Trends</h2>
+            <p class="filter-note">Filtered by Call Behavior Playbook</p>
+          </div>
+          <div class="table-wrap">
+            <table id="steps-table"></table>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-head split">
+            <div>
+              <h2 id="agents-title"></h2>
+              <p id="agents-note"></p>
+            </div>
+            <div class="dd" id="dd-view">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="agents-table"></table>
+          </div>
+          <nav class="pager" aria-label="Agent table pagination">
+            <div class="pager-left">
+              <button class="pg-btn pg-prev" id="pg-prev" type="button" aria-label="Previous page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <button class="pg-btn pg-next" id="pg-next" type="button" aria-label="Next page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <span class="pager-text" id="pager-text"></span>
+            </div>
+            <div class="dd up" id="dd-size">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </nav>
+        </section>
+      </div>
+    </main>
+
+    <main class="page" id="page-search" hidden>
+      <header class="page-header">
+        <div>
+          <h1>Call Results</h1>
+          <p>Use the Smart Search in the top bar to find calls by phone number, address, FDR ID, Lead ID, email or name</p>
+        </div>
+        <div class="filters">
+          <div class="dd" id="dd-sr-playbook">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="sr-download" type="button" aria-label="Download call results as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="card stack sr-card" id="sr-card" hidden>
+          <div class="sr-active" id="sr-active" hidden></div>
+          <div class="sr-lead" id="sr-lead" hidden></div>
+        </section>
+
+        <section class="card">
+          <div class="section-head split">
+            <div>
+              <h2>Calls</h2>
+              <p id="sr-note"></p>
+            </div>
+            <div class="sr-tools">
+              <div class="seg" role="group" aria-label="Highlight">
+                <button type="button" id="sr-hl" aria-pressed="false" title="Marks the top and bottom 10% in each numeric column">Highlight top / bottom</button>
+              </div>
+              <div class="dd" id="dd-sr-view">
+                <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+                <div class="dd-menu" role="listbox"></div>
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="sr-table" class="wide"></table>
+          </div>
+          <nav class="pager" aria-label="Call results pagination">
+            <div class="pager-left">
+              <button class="pg-btn pg-prev" id="sr-prev" type="button" aria-label="Previous page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <button class="pg-btn pg-next" id="sr-next" type="button" aria-label="Next page"><svg width="24" height="24"><use href="#i-chevron" /></svg></button>
+              <span class="pager-text" id="sr-pager-text"></span>
+            </div>
+            <div class="dd up" id="dd-sr-size">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </nav>
+        </section>
+      </div>
+    </main>
+
+    <main class="page" id="page-agent" hidden>
+      <a class="back" id="ag-back" href="#/"><svg width="16" height="16"><use href="#i-chevron" /></svg>Team Overview</a>
+      <header class="page-header">
+        <div>
+          <div class="agent-title">
+            <span class="avatar" id="ag-avatar" aria-hidden="true"></span>
+            <h1 id="ag-name"></h1>
+          </div>
+          <div class="subheader">
+            <span class="tag"><span class="k">Email</span><span id="ag-email"></span></span>
+            <span class="divider"></span>
+            <span class="tag"><span class="k">UM:</span><span id="ag-um"></span></span>
+          </div>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="ag-search" type="search" placeholder="Search" aria-label="Search calls" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-ag-playbook">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <div class="dd" id="dd-ag-date">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="ag-download" type="button" aria-label="Download recent calls as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="kpi-row" id="ag-kpis" aria-label="Key metrics"></section>
+
+        <section class="card stack">
+          <div class="section-head split">
+            <div>
+              <h2>Playbook Trends</h2>
+              <p id="pt-note"></p>
+            </div>
+          </div>
+          <div class="legend" id="pt-legend"></div>
+          <div class="chart-box">
+            <div class="chart-main">
+              <div class="y-axis" id="pt-y"></div>
+              <div class="plot" id="pt-plot"></div>
+            </div>
+            <div class="x-axis" id="pt-x"></div>
+          </div>
+        </section>
+
+        <section class="card stack">
+          <div class="section-head split">
+            <div>
+              <h2>Call Flow Trends</h2>
+              <p id="chart-note"></p>
+            </div>
+            <div class="dd" id="dd-range">
+              <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+              <div class="dd-menu" role="listbox"></div>
+            </div>
+          </div>
+          <div class="legend" id="legend"></div>
+          <div class="chart-box">
+            <div class="chart-main">
+              <div class="y-axis" id="y-axis"></div>
+              <div class="plot" id="plot"></div>
+            </div>
+            <div class="x-axis" id="x-axis"></div>
+          </div>
+          <div class="chart-foot">
+            <button class="btn-secondary" id="perf-overview" type="button">Call Performance Overview</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <h2>Recent Calls</h2>
+            <p id="calls-note"></p>
+          </div>
+          <div class="table-wrap">
+            <table id="calls-table" class="wide"></table>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <main class="page" id="page-overview" hidden>
+      <a class="back" id="ov-back" href="#/"><svg width="16" height="16"><use href="#i-chevron" /></svg><span id="ov-back-name"></span></a>
+      <header class="page-header">
+        <div>
+          <div class="agent-title">
+            <span class="avatar" id="ov-avatar" aria-hidden="true"></span>
+            <h1 id="ov-name"></h1>
+          </div>
+          <div class="subheader">
+            <span class="tag"><span class="k">Email</span><span id="ov-email"></span></span>
+            <span class="divider"></span>
+            <span class="tag"><span class="k">UM:</span><span id="ov-um"></span></span>
+          </div>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="ov-search" type="search" placeholder="Search" aria-label="Search citations" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-ov-playbook">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="ov-download" type="button" aria-label="Download citations as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="card stack">
+          <div class="section-head split">
+            <h2 id="ov-title"></h2>
+            <div class="ov-filters">
+              <div class="dd" id="dd-ov-stage">
+                <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+                <div class="dd-menu" role="listbox"></div>
+              </div>
+              <div class="dd" id="dd-ov-grade">
+                <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+                <div class="dd-menu" role="listbox"></div>
+              </div>
+            </div>
+          </div>
+          <div class="ov-toolbar">
+            <span id="ov-count"></span>
+            <button class="text-btn expand-btn" id="ov-expand" type="button"></button>
+          </div>
+          <div class="stages" id="ov-stages"></div>
+        </section>
+      </div>
+    </main>
+
+    <main class="page" id="page-call" hidden>
+      <a class="back" id="cd-back" href="#/"><svg width="16" height="16"><use href="#i-chevron" /></svg><span id="cd-back-name"></span></a>
+      <header class="page-header">
+        <div>
+          <h1>Call Details</h1>
+          <div class="subheader">
+            <span class="tag"><span class="k">Client:</span><span id="cd-client"></span><span id="cd-brand" class="brand"></span></span>
+            <span class="divider"></span>
+            <span class="tag"><span class="k">Lead ID:</span><button class="link-btn" id="cd-lead" type="button" title="View all calls for this lead"></button></span>
+            <span class="divider"></span>
+            <span class="tag"><span class="k">Customer Phone</span><span id="cd-phone"></span></span>
+          </div>
+        </div>
+        <div class="filters">
+          <label class="field">
+            <input id="cd-search" type="search" placeholder="Search" aria-label="Search this call" />
+            <svg width="24" height="24"><use href="#i-search" /></svg>
+          </label>
+          <div class="dd" id="dd-cd-playbook">
+            <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+            <div class="dd-menu" role="listbox"></div>
+          </div>
+          <button class="icon-btn" id="cd-download" type="button" aria-label="Download transcript as CSV">
+            <svg width="24" height="24"><use href="#i-download" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="cd-grid">
+        <aside class="cd-side">
+          <section class="card stack" id="cd-summary"></section>
+          <section class="card stack" id="cd-insights"></section>
+        </aside>
+        <section class="card cd-panel">
+          <div class="cd-panel-head">
+            <div>
+              <h2 id="cd-pb-title"></h2>
+              <p id="cd-meta"></p>
+            </div>
+            <div class="cd-tools">
+              <div class="dd" id="dd-cd-grade">
+                <button class="dd-trigger" type="button" aria-haspopup="listbox"></button>
+                <div class="dd-menu" role="listbox"></div>
+              </div>
+              <div class="seg" id="cd-tabs" role="group" aria-label="Call view">
+                <button type="button" data-tab="results" aria-pressed="true">Results</button>
+                <button type="button" data-tab="transcript" aria-pressed="false">Transcript</button>
+                <button type="button" data-tab="timeline" aria-pressed="false">Timeline</button>
+              </div>
+            </div>
+          </div>
+          <div id="cd-results"></div>
+          <div id="cd-transcript" hidden></div>
+          <div id="cd-timeline" hidden></div>
+        </section>
+      </div>
+
+      <div class="player" id="cd-player">
+        <button class="player-btn" id="cd-play" type="button" aria-label="Play call"></button>
+        <div class="player-track" id="cd-track" role="slider" aria-label="Call position" tabindex="0"><i id="cd-fill"></i></div>
+        <span class="player-time" id="cd-time"></span>
+      </div>
+    </main>
+
+    <div class="toast" id="toast" role="status"></div>
+    <div class="ws-tip" id="ws-tip" role="tooltip" hidden></div>
+    <script src="app.js"></script>
+    <script src="wholesale.js"></script>
+    <script src="complaints.js"></script>
+    <script src="setops.js"></script>
+  </body>
+</html>

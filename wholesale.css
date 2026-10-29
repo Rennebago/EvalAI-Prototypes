@@ -1,0 +1,525 @@
+/* Wholesale views (Figma 4106:13345, 4106:14405, 4106:16429, 4106:20703, 4106:21230).
+   Reuses the tokens and components in styles.css; only what is new for Wholesale lives here. */
+
+/* ---------- Dashboard layout ---------- */
+.ws-split {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.ws-split > .card {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.ws-split > .card:first-child {
+  flex-grow: 723;
+}
+
+.ws-split > .card:last-child {
+  flex-grow: 632;
+}
+
+.ws-kpis .kpi-title {
+  margin-top: 0;
+}
+
+/* ---------- Tables ---------- */
+td.wrap {
+  white-space: normal;
+}
+
+a.text-btn {
+  text-decoration: none;
+}
+
+a.text-btn:hover {
+  text-decoration: underline;
+}
+
+.ws-status {
+  display: flex;
+}
+
+.ws-status.pass {
+  color: var(--content-positive);
+}
+
+.ws-status.fail {
+  color: var(--content-negative);
+}
+
+#wp-calls tbody tr[data-id],
+#wa-calls tbody tr[data-id] {
+  cursor: pointer;
+}
+
+.ws-cat[data-tip] {
+  cursor: help;
+}
+
+/* ---------- Chips ---------- */
+.chip-info {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  margin: 2px 4px 2px 0;
+  background: #eff2f8;
+  color: #42546b;
+}
+
+.chip-info[data-tip] {
+  cursor: help;
+}
+
+a.chip-view {
+  max-width: none;
+  margin: 0 0 0 4px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.chip-view:hover {
+  background: #dfeaff;
+  color: var(--content-accent);
+}
+
+.chip-Fail {
+  background: #fff5f8;
+  color: var(--content-negative);
+}
+
+.chip-Pass {
+  background: #ecf9f4;
+  color: var(--content-positive);
+}
+
+.chip-lg {
+  padding: 4px 12px;
+  font-size: 14px;
+}
+
+/* ---------- Tooltip ---------- */
+.ws-tip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  max-width: 525px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-opaque);
+  border-radius: var(--radius-md);
+  background: #eff2f8;
+  box-shadow: var(--shadow-3);
+  color: var(--content-primary);
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+/* ---------- Call details ---------- */
+#wc-cats {
+  display: flex;
+  flex-direction: column;
+}
+
+.ws-stage .stage-head {
+  gap: 8px;
+}
+
+.ws-stage .stage-title {
+  flex: 0 1 auto;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.ws-stage .stage-head .chev {
+  margin-left: auto;
+}
+
+.ws-stage .stage-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0 8px;
+}
+
+.ws-desc > b,
+.ws-cites > b {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ws-desc p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--content-secondary);
+}
+
+.ws-cites {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ws-cite {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.ws-quote {
+  display: flex;
+  gap: 16px;
+}
+
+.ws-quote > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ws-time {
+  width: 60px;
+  flex-shrink: 0;
+  padding-top: 2px;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--content-secondary);
+}
+
+.ws-who {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--content-secondary);
+}
+
+.ws-quote p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ws-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ws-reason {
+  padding: 16px;
+  font-size: 14px;
+}
+
+.ws-none {
+  margin: 0;
+  font-size: 14px;
+  color: var(--content-secondary);
+}
+
+#wc-transcript .tx-top b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ws-flag {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  color: var(--content-negative);
+}
+
+/* ---------- Complaints (possible MVP+) ---------- */
+#page-wscomplaints .page-header {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+#page-wscomplaints .filters {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+#wcl-table tbody tr[data-id] {
+  cursor: pointer;
+}
+
+#wcl-table .chip,
+#wp-complaints .chip {
+  max-width: none;
+  white-space: nowrap;
+}
+
+a.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.wcd-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-accent-light);
+  font-size: 14px;
+  margin-bottom: -8px;
+}
+
+.wcd-banner svg {
+  color: var(--content-negative);
+}
+
+.wcd-grid {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.wcd-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.wcd-dl {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.wcd-dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.wcd-dl dt {
+  color: var(--content-secondary);
+}
+
+.wcd-dl dd {
+  text-align: right;
+}
+
+.wcd-claim b {
+  font-size: 14px;
+}
+
+.wcd-claim p {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--content-secondary);
+}
+
+.wcd-note {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--content-secondary);
+}
+
+.wcd-log {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.wcd-log li {
+  display: flex;
+  gap: 16px;
+}
+
+.wcd-log-date {
+  width: 60px;
+  flex-shrink: 0;
+  padding-top: 2px;
+  font-size: 12px;
+  color: var(--content-secondary);
+}
+
+.wcd-log li > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wcd-log li > div span {
+  font-size: 12px;
+  color: var(--content-secondary);
+}
+
+.wcd-steps {
+  display: flex;
+  padding: 0;
+  list-style: none;
+}
+
+.wcd-step {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--content-secondary);
+}
+
+.wcd-step b {
+  font-size: 12px;
+  color: var(--content-primary);
+}
+
+.wcd-step::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: -50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border-primary);
+}
+
+.wcd-step:first-child::before {
+  display: none;
+}
+
+.wcd-step.done::before {
+  background: var(--content-positive);
+}
+
+.wcd-dot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+  border: 2px solid var(--border-primary);
+  border-radius: 50%;
+  background: var(--bg-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wcd-step.done .wcd-dot {
+  border-color: var(--content-positive);
+  background: var(--content-positive);
+  color: #fff;
+}
+
+.wcd-step.next .wcd-dot {
+  border-color: var(--content-accent);
+  color: var(--content-accent);
+}
+
+.wcd-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-accent-light);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.wcd-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.wcd-btn {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--content-accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.wcd-btn:hover {
+  opacity: 0.9;
+}
+
+.wcd-select {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  font: inherit;
+  font-size: 14px;
+}
+
+.wcd-callmeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-size: 14px;
+}
+
+.wcd-callmeta b {
+  color: var(--content-secondary);
+  font-weight: 500;
+}
+
+.wcd-focus {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wcd-focus h3 {
+  font-size: 16px;
+}
+
+.wcd-coach,
+.wcd-sent {
+  width: 100%;
+  min-height: 160px;
+  padding: 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.wcd-sent {
+  min-height: 0;
+  background: var(--bg-secondary);
+}
+
+.wcd-coach:disabled {
+  background: var(--bg-secondary);
+  color: var(--content-secondary);
+}

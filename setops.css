@@ -1,0 +1,397 @@
+/* SetOps views (Figma 3283:5658, 2470:25844, 2470:26722, 2893:8350, 2885:7672).
+   Reuses the tokens and components in styles.css; only what is new for SetOps lives here. */
+
+/* ---------- Prototype user switcher (top bar) ---------- */
+#dd-so-user {
+  margin-left: auto;
+}
+
+.topbar #dd-so-user .dd-trigger {
+  height: 40px;
+  font-size: 14px;
+}
+
+/* ---------- Multi-select dropdown ---------- */
+.dd-multi .dd-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dd-check {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--content-accent);
+}
+
+.dd-option[aria-selected="true"] .dd-check {
+  border-color: var(--content-accent);
+}
+
+.dd-multi .dd-clear {
+  padding-left: 12px;
+  color: var(--content-accent);
+}
+
+/* ---------- Dashboard layout ---------- */
+.so-split {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.so-split > .card {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.so-kpis .kpi-title {
+  margin-top: 0;
+}
+
+.so-kpis .kpi-metric > div {
+  align-items: center;
+  gap: 8px;
+}
+
+.so-big {
+  font-size: 18px;
+}
+
+/* ---------- Tables ---------- */
+td.so-wrap {
+  white-space: normal;
+}
+
+a.text-btn {
+  text-decoration: none;
+}
+
+a.text-btn:hover {
+  text-decoration: underline;
+}
+
+.so-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.so-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.so-trend > span:last-child {
+  color: var(--content-secondary);
+}
+
+#soa-calls tbody tr[data-id] {
+  cursor: pointer;
+}
+
+/* ---------- Chips ---------- */
+.chip-so {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  background: #eff2f8;
+  color: #42546b;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.chip-so-stage {
+  margin: 2px 4px 2px 0;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* ---------- Drill-down links ---------- */
+a.so-drill {
+  color: inherit;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: var(--radius-sm);
+}
+
+a.so-drill:hover,
+a.so-cell:hover {
+  text-decoration: underline;
+}
+
+a.so-drill:focus-visible,
+a.so-cell:focus-visible,
+.so-slice:focus-visible,
+.so-seg:focus-visible {
+  outline: 2px solid var(--content-accent);
+  outline-offset: 2px;
+}
+
+.so-kpis .kpi-metric a.so-drill b {
+  font-weight: 700;
+}
+
+.so-muted {
+  color: var(--content-secondary);
+}
+
+.so-hit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 12px 2px 0;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--content-secondary);
+}
+
+#sol-table tbody tr[data-id] {
+  cursor: pointer;
+}
+
+/* ---------- Page headers: title on top, filters below (right-aligned) ---------- */
+#page-sodash .page-header,
+#page-somatrix .page-header,
+#page-socalls .page-header,
+#page-soagent .page-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+}
+
+#page-sodash .filters,
+#page-somatrix .filters,
+#page-socalls .filters,
+#page-soagent .filters {
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  flex: none;
+}
+
+#page-sodash .page-header p,
+#page-somatrix .page-header p,
+#page-socalls .page-header p {
+  white-space: normal;
+}
+
+/* ---------- Agent Matrix ---------- */
+.so-matrix-wrap {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.so-matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.so-matrix th:first-child,
+.so-matrix td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bg-primary);
+  box-shadow: 1px 0 0 var(--border-primary);
+}
+
+.so-matrix thead th:first-child {
+  z-index: 3;
+  background: var(--bg-secondary);
+}
+
+.so-matrix tbody tr:hover td:first-child {
+  background: var(--bg-secondary);
+}
+
+.so-matrix tfoot td {
+  position: sticky;
+  bottom: 0;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-primary);
+  padding: 16px 8px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.so-matrix tfoot td:first-child {
+  left: 0;
+  z-index: 2;
+  background: var(--bg-secondary);
+}
+
+a.so-cell {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.so-dim {
+  opacity: 0.3;
+}
+
+/* ---------- Performance level slices (legend, breakdown bar) ---------- */
+.so-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.so-dist-card .so-legend {
+  margin-bottom: 0;
+}
+
+.so-slice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 31px;
+  padding: 0 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.so-slice i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.so-slice b {
+  font-weight: 700;
+  color: var(--content-secondary);
+}
+
+.so-slice:hover {
+  background: var(--bg-secondary);
+}
+
+.so-slice[aria-pressed="true"] {
+  border-color: var(--content-accent);
+  background: var(--bg-accent-light);
+  color: var(--content-accent);
+}
+
+.so-dist {
+  display: flex;
+  height: 16px;
+  gap: 2px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.so-seg {
+  min-width: 4px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+}
+
+.so-seg:hover {
+  filter: brightness(1.1);
+}
+
+#sol-kpis .so-dist-card {
+  flex: 2;
+  gap: 12px;
+}
+
+/* ---------- Agent view ---------- */
+#page-soagent .agent-title {
+  margin-bottom: 0;
+}
+
+/* ---------- Call details ---------- */
+.so-kv {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.so-kv .k {
+  color: var(--content-secondary);
+}
+
+.so-kv b {
+  font-weight: 400;
+}
+
+#page-socall .page-header h1 {
+  font-size: 22px;
+}
+
+.so-dl {
+  display: grid;
+  place-items: center;
+  width: 41px;
+  height: 41px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--content-primary);
+  cursor: pointer;
+}
+
+.so-dl:hover {
+  background: var(--bg-secondary);
+}
+
+#soc-results {
+  display: flex;
+  flex-direction: column;
+}
+
+.so-stage .stage-head {
+  gap: 8px;
+}
+
+.so-stage .stage-title {
+  flex: 0 1 auto;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.so-stage .stage-head .chev {
+  margin-left: auto;
+}
+
+.so-stage .stage-body {
+  padding: 8px 0;
+}
+
+.so-stage .stage-body p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--content-primary);
+}
+
+.so-who {
+  font-weight: 700;
+}
+
+#soc-transcript .tx-agent {
+  background: var(--bg-accent-light);
+}
+
+#soc-transcript .tx-client {
+  background: var(--bg-primary);
+}
+
+#soc-transcript .tx {
+  cursor: pointer;
+}
