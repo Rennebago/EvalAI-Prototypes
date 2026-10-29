@@ -11,34 +11,6 @@
   font-size: 14px;
 }
 
-/* ---------- Multi-select dropdown ---------- */
-.dd-multi .dd-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.dd-check {
-  display: grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-sm);
-  background: var(--bg-primary);
-  color: var(--content-accent);
-}
-
-.dd-option[aria-selected="true"] .dd-check {
-  border-color: var(--content-accent);
-}
-
-.dd-multi .dd-clear {
-  padding-left: 12px;
-  color: var(--content-accent);
-}
-
 /* ---------- Dashboard layout ---------- */
 .so-split {
   display: flex;
@@ -102,10 +74,17 @@ a.text-btn:hover {
 .chip-so {
   display: inline-block;
   margin: 2px 4px 2px 0;
-  background: #eff2f8;
-  color: #42546b;
+  background: var(--bg-informational);
+  color: var(--content-informational);
   white-space: nowrap;
   vertical-align: middle;
+}
+
+/* "Not required" is outlined so it reads differently from Incomplete. */
+.chip-NotRequired {
+  background: transparent;
+  color: var(--content-secondary);
+  box-shadow: inset 0 0 0 1px var(--border-primary);
 }
 
 .chip-so-stage {
@@ -122,17 +101,15 @@ a.so-drill {
   border-radius: var(--radius-sm);
 }
 
-a.so-drill:hover,
-a.so-cell:hover {
+a.so-drill:hover {
   text-decoration: underline;
 }
 
 a.so-drill:focus-visible,
-a.so-cell:focus-visible,
 .so-slice:focus-visible,
 .so-seg:focus-visible {
-  outline: 2px solid var(--content-accent);
-  outline-offset: 2px;
+  outline: 0;
+  box-shadow: var(--focus-ring);
 }
 
 .so-kpis .kpi-metric a.so-drill b {
@@ -159,7 +136,7 @@ a.so-cell:focus-visible,
 
 /* ---------- Page headers: title on top, filters below (right-aligned) ---------- */
 #page-sodash .page-header,
-#page-somatrix .page-header,
+#page-socreditors .page-header,
 #page-socalls .page-header,
 #page-soagent .page-header {
   flex-direction: column;
@@ -168,7 +145,7 @@ a.so-cell:focus-visible,
 }
 
 #page-sodash .filters,
-#page-somatrix .filters,
+#page-socreditors .filters,
 #page-socalls .filters,
 #page-soagent .filters {
   justify-content: flex-end;
@@ -178,12 +155,12 @@ a.so-cell:focus-visible,
 }
 
 #page-sodash .page-header p,
-#page-somatrix .page-header p,
+#page-socreditors .page-header p,
 #page-socalls .page-header p {
   white-space: normal;
 }
 
-/* ---------- Agent Matrix ---------- */
+/* ---------- Matrix tables (dashboard Agent Performance, creditor ratings) ---------- */
 .so-matrix-wrap {
   max-height: 70vh;
   overflow: auto;
@@ -218,7 +195,7 @@ a.so-cell:focus-visible,
   bottom: 0;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-primary);
-  padding: 16px 8px;
+  padding: 8px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -227,12 +204,6 @@ a.so-cell:focus-visible,
   left: 0;
   z-index: 2;
   background: var(--bg-secondary);
-}
-
-a.so-cell {
-  display: inline-block;
-  text-decoration: none;
-  color: inherit;
 }
 
 .so-dim {
@@ -309,6 +280,18 @@ a.so-cell {
   gap: 12px;
 }
 
+/* On a creditor's page the card sits inside the Calls card, so it drops its own border and padding. */
+#sol-dist .so-dist-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: none;
+}
+
 /* ---------- Agent view ---------- */
 #page-soagent .agent-title {
   margin-bottom: 0;
@@ -331,7 +314,7 @@ a.so-cell {
 }
 
 #page-socall .page-header h1 {
-  font-size: 22px;
+  font-size: 24px;
 }
 
 .so-dl {
@@ -353,6 +336,12 @@ a.so-cell {
 #soc-results {
   display: flex;
   flex-direction: column;
+}
+
+.so-accts {
+  align-self: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .so-stage .stage-head {
@@ -394,4 +383,16 @@ a.so-cell {
 
 #soc-transcript .tx {
   cursor: pointer;
+}
+
+/* Marks where a dropped call was picked back up (stitched calls). */
+.so-stitch-div {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border: 1px dashed var(--border-primary);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--content-secondary);
+  font-size: 12px;
+  text-align: center;
 }

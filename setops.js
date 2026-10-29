@@ -4,15 +4,17 @@
 // and reuses their helpers. The seven agents in the dashboard table and Sara Chen's outbound calls are drawn in the
 // design; everything else is generated.
 
-const SO_LEVEL = { "Not required": 0, Poor: 1, Fair: 2, Good: 3, Excellent: 4 };
-const SO_NAMES = ["Not required", "Poor", "Fair", "Good", "Excellent"];
+// Rating scale from the SetOps rubric: Not required (-1), Incomplete (0), Poor (1), Fair (2), Good (3), Excellent (4).
+const SO_LEVEL = { "Not required": -1, Incomplete: 0, Poor: 1, Fair: 2, Good: 3, Excellent: 4 };
+const SO_NAMES = ["Incomplete", "Poor", "Fair", "Good", "Excellent"]; // indexed by level 0-4
 const SO_CODE = { E: "Excellent", G: "Good", F: "Fair", P: "Poor", N: "Not required" };
 const SO_COLOR = { "Not required": "#c0cbd8", Incomplete: "#5c708a", Poor: "#cf264e", Fair: "#e39b0d", Good: "#048155", Excellent: "#3300ff" };
 const SO_GRADE_ORDER = ["Not required", "Incomplete", "Poor", "Fair", "Good", "Excellent"];
 
-// Call stages. `dash` is the label in the dashboard stage table, `col` the agent-table column, `page` the label on the
-// agent view, `chip` the short name in call chips and `res` the heading in call results. `good`, `weak` and `nr` are
-// the result text for a call; `qg` and `qw` the agent quote that goes with it. Only stages with `nr` can be not required.
+// Call stages (rubric: "SetOps Ground Truth for EvalAI"). `dash` is the label in the dashboard stage table, `col` the
+// agent-table column, `page` the label on the agent view, `chip` the short name in call chips and `res` the heading in
+// call results. `rub` is the rubric description for each rating (outbound); `rubIn` overrides it where the inbound rubric
+// differs. `qg` and `qw` are the agent quote shown with a strong (Good or better) or weak rating.
 const SO_STAGES = [
   {
     dash: "Opening & Disclosures",
@@ -20,10 +22,21 @@ const SO_STAGES = [
     page: "Opening & Disclosures",
     chip: "Opening & Disclosures",
     res: "Opening & Disclosures",
-    good: "The agent introduces herself and her company, and provides the call recording disclosure. She also asks for a callback number, which is a good practice for inbound calls.",
+    rub: {
+      "Not required": "The agent was never connected to a live representative, or this is not the first account on a multiple account call, so no opening or disclosure was required.",
+      Incomplete: "The agent fails to introduce themselves or their company, and fails to provide the required call recording disclosure.",
+      Poor: "The agent provides a partial introduction (e.g., name only) or gives the disclosure but fails to properly introduce themselves.",
+      Fair: "The agent introduces themselves and their company, and provides the call recording disclosure, meeting the minimum requirements.",
+      Good: "The agent provides a full introduction and disclosure in a professional and clear tone, and states the purpose of the call.",
+      Excellent: "The agent completes all requirements of 'Good' and uses a warm and courteous greeting (e.g., \"Good morning\"), building rapport from the start of the call.",
+    },
+    rubIn: {
+      "Not required": "This is not the first account on a multiple account call, so the opening and disclosure were already given.",
+      Good: "The agent provides a full introduction and disclosure in a professional and clear tone, and asks for the purpose of the call.",
+    },
     qg: "Good morning, Mrs. Burris. This is Shai Brown with Freedom Debt Relief. I am reaching out, attempting to settle an account. Are you available now?",
-    weak: "The agent introduced the company but skipped the call recording disclosure and did not ask for a callback number.",
     qw: "Hi, this is Freedom Debt Relief, calling about an account.",
+
   },
   {
     dash: "Account Verification",
@@ -31,9 +44,23 @@ const SO_STAGES = [
     page: "Account Verification",
     chip: "Account Verification",
     res: "Account Verification",
-    good: "The agent asks for the client's name and last four of social, and then the last four of the account number, which are all required for verification.",
+    rub: {
+      "Not required": "The agent was never connected to a live representative, so the account could not be verified.",
+      Incomplete: "The agent fails to provide any of the necessary information to locate the client's account.",
+      Poor: "The agent provides only one of the required verification points (name, account #, or SSN), causing delays.",
+      Fair: "The agent provides some, but not all, of the required information, requiring the representative to prompt for the missing details.",
+      Good: "The agent clearly and accurately provides all required information (client name, account number, last four of SSN), allowing the representative to locate the account efficiently.",
+      Excellent: "The agent completes all requirements of 'Good' and proactively confirms the representative has located the correct account before proceeding, ensuring accuracy.",
+    },
+    rubIn: {
+      "Not required": "The creditor called for a reason not related to a client, so account verification was not required.",
+      Incomplete: "The agent fails to ask for any of the necessary information to locate the client's account, or provides the client's SSN.",
+      Poor: "The agent asks for only one of the required verification points (name, account #, or SSN). The agent may provide the address and last 4 of the account first without issue.",
+      Fair: "The agent asks for some, but not all, of the required verification points (name, account #, or SSN). The agent may provide the address and last 4 of the account first without issue.",
+      Good: "The agent clearly and accurately asks for all required information (client name, account number, last four of SSN), allowing the account to be located accurately.",
+      Excellent: "The agent completes all requirements of 'Good' and proactively confirms they have located the correct account before proceeding, ensuring accuracy.",
+    },
     qg: "Can I get the client's name and the last four of their social?",
-    weak: "The agent verified the client's name but did not confirm the last four of the account number before discussing the account.",
     qw: "Okay, I've got the account pulled up here.",
   },
   {
@@ -42,34 +69,50 @@ const SO_STAGES = [
     page: "Authorization to Communicate on File (ATC)",
     chip: "ATC",
     res: "ATC",
-    good: "The agent confirmed the authorization to communicate on file before sharing account details.",
-    qg: "I can see the authorization on file, thank you.",
-    weak: "The agent shared account details without first confirming the authorization to communicate.",
+    rub: {
+      "Not required": "The creditor did not ask for ATC/POA, or stated that authorization is already on file, so the agent did not need to resend it.",
+      Incomplete: "The ATC was not on file, and the agent continued or ended the call without confirming the method or timeline for processing, a major compliance lapse.",
+      Poor: "The ATC was not on file, and the agent confirmed only one of the required details (the method for sending it or the processing timeline). Next steps remain vague.",
+      Fair: "The ATC was not on file, and the agent confirmed both the method for sending the document and the processing timeline. All compliance requirements were met.",
+      Good: "The agent confirmed the method and timeline for the ATC, and also sought to get it processed during the call to expedite processing.",
+      Excellent: "The agent completed everything required for 'Good' with exceptional clarity, and confirmed the next steps back to the creditor so there was no ambiguity about the path forward.",
+    },
+    qg: "So, I will fax the document immediately, and you confirm we should see processing complete within 24 hours?",
     qw: "The balance on that account is $9,412.",
-    nr: "The creditor did not ask for ATC/POA, so this step is not required.",
   },
   {
-    dash: "Account Information & Client Hardship",
+    dash: "Account Information, Client Hardship",
     col: "Account Info & Client Hardship",
     page: "Account Information and Client Hardship",
-    chip: "Hardship Docs",
+    chip: "Account Info & Hardship",
     res: "Account Info & Client Hardship",
-    good: "The agent confirms the account balance with the creditor. The client's hardship reason was not prompted.",
+    rub: {
+      "Not required": "The creditor could not locate the client or account, or the account was sent to another creditor, so the agent was unable to verify information.",
+      Incomplete: "The agent fails to request account information, like the balance, and does not present the client's hardship when asked.",
+      Poor: "The agent fails to either ask for account information, like the balance, or present the client's hardship when asked, but not both.",
+      Fair: "The agent confirms the account information but is unprepared to provide a hardship reason when prompted, causing delays in the call.",
+      Good: "The agent confirms the current account balance and provides the client's hardship reason if prompted.",
+      Excellent: "The agent completes all requirements of 'Good' and presents the hardship in a way that is used as leverage in negotiations.",
+    },
     qg: "Can you confirm the balance on that account for me?",
-    weak: "The agent did not confirm the balance or ask about the client's hardship before moving on.",
     qw: "Alright, let's move on to the next account.",
   },
   {
-    dash: "Initial Offer & Outcome",
-    col: "Initial Offer & Outcomes",
-    page: "Initial Offer and Outcome",
+    dash: "Initial Offer & Negotiation",
+    col: "Initial Offer & Negotiation",
+    page: "Initial Offer and Negotiation",
     chip: "Initial Offer",
-    res: "Initial Offer & Outcome",
-    good: "The agent presented the initial offer clearly and explained how it was calculated.",
-    qg: "Based on the balance, we are able to offer 45 percent of the total.",
-    weak: "The agent presented an offer without explaining how it was calculated or confirming the client's budget.",
-    qw: "We can do 60 percent, take it or leave it.",
-    nr: "The account was not ready for settlement, so negotiations did not occur.",
+    res: "Initial Offer & Negotiation",
+    rub: {
+      "Not required": "The account or client could not be located, or the account is not yet eligible for settlement, so negotiations did not occur.",
+      Incomplete: "The agent does not present a settlement offer when eligible, and does not attempt to hold firm or counter the creditor's initial offer.",
+      Poor: "The agent makes an initial offer but does not negotiate when the creditor pushes back, or accepts the creditor's first offer without trying for better terms.",
+      Fair: "The agent makes an initial offer but is not firm, or makes only a weak attempt to counter the creditor's initial offer.",
+      Good: "The agent makes an initial offer and is firm if countered or, when the creditor makes the first offer, makes a decisive counter or negotiates to a better offer.",
+      Excellent: "A definitive outcome is reached: the agent's initial offer is approved or, if challenged, the agent confidently holds firm to secure the best possible outcome for the client.",
+    },
+    qg: "Based on the balance, we are able to offer $4,200 to settle this account.",
+    qw: "We can do $6,000, take it or leave it.",
   },
   {
     dash: "Counter Offer & Outcome",
@@ -77,11 +120,20 @@ const SO_STAGES = [
     page: "Counter Offer and Outcome",
     chip: "Counter Offer",
     res: "Counter Offer & Outcome",
-    good: "The agent handled the counter offer professionally and documented the creditor's response.",
+    rub: {
+      "Not required": "Negotiations did not occur (the account was not located or not eligible), so no counter offer was made and no settlement outcome was reached.",
+      Incomplete: "No outcome is reached, and neither the agent nor the creditor makes a counter offer to the first presented offer.",
+      Poor: "If countered, the agent fails to acknowledge or accurately record the terms, and either no outcome is reached or the agent accepts the counter offer without pushback.",
+      Fair: "If countered, the agent acknowledges the counter offer but fails to confirm all specific details, and an outcome for the settlement is reached.",
+      Good: "If countered, the agent clearly acknowledges the counter offer, repeats the specific terms back to ensure accuracy, and an outcome for the settlement is reached.",
+      Excellent: "The agent completes all requirements of 'Good' and asks the representative for a clear timeframe for the SIF/offer letter to be sent or processed.",
+    },
+    rubIn: {
+      Poor: "A counter offer is presented, but the agent fails to acknowledge or accurately record its terms, and either no outcome is reached or the agent accepts the counter offer without pushback.",
+      Excellent: "The agent completes all requirements of 'Good' and manages expectations by giving the representative a clear timeframe for follow-up.",
+    },
     qg: "I understand. Let me note your counter and see if we can meet in the middle.",
-    weak: "The agent accepted the counter offer without checking it against the approved range.",
     qw: "Sure, that works for us.",
-    nr: "Since negotiations did not occur, no counter offer was made and no settlement outcome was reached.",
   },
   {
     dash: "Payment Arrangement",
@@ -89,11 +141,19 @@ const SO_STAGES = [
     page: "Payment Arrangement",
     chip: "Payment Arrangement",
     res: "Payment Arrangement",
-    good: "The agent confirmed the payment amount, date and method, and read back the arrangement.",
-    qg: "So that is $1,200 on the 15th by ACH. Does that work for the client?",
-    weak: "The agent did not read back the payment date and method before ending the discussion.",
+    rub: {
+      "Not required": "No settlement discussion occurred, or the account could not reach agreed terms on the call, so no payment arrangement was required.",
+      Incomplete: "An offer is approved, but no payment schedule details are discussed or confirmed.",
+      Poor: "A payment arrangement is mentioned, but the agent fails to confirm the specific details like amounts, dates, or number of payments.",
+      Fair: "The agent confirms most, but not all, of the required payment schedule details, leaving some ambiguity.",
+      Good: "After an approved offer, the agent clearly outlines the number of payments, their specific amounts and the start date, and asks when the SIF/settlement/offer letter should be received.",
+      Excellent: "The agent completes all requirements of 'Good' and confirms the payment method and frequency, ensuring perfect clarity for all parties.",
+    },
+    rubIn: {
+      "Not required": "The creditor could not provide verification details so this step was not reached, or the account is not eligible to settle.",
+    },
+    qg: "So that is $1,200 on the 15th by ACH, and when should we expect the SIF letter?",
     qw: "We'll set that up and send you the details.",
-    nr: "Since no offer was approved, no payment arrangement details were discussed.",
   },
   {
     dash: "Closing",
@@ -101,16 +161,29 @@ const SO_STAGES = [
     page: "Closing",
     chip: "Closing",
     res: "Closing",
-    good: "The agent confirms there are no further accounts, offers a thank you, and ends the call professionally.",
+    rub: {
+      "Not required": "The call disconnected before the agent could close, the call never connected to a live representative, or this is not the final account on a multiple account call.",
+      Incomplete: "The agent ends the call abruptly with no closing statement.",
+      Poor: "The agent ends the call without thanking the representative or confirming the call's business is concluded.",
+      Fair: "The agent confirms the call's business is concluded or thanks the representative, but not both.",
+      Good: "The agent confirms the call's business is concluded, thanks the representative for their time, and ends the call professionally.",
+      Excellent: "The agent completes all requirements of 'Good' and adds a forward-looking or rapport-building statement (e.g., \"If I have more, I'll call back\").",
+    },
+    rubIn: {
+      "Not required": "The call disconnected before this stage, or this is not the final account on a multiple account call.",
+      Fair: "The agent confirms there are no more accounts to discuss but fails to thank the representative for their assistance.",
+      Good: "The agent confirms there are no further accounts, offers a sincere thank you for the representative's time, and ends the call professionally.",
+    },
     qg: "Is there anything else I can help you with today? Thank you, have a great day.",
-    weak: "The agent ended the call without confirming whether there were additional accounts.",
     qw: "Alright, bye.",
   },
 ];
 const SO_CHIPS = SO_STAGES.map((s) => s.chip);
+// Stages that agent-level ratings can leave out (ATC and the negotiation steps).
+const SO_CAN_SKIP = [2, 4, 5, 6];
 
 const SO_WGS = [
-  { name: "SetPrep", score: 82, calls: 124, top: ["Opening & Disclosures"], bottom: ["Hardship Docs"] },
+  { name: "SetPrep", score: 82, calls: 124, top: ["Opening & Disclosures"], bottom: ["Account Info & Hardship"] },
   { name: "ARP", score: 92, calls: 89, top: ["Account Verification"], bottom: ["Closing", "ATC"] },
   { name: "DWA", score: 76, calls: 93, top: ["Opening & Disclosures"], bottom: ["ATC"] },
 ];
@@ -127,6 +200,14 @@ const SO_STAGE_ROWS = [
   ["Fair", "DWA", "SetPrep"],
 ];
 
+// Creditors on the calls. Names come from the ground truth call sheets; "Unidentified" is what the sheets use when the
+// creditor is not named on the call. Each call is assigned one creditor from its id (prototype data), see soCreditorOf.
+const SO_CREDITORS = ["Bank of America", "BMO Bank", "Capital One", "Carson Smithfield", "Discover", "Green Sky", "Mariner Finance", "Navy Federal Credit Union", "Net Financial", "Opportune", "Regional Finance", "Unidentified"];
+// Unidentified is listed three times so it shows up as often as it does in the sheets.
+const SO_CRED_POOL = [...SO_CREDITORS, "Unidentified", "Unidentified"];
+const soCreditorOf = (id) => SO_CRED_POOL[hash(id + "so-creditor") % SO_CRED_POOL.length];
+
+// Call tags, as named in the ground truth sheets (Call Tag A-D).
 const SO_TAGS = [
   "Follow up calls",
   "Settlement Approval",
@@ -134,8 +215,8 @@ const SO_TAGS = [
   "Inbound call Creditor callback",
   "Multiple Account call",
   "Settlement Offer SNIP",
-  "Non-Settlement Calls",
-  "Authorized required call",
+  "Non-Settlement Call",
+  "Authorization required call",
   "Settlement Pending Creditor Approval",
 ];
 
@@ -205,7 +286,7 @@ const SO_AGENTS = [
   ...SO_EXTRA_AGENTS.map(([name, wg]) => {
     const rand = rng(hash(name + "so-agent"));
     const score = Math.round(40 + rand() * 55);
-    const r = SO_STAGES.map((s, i) => (s.nr && rand() < 0.15 ? "Not required" : genRating(rand, score)));
+    const r = SO_STAGES.map((s, i) => (SO_CAN_SKIP.includes(i) && rand() < 0.15 ? "Not required" : genRating(rand, score)));
     return soMakeAgent(name, wg, 10 + Math.floor(rand() * 35), score, r);
   }),
 ];
@@ -221,9 +302,10 @@ const SO_RANGES = {
 // Every Call Direction filter offers the same three choices: All, Inbound and Outbound.
 const SO_DIR_F = { All: 1, Inbound: 0.4, Outbound: 0.6 };
 const SO_TAG_ALL = "Filter by Call Tag";
+const SO_CRED_ALL = "Filter by Creditor";
 const SO_STAGE_ALL = "Filter by Call Stage";
 const SO_LEVEL_ALL = "Filter by Performance Level";
-const SO_LEVEL_OPTS = ["Excellent", "Good", "Fair", "Poor", "Not required"];
+const SO_LEVEL_OPTS = ["Excellent", "Good", "Fair", "Poor", "Incomplete", "Not required"];
 const SO_AGENT_ALL = "All agents";
 const SO_DIR_BOTH = "All";
 const SO_DIR_OPTS = Object.keys(SO_DIR_F);
@@ -232,13 +314,13 @@ const SO_DIR_PREFIX = { prefix: "Direction: " };
 const SO_NO_SORT = () => ({ key: null, dir: "asc" });
 const soState = {
   user: SO_USERS[0],
-  dash: { date: "This month", wg: "All", tag: SO_TAG_ALL, stage: SO_STAGE_ALL, level: SO_LEVEL_ALL, dir: SO_DIR_BOTH, query: "", wgSort: SO_NO_SORT(), stSort: SO_NO_SORT(), a: { page: 1, size: 10, sort: SO_NO_SORT() } },
-  // Matrix filters are multi-select: a list of chosen values, where an empty list means "all".
-  matrix: { query: "", wg: [], sup: [], stage: [], level: [], dir: "Outbound", sort: SO_NO_SORT() },
+  dash: { date: "This month", wg: "All", creditor: SO_CRED_ALL, tag: SO_TAG_ALL, stage: SO_STAGE_ALL, level: SO_LEVEL_ALL, dir: SO_DIR_BOTH, query: "", wgSort: SO_NO_SORT(), stSort: SO_NO_SORT(), crSort: SO_NO_SORT(), a: { page: 1, size: 10, sort: SO_NO_SORT() } },
   // Call Records list: every filter is also in the URL (see soCallsHash), so any slice can be deep-linked.
-  calls: { agent: null, wg: "All", stage: SO_STAGE_ALL, level: SO_LEVEL_ALL, tag: SO_TAG_ALL, dir: SO_DIR_BOTH, page: 1, size: 10, sort: SO_NO_SORT(), back: { href: "#/setops", label: "Dashboard" } },
-  agent: { a: null, dir: "Outbound", date: "This week", tag: SO_TAG_ALL, stage: SO_STAGE_ALL, st: SO_NO_SORT(), c: { page: 1, size: 10, sort: SO_NO_SORT() } },
-  call: { call: null, tab: "results", open: null, pos: 0, playing: false, timer: null },
+  calls: { agent: null, wg: "All", creditor: SO_CRED_ALL, stage: SO_STAGE_ALL, level: SO_LEVEL_ALL, tag: SO_TAG_ALL, dir: SO_DIR_BOTH, page: 1, size: 10, sort: SO_NO_SORT(), back: { href: "#/setops", label: "Dashboard" } },
+  // Creditors overview: workgroup, call tag and direction narrow the calls; the date range only scales the numbers.
+  cred: { date: "This month", wg: "All", tag: SO_TAG_ALL, dir: SO_DIR_BOTH, query: "", sort: SO_NO_SORT(), mSort: SO_NO_SORT() },
+  agent: { a: null, dir: "Outbound", date: "This week", tag: SO_TAG_ALL, stage: SO_STAGE_ALL, hidden: new Set(), cr: SO_NO_SORT(), c: { page: 1, size: 10, sort: SO_NO_SORT() } },
+  call: { call: null, tab: "results", open: null, acct: 0, pos: 0, playing: false, timer: null },
 };
 
 // ---------- Helpers ----------
@@ -246,7 +328,7 @@ const soLetter = (s) => (s >= 90 ? "A" : s >= 80 ? "B" : s >= 60 ? "C" : s >= 50
 const SO_LETTER_CHIP = { A: "Excellent", B: "Good", C: "Fair", D: "Fair", F: "Poor" };
 const soGrade = (s) => `<span class="chip chip-${SO_LETTER_CHIP[soLetter(s)]}">${soLetter(s)}</span>`;
 const soScore = (s) => `<span class="so-score">${soGrade(s)}<span>${s}%</span></span>`;
-const soChip = (g) => `<span class="chip chip-${g === "Not required" ? "Incomplete" : g}">${g}</span>`;
+const soChip = (g) => `<span class="chip chip-${g === "Not required" ? "NotRequired" : g}">${g}</span>`;
 const soTagChip = (t) => `<span class="chip chip-so">${esc(t)}</span>`;
 const soAgentLink = (a, label) => `<a class="agent-link" href="#/setops/agent/${a.slug}">${esc(label || a.name)}</a>`;
 const soN = (n) => Math.round(n).toLocaleString("en-US");
@@ -283,9 +365,9 @@ const soCanView = (a) => soScopeAgents().includes(a);
 const soIsFullScope = () => soScopeAgents().length === SO_AGENTS.length;
 const soSum = (list) => list.reduce((s, x) => s + x, 0);
 const soAvg = (list) => soSum(list) / list.length;
-// Mean rating level of a stage across agents; null when no agent was rated (all "Not required").
+// Mean rating level of a stage across agents; null when no agent was rated (all "Not required"). Incomplete counts as 0.
 function soStageMean(agents, i) {
-  const lv = agents.map((a) => a.lv[i]).filter((l) => l > 0);
+  const lv = agents.map((a) => a.lv[i]).filter((l) => l >= 0);
   return lv.length ? soAvg(lv) : null;
 }
 
@@ -309,7 +391,7 @@ function soStageRows() {
   return SO_STAGES.map((s, i) => {
     const m = soStageMean(agents, i);
     const by = wgs.map((w) => ({ w, m: soStageMean(agents.filter((a) => a.wg === w), i) })).filter((x) => x.m !== null).sort((x, y) => y.m - x.m);
-    return [m === null ? "Not required" : SO_NAMES[soClamp(Math.round(m), 1, 4)], by.length ? by[0].w : "–", by.length ? by[by.length - 1].w : "–"];
+    return [m === null ? "Not required" : SO_NAMES[soClamp(Math.round(m), 0, 4)], by.length ? by[0].w : "–", by.length ? by[by.length - 1].w : "–"];
   });
 }
 
@@ -319,13 +401,14 @@ const soUserOf = (id) => SO_USERS.find((u) => u.id === id);
 // Does a rating list match the Call Stage and Performance Level filters? Level alone means "any stage at that level".
 const soRatesMatch = (ratings, stage, level) =>
   (stage === SO_STAGE_ALL && level === SO_LEVEL_ALL) || SO_STAGES.some((s, i) => (stage === SO_STAGE_ALL || s.chip === stage) && (level === SO_LEVEL_ALL || ratings[i] === level));
-const soLevelOf = (m) => (m === null ? "Not required" : SO_NAMES[soClamp(Math.round(m), 1, 4)]);
+const soLevelOf = (m) => (m === null ? "Not required" : SO_NAMES[soClamp(Math.round(m), 0, 4)]);
 
-const SO_CALLS_DEFAULT = { agent: null, wg: "All", stage: SO_STAGE_ALL, level: SO_LEVEL_ALL, tag: SO_TAG_ALL, dir: SO_DIR_BOTH };
+const SO_CALLS_DEFAULT = { agent: null, wg: "All", creditor: SO_CRED_ALL, stage: SO_STAGE_ALL, level: SO_LEVEL_ALL, tag: SO_TAG_ALL, dir: SO_DIR_BOTH };
 function soCallsHash(f = soState.calls) {
   const p = new URLSearchParams();
   if (f.agent) p.set("agent", f.agent);
   if (f.wg !== "All") p.set("wg", f.wg);
+  if (f.creditor !== SO_CRED_ALL) p.set("creditor", f.creditor);
   if (f.stage !== SO_STAGE_ALL) p.set("stage", f.stage);
   if (f.level !== SO_LEVEL_ALL) p.set("level", f.level);
   if (f.tag !== SO_TAG_ALL) p.set("tag", f.tag);
@@ -340,6 +423,7 @@ function soParseCalls(hash) {
   return {
     agent: pick("agent", (v) => SO_BY_SLUG.has(v), null),
     wg: pick("wg", (v) => SO_WGS.some((w) => w.name === v), "All"),
+    creditor: pick("creditor", (v) => SO_CREDITORS.includes(v), SO_CRED_ALL),
     stage: pick("stage", (v) => SO_CHIPS.includes(v), SO_STAGE_ALL),
     level: pick("level", (v) => SO_LEVEL_OPTS.includes(v), SO_LEVEL_ALL),
     tag: pick("tag", (v) => SO_TAGS.includes(v), SO_TAG_ALL),
@@ -352,7 +436,7 @@ const soDrillLink = (p, html, title) => `<a class="so-drill" href="${esc(soDrill
 // Drill-down from the dashboard keeps the dashboard's own filters unless the slice overrides them.
 const soDashDrill = (p, html, title) => {
   const d = soState.dash;
-  return soDrillLink({ wg: d.wg, stage: d.stage, level: d.level, tag: d.tag, dir: d.dir, ...p }, html, title);
+  return soDrillLink({ wg: d.wg, creditor: d.creditor, stage: d.stage, level: d.level, tag: d.tag, dir: d.dir, ...p }, html, title);
 };
 
 function soPaintUser() {
@@ -381,20 +465,38 @@ function soDashPool() {
     .filter((a) => soRatesMatch(a.r, d.stage, d.level));
 }
 
+// Calls behind a set of dashboard agents for the dashboard's direction and call tag.
+function soDashCalls(agents) {
+  const d = soState.dash;
+  const dirs = d.dir === SO_DIR_BOTH ? ["Outbound", "Inbound"] : [d.dir];
+  return agents.flatMap((a) => dirs.flatMap((dir) => soCalls(SO_BY_SLUG.get(a.slug), dir))).filter((c) => d.tag === SO_TAG_ALL || c.tags.includes(d.tag));
+}
+// Share of `calls` that belong to the selected creditor (1 when no creditor is selected).
+function soCredShare(calls) {
+  const cr = soState.dash.creditor;
+  if (cr === SO_CRED_ALL) return 1;
+  return calls.length ? calls.filter((c) => c.creditor === cr).length / calls.length : 0;
+}
+// Scales the drawn totals to the date range, direction, call tag and the agents that match the filters.
+const soDashScale = (pool) => soDashFactor() * (soSum(pool.map((a) => a.calls)) / soSum(SO_AGENTS.map((a) => a.calls)));
+
 function soDashKpis() {
   const d = soState.dash;
   const r = SO_RANGES[d.date];
   const pool = soDashPool();
   const kpis = document.getElementById("sod-kpis");
-  if (!pool.length) {
+  const calls = soDashCalls(pool);
+  const byCreditor = d.creditor === SO_CRED_ALL ? calls : calls.filter((c) => c.creditor === d.creditor);
+  if (!pool.length || !byCreditor.length) {
     kpis.innerHTML = soKpi("Calls Evaluated", ["<b>–</b>", "<b>–</b>"]) + soKpi("Avg. Scoring", ["<b>–</b>", "<b>–</b>"]);
     return;
   }
   // Totals and scores follow the filtered pool: the drawn numbers apply to the full, unfiltered roster.
-  const f = soDashFactor() * (soSum(pool.map((a) => a.calls)) / soSum(SO_AGENTS.map((a) => a.calls)));
-  const drawn = soIsFullScope() && pool.length === SO_AGENTS.length;
-  const cur = soClamp((drawn ? 92 : Math.round(soAvg(pool.map((a) => a.score)))) + r.d, 0, 100);
-  const prev = drawn ? 54 : soClamp(cur - 6 + (hash(soState.user.id + "so-prev") % 9), 0, 100);
+  const f = soDashScale(pool) * soCredShare(calls);
+  const drawn = d.creditor === SO_CRED_ALL && soIsFullScope() && pool.length === SO_AGENTS.length;
+  const base = d.creditor === SO_CRED_ALL ? soAvg(pool.map((a) => a.score)) : soAvg(byCreditor.map((c) => c.score));
+  const cur = soClamp((drawn ? 92 : Math.round(base)) + r.d, 0, 100);
+  const prev = drawn ? 54 : soClamp(cur - 6 + (hash(soState.user.id + d.creditor + "so-prev") % 9), 0, 100);
   const total = (n) => soDashDrill({}, `<b>${soN(n)}</b>`, "View these calls");
   kpis.innerHTML =
     soKpi("Calls Evaluated", [`${total(8445 * f)}<span>${r.cur}</span>`, `<b>${soN(5246 * f)}</b><span>${r.prev}</span>`]) +
@@ -411,6 +513,41 @@ const SO_WG_COLS = [
 ];
 
 const soWgLink = (n) => `<button class="link-btn" type="button" data-wg="${esc(n)}" title="Filter the dashboard to ${esc(n)}">${esc(n)}</button>`;
+
+const soCreditorChip = (cls, creditor) => (n) => soDashDrill({ creditor, stage: n }, `<span class="chip chip-${cls} chip-so-stage">${esc(n)}</span>`, `View ${creditor} calls for ${n}`);
+const SO_CREDITOR_COLS = [
+  { key: "name", label: "Creditor", w: 18, sortable: true, render: (r) => soDashDrill({ creditor: r.name }, esc(r.name), `View ${r.name} calls`) },
+  { key: "score", label: "Avg. Scoring", w: 18, sortable: true, render: (r) => soScore(r.score) },
+  { key: "calls", label: "Calls", w: 10, sortable: true, render: (r) => soDashDrill({ creditor: r.name }, soN(r.calls), `View ${r.name} calls`) },
+  { key: "top", label: "Avg. Top Call Stage", w: 27, cls: "so-wrap", render: (r) => r.top.map(soCreditorChip("Good", r.name)).join("") },
+  { key: "bottom", label: "Avg. Bottom Call Stage", w: 27, cls: "so-wrap", render: (r) => r.bottom.map(soCreditorChip("Poor", r.name)).join("") },
+];
+
+// The call stage that comes up most often in `list` (ties go to the earlier stage), skipping `skip`.
+function soMostCommon(list, skip) {
+  const top = SO_CHIPS.filter((c) => c !== skip).map((c) => [c, list.filter((x) => x === c).length]).filter(([, n]) => n > 0).sort((x, y) => y[1] - x[1])[0];
+  return top ? top[0] : null;
+}
+
+// One row per creditor, built from the calls behind the dashboard. Call totals are scaled like the KPI card, so the rows add
+// up to Calls Evaluated (the Workgroup filter narrows the rows, not the scale).
+function soCreditorRows() {
+  const d = soState.dash;
+  const q = d.query.toLowerCase();
+  const pool = soDashPool();
+  const all = soDashCalls(pool);
+  if (!all.length) return [];
+  const scale = (8445 * soDashScale(pool)) / all.length;
+  const inWg = d.wg === "All" ? all : soDashCalls(pool.filter((a) => a.wg === d.wg));
+  return SO_CREDITORS.filter((n) => (d.creditor === SO_CRED_ALL || n === d.creditor) && (!q || n.toLowerCase().includes(q)))
+    .map((name) => {
+      const calls = inWg.filter((c) => c.creditor === name);
+      const top = soMostCommon(calls.flatMap((c) => c.top));
+      const bottom = soMostCommon(calls.flatMap((c) => c.bottom), top);
+      return { name, n: calls.length, calls: Math.max(1, Math.round(calls.length * scale)), score: calls.length ? Math.round(soAvg(calls.map((c) => c.score))) : 0, top: top ? [top] : [], bottom: bottom ? [bottom] : [] };
+    })
+    .filter((r) => r.n > 0);
+}
 const SO_STAGE_COLS = [
   { key: "name", label: "Call Stage", w: 37, sortable: true, render: (r) => soDashDrill({ stage: r.chip }, esc(r.name), `View calls for ${r.chip}`) },
   { key: "lvl", label: "Avg. Scoring", w: 18, sortable: true, render: (r) => soDashDrill({ stage: r.chip, level: r.rating }, soChip(r.rating), `View ${r.rating} calls for ${r.chip}`) },
@@ -418,13 +555,31 @@ const SO_STAGE_COLS = [
   { key: "bottom", label: "Bottom Workgroup", w: 23, render: (r) => (r.bottom === "–" ? r.bottom : soWgLink(r.bottom)) },
 ];
 
+// Agent Performance is the team matrix: every agent in the user's hierarchy against each call stage. Supervisor only shows when
+// the hierarchy has more than one (a supervisor sees their own team, a manager sees every team under them).
 const SO_AGENT_COLS = [
   { key: "name", label: "Agent", px: 157, sortable: true, render: (r) => soAgentLink(r) },
+  { key: "supName", label: "Supervisor", px: 130, sortable: true },
   { key: "wg", label: "Workgroup", px: 113, sortable: true },
   { key: "calls", label: "Calls", px: 70, sortable: true, render: (r) => soDashDrill({ agent: r.slug }, r.calls, `View ${r.name}'s calls`) },
-  { key: "score", label: "Avg. Scoring", px: 130, sortable: true, render: (r) => soGrade(r.score) },
+  { key: "score", label: "Avg. Scoring", px: 130, sortable: true, render: (r) => soScore(r.score) },
   ...SO_STAGES.map((s, i) => ({ key: "s" + i, label: s.col, px: 127, sortable: true, render: (r) => soDashDrill({ agent: r.slug, stage: s.chip, level: r.r[i] }, soChip(r.r[i]), `View ${r.name}'s ${r.r[i]} calls for ${s.chip}`) })),
 ];
+const soAgentCols = () => (new Set(soScopeAgents().map((a) => a.sup)).size > 1 ? SO_AGENT_COLS : SO_AGENT_COLS.filter((c) => c.key !== "supName"));
+
+// Footer: the team average per column across every agent that matches the filters, not just the page shown. Stage cells use the
+// mean rating level ("Not required" ratings are left out of the mean).
+function soAgentFoot(agents, cols) {
+  if (!agents.length) return "";
+  const cell = (c) => {
+    if (c.key === "name") return `Average (${agents.length} agent${agents.length === 1 ? "" : "s"})`;
+    if (c.key === "calls") return soN(soSum(agents.map((a) => a.calls)));
+    if (c.key === "score") return soScore(Math.round(soAvg(agents.map((a) => a.score))));
+    if (/^s\d$/.test(c.key)) return soChip(soLevelOf(soStageMean(agents, +c.key[1])));
+    return "";
+  };
+  return `<tfoot><tr>${cols.map((c) => `<td>${cell(c)}</td>`).join("")}</tr></tfoot>`;
+}
 
 const soDashValue = (r, k) => (/^s\d$/.test(k) ? r.lv[+k[1]] : r[k]);
 
@@ -432,7 +587,11 @@ function soDashAgents() {
   const d = soState.dash;
   const q = d.query.toLowerCase();
   const f = soDashFactor() / SO_RANGES["This month"].f;
-  const rows = soDashPool().filter((a) => (d.wg === "All" || a.wg === d.wg) && (!q || a.name.toLowerCase().includes(q) || a.wg.toLowerCase().includes(q))).map((a) => ({ ...a, calls: Math.max(1, Math.round(a.calls * f)) }));
+  const rows = soDashPool()
+    .filter((a) => (d.wg === "All" || a.wg === d.wg) && (!q || a.name.toLowerCase().includes(q) || a.wg.toLowerCase().includes(q)))
+    .map((a) => ({ ...a, supName: soUserOf(a.sup).name, share: soCredShare(soDashCalls([a])) }))
+    .filter((a) => a.share > 0)
+    .map((a) => ({ ...a, calls: Math.max(1, Math.round(a.calls * f * a.share)) }));
   return sortRows(rows, d.a.sort, soDashValue);
 }
 
@@ -445,15 +604,24 @@ function renderSoDash() {
   const empty = soScopeAgents().length === 0;
 
   const f = soDashFactor();
-  const poolWgs = new Set(soDashPool().map((a) => a.wg));
-  const wgs = soScopeWgs().filter((w) => poolWgs.has(w.name) && (d.wg === "All" || w.name === d.wg) && (!q || w.name.toLowerCase().includes(q))).map((w) => ({ ...w, calls: Math.max(1, Math.round(w.calls * f)) }));
+  const pool = soDashPool();
+  const wgs = soScopeWgs()
+    .filter((w) => (d.wg === "All" || w.name === d.wg) && (!q || w.name.toLowerCase().includes(q)))
+    .map((w) => ({ ...w, share: soCredShare(soDashCalls(pool.filter((a) => a.wg === w.name))) }))
+    .filter((w) => pool.some((a) => a.wg === w.name) && w.share > 0)
+    .map((w) => ({ ...w, calls: Math.max(1, Math.round(w.calls * f * w.share)) }));
   fillTable("sod-wg", SO_WG_COLS, d.wgSort, wsRows(SO_WG_COLS, sortRows(wgs, d.wgSort, (r, k) => r[k])), empty ? noRoster : "No workgroups match your filters.");
+
+  fillTable("sod-creditors", SO_CREDITOR_COLS, d.crSort, wsRows(SO_CREDITOR_COLS, sortRows(soCreditorRows(), d.crSort, (r, k) => r[k])), empty ? noRoster : "No creditors match your filters.");
 
   const rows = soStageRows();
   const stages = SO_STAGES.map((s, i) => ({ name: s.dash, chip: s.chip, rating: rows[i][0], lvl: SO_LEVEL[rows[i][0]], top: rows[i][1], bottom: rows[i][2] })).filter((s) => (d.stage === SO_STAGE_ALL || s.chip === d.stage) && (d.level === SO_LEVEL_ALL || s.rating === d.level));
   fillTable("sod-stages", SO_STAGE_COLS, d.stSort, wsRows(SO_STAGE_COLS, sortRows(stages, d.stSort, (r, k) => r[k])), empty ? noRoster : "No call stages match your filters.");
 
-  fillTable("sod-agents", SO_AGENT_COLS, d.a.sort, wsRows(SO_AGENT_COLS, soPager("sod-a", d.a, soDashAgents())), empty ? noRoster : "No agents match your filters.");
+  const agents = soDashAgents();
+  const agentCols = soAgentCols();
+  fillTable("sod-agents", agentCols, d.a.sort, wsRows(agentCols, soPager("sod-a", d.a, agents)), empty ? noRoster : "No agents match your filters.");
+  document.getElementById("sod-agents").insertAdjacentHTML("beforeend", soAgentFoot(agents, agentCols));
 }
 
 // ---------- Agent view ----------
@@ -466,12 +634,6 @@ function soAgentRatings(a, dir) {
   }
   const rand = rng(hash(a.slug + "so-inbound"));
   return a.r.map((g) => (g === "Not required" ? g : SO_NAMES[soClamp(SO_LEVEL[g] + [-1, 0, 0, 1][Math.floor(rand() * 4)], 1, 4)]));
-}
-
-// Last week's rating per stage, shown as the Trend chip.
-function soPrevRatings(a, dir) {
-  const rand = rng(hash(a.slug + dir + "so-prev"));
-  return soAgentRatings(a, dir).map((g) => (g === "Not required" ? g : SO_NAMES[soClamp(SO_LEVEL[g] + [-2, -1, -1, 1, 1, 2][Math.floor(rand() * 6)], 1, 4)]));
 }
 
 // Totals and scores for the KPI cards, at the "This week" range.
@@ -500,18 +662,89 @@ function soAgentKpis() {
     soKpi("Avg. Scoring", [`${soGrade(cur)}<b>${cur}%</b><span>${r.cur}</span>`, `${soGrade(b.prevScore)}<b>${b.prevScore}%</b><span>${r.prev}</span>`]);
 }
 
-const soAgentStageCols = (prevText) => [
-  { key: "name", label: "Call Stage", w: 76, render: (r) => soDrillLink({ agent: soState.agent.a.slug, stage: r.chip, dir: soState.agent.dir }, esc(r.name), `View ${soState.agent.dir === SO_DIR_BOTH ? "" : soState.agent.dir.toLowerCase() + " "}calls for ${r.chip}`) },
-  { key: "lvl", label: "Rating", w: 12, sortable: true, render: (r) => soDrillLink({ agent: soState.agent.a.slug, stage: r.chip, level: r.rating, dir: soState.agent.dir }, soChip(r.rating), `View ${r.rating} calls for ${r.chip}`) },
-  { key: "last", label: "Trend", w: 12, render: (r) => `<span class="so-trend">${soChip(r.last)}<span>${esc(prevText)}</span></span>` },
+// Call Stage Trends: rating level (0 Incomplete to 4 Excellent) per stage for each of the last weeks, ending on the agent's
+// current rating. Stages the agent is not rated on ("Not required") have no trend line.
+const SO_TREND_WEEKS = 6;
+function soStageTrend(a, dir, n) {
+  const rand = rng(hash(a.slug + dir + "so-trend"));
+  return soAgentRatings(a, dir).map((g) => {
+    if (g === "Not required") return null;
+    const arr = new Array(n);
+    arr[n - 1] = SO_LEVEL[g];
+    for (let i = n - 2; i >= 0; i--) arr[i] = soClamp(arr[i + 1] + [-1, 0, 0, 1][Math.floor(rand() * 4)], 0, 4);
+    return arr;
+  });
+}
+
+function soAgentChart() {
+  const st = soState.agent;
+  const weeks = weekRanges(SO_TREND_WEEKS);
+  const n = weeks.length;
+  const levels = soStageTrend(st.a, st.dir, n);
+  const shown = SO_STAGES.map((s, i) => i).filter((i) => levels[i] && (st.stage === SO_STAGE_ALL || SO_STAGES[i].chip === st.stage));
+  document.getElementById("soa-legend").innerHTML = shown
+    .map((i) => `<button class="legend-item" type="button" data-i="${i}" aria-pressed="${!st.hidden.has(i)}"><span class="dot" style="background:${catColor(i)}"></span>${esc(SO_STAGES[i].chip)}</button>`)
+    .join("");
+  // A tiny per-stage offset keeps identical lines from hiding each other.
+  const series = shown
+    .filter((i) => !st.hidden.has(i))
+    .map((i) => ({ name: SO_STAGES[i].chip, color: catColor(i), vals: levels[i].map((v) => (v + (i - SO_STAGES.length / 2) * (0.2 / SO_STAGES.length)) / 4), tip: (w) => SO_NAMES[levels[i][w]] }));
+  drawChart({
+    plot: document.getElementById("soa-plot"),
+    yAxis: document.getElementById("soa-y"),
+    xAxis: document.getElementById("soa-x"),
+    weeks,
+    labels: ["Exc.", "Good", "Fair", "Poor", "Inc."],
+    series,
+    label: "Call stage trends",
+    empty: "No stages selected",
+  });
+  const skipped = levels.filter((l) => !l).length;
+  document.getElementById("soa-chart-note").textContent =
+    `${st.dir === SO_DIR_BOTH ? st.dir : st.dir + " calls"} • Between ${fmtLong(weeks[0].start)} to ${fmtLong(weeks[n - 1].end)}` +
+    (skipped ? ` • ${skipped} stage${skipped === 1 ? " is" : "s are"} not rated for this agent` : "");
+}
+
+// One row per creditor the agent spoke to, built from the agent's calls (the Call Tag and Call Stage filters apply, as in Recent
+// Calls). Call totals are scaled to the date range like the KPI card, so unfiltered rows add up to the agent's total calls.
+function soAgentCreditors() {
+  const st = soState.agent;
+  const all = soCalls(st.a, st.dir);
+  const scale = (soAgentBase(st.a, st.dir).cur * (SO_RANGES[st.date].f / SO_RANGES["This week"].f)) / all.length;
+  const calls = soAgentCalls();
+  return SO_CREDITORS.map((name) => {
+    const mine = calls.filter((c) => c.creditor === name);
+    if (!mine.length) return null;
+    const top = soMostCommon(mine.flatMap((c) => c.top));
+    const bottom = soMostCommon(mine.flatMap((c) => c.bottom), top);
+    return { name, calls: Math.max(1, Math.round(mine.length * scale)), score: Math.round(soAvg(mine.map((c) => c.score))), top: top ? [top] : [], bottom: bottom ? [bottom] : [] };
+  })
+    .filter(Boolean)
+    .sort((x, y) => y.calls - x.calls);
+}
+const soAgentCredLink = (extra, html, title) => {
+  const st = soState.agent;
+  return soDrillLink({ agent: st.a.slug, dir: st.dir, tag: st.tag, ...extra }, html, title);
+};
+const soAgentCredChip = (cls, creditor) => (n) => soAgentCredLink({ creditor, stage: n }, `<span class="chip chip-${cls} chip-so-stage">${esc(n)}</span>`, `View ${creditor} calls for ${n}`);
+const SO_AGENT_CRED_COLS = [
+  { key: "name", label: "Creditor", w: 28, sortable: true, render: (r) => soAgentCredLink({ creditor: r.name }, esc(r.name), `View ${r.name} calls`) },
+  { key: "calls", label: "Calls", w: 12, sortable: true, render: (r) => soAgentCredLink({ creditor: r.name }, soN(r.calls), `View ${r.name} calls`) },
+  { key: "score", label: "Avg. Scoring", w: 18, sortable: true, render: (r) => soScore(r.score) },
+  { key: "top", label: "Avg. Top Call Stage", w: 21, cls: "so-wrap", render: (r) => r.top.map(soAgentCredChip("Good", r.name)).join("") },
+  { key: "bottom", label: "Avg. Bottom Call Stage", w: 21, cls: "so-wrap", render: (r) => r.bottom.map(soAgentCredChip("Poor", r.name)).join("") },
 ];
 
+// Top and bottom stages are empty when every stage was not required (for example a call that never connected).
+const soStageChips = (list) => (list.length ? list.map(soTagChip).join("") : '<span class="so-muted">–</span>');
+// Call tags, plus a chip when two related calls were stitched into one scorecard.
+const soCallTags = (r) => r.tags.map(soTagChip).join("") + (soStitch(r) ? soTagChip("Stitched call") : "");
 const SO_CALL_COLS = [
   { key: "date", label: "Call Date", w: 9, sortable: true, render: (r) => fmtDate(r.date) },
   { key: "score", label: "Call Scoring", w: 19, sortable: true, render: (r) => soScore(r.score) },
-  { key: "top", label: "Avg. Top Call Stage", w: 22, cls: "so-wrap", render: (r) => r.top.map(soTagChip).join("") },
-  { key: "bottom", label: "Avg. Bottom Call Stage", w: 22, cls: "so-wrap", render: (r) => r.bottom.map(soTagChip).join("") },
-  { key: "tags", label: "Call Tags", w: 18, cls: "so-wrap", render: (r) => r.tags.map(soTagChip).join("") },
+  { key: "top", label: "Avg. Top Call Stage", w: 22, cls: "so-wrap", render: (r) => soStageChips(r.top) },
+  { key: "bottom", label: "Avg. Bottom Call Stage", w: 22, cls: "so-wrap", render: (r) => soStageChips(r.bottom) },
+  { key: "tags", label: "Call Tags", w: 18, cls: "so-wrap", render: soCallTags },
   { key: "details", label: "Call Details", w: 10, render: (r) => `<a class="text-btn" href="#/setops/call/${r.id}">View call details</a>` },
 ];
 
@@ -534,11 +767,10 @@ function renderSoAgent() {
   if (!a) return;
   soAgentKpis();
 
-  const cur = soAgentRatings(a, st.dir);
-  const prev = soPrevRatings(a, st.dir);
-  const stages = SO_STAGES.map((s, i) => ({ name: s.page, chip: s.chip, rating: cur[i], lvl: SO_LEVEL[cur[i]], last: prev[i] })).filter((s) => st.stage === SO_STAGE_ALL || s.chip === st.stage);
-  const stageCols = soAgentStageCols(SO_RANGES[st.date].prev);
-  fillTable("soa-stages", stageCols, st.st, wsRows(stageCols, sortRows(stages, st.st, (r, k) => r[k])), "No call stages match your filters.");
+  soAgentChart();
+
+  const crRows = soAgentCreditors();
+  fillTable("soa-creditors", SO_AGENT_CRED_COLS, st.cr, wsRows(SO_AGENT_CRED_COLS, sortRows(crRows, st.cr, (r, k) => r[k])), "No creditors match your filters.");
 
   const callCols = soAgentCallCols();
   fillTable("soa-calls", callCols, st.c.sort, wsRows(callCols, soPager("soa-c", st.c, soAgentCalls()), (r) => ` data-id="${r.id}"`), "No calls match your filters.");
@@ -549,7 +781,7 @@ function soOpenAgent(a, cameFrom) {
   if (st.a !== a) {
     // Opened from the dashboard: use the direction chosen there (both directions default to Outbound).
     const dir = soState.dash.dir;
-    Object.assign(st, { a, dir: dir === "Inbound" ? "Inbound" : "Outbound", tag: SO_TAG_ALL, stage: SO_STAGE_ALL, st: SO_NO_SORT(), c: { page: 1, size: st.c.size, sort: SO_NO_SORT() } });
+    Object.assign(st, { a, dir: dir === "Inbound" ? "Inbound" : "Outbound", tag: SO_TAG_ALL, stage: SO_STAGE_ALL, hidden: new Set(), cr: SO_NO_SORT(), c: { page: 1, size: st.c.size, sort: SO_NO_SORT() } });
     document.getElementById("soa-avatar").textContent = a.initials;
     document.getElementById("soa-name").textContent = a.name;
     dropdownPainters.forEach((f) => f());
@@ -566,14 +798,16 @@ const SO_CALL_LISTS = new Map();
 // 93% keeps the letter grade consistent with the other rows.)
 const SO_SARA_CALLS = [
   [18, 64, ["Opening & Disclosures"], ["ATC"], ["Follow up calls", "Settlement Approval"]],
-  [18, 82, ["Opening & Disclosures"], ["Hardship Docs"], ["Not Connected"]],
+  [18, 82, ["Opening & Disclosures"], ["Account Info & Hardship"], ["Not Connected"]],
   [18, 93, ["Account Verification", "Payment Arrangement"], ["Counter Offer"], ["Inbound call Creditor callback", "Multiple Account call"], "Lucas Scott"],
-  [17, 32, ["Initial Offer"], ["Payment Arrangement"], ["Settlement Offer SNIP", "Non-Settlement Calls", "Authorized required call"]],
+  [17, 32, ["Initial Offer"], ["Payment Arrangement"], ["Settlement Offer SNIP", "Non-Settlement Call", "Authorization required call"]],
   [17, 62, ["Opening & Disclosures"], ["ATC", "Payment Arrangement"], ["Follow up calls"]],
   [17, 53, ["Counter Offer"], ["Initial Offer"], ["Settlement Pending Creditor Approval", "Not Connected"]],
 ];
 
-function soNewCall(a, dir, rand, [day, score, top, bottom, tags, client]) {
+// `design` marks the calls drawn in Figma: their top and bottom stages and tags are kept exactly as drawn, so the scenario
+// rules below (which stages a call reaches) are not applied to them.
+function soNewCall(a, dir, rand, [day, score, top, bottom, tags, client], design = false) {
   let n = 100000 + (hash(`${a.slug}|${dir}|${day}|${score}|${SO_CALLS.size}`) % 899999);
   while (SO_CALLS.has(String(n))) n += 1;
   const id = String(n);
@@ -590,13 +824,221 @@ function soNewCall(a, dir, rand, [day, score, top, bottom, tags, client]) {
     top,
     bottom,
     tags,
+    design,
     client: client || `${first} ${last}`,
+    creditor: soCreditorOf(id),
     duration: `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`,
     start: 8 * 60 + Math.floor(rand() * 9 * 60),
     completion: 60 + Math.floor(rand() * 39),
   };
   SO_CALLS.set(id, call);
   return call;
+}
+
+// ---------- Call scenarios (SetOps rubric: branch moments and "Not required" cases) ----------
+// What happened on the call decides which stages it reaches. Stage indexes follow SO_STAGES: 0 Opening, 1 Verification,
+// 2 ATC, 3 Account Info, 4 Initial Offer, 5 Counter Offer, 6 Payment, 7 Closing. Stages a scenario skips are "Not required".
+//  - notConn: no live representative was reached, so no stage is required.
+//  - auth: ATC is not on file and cannot be processed on the call, so the call skips to Closing.
+//  - nonSettle: the account is not eligible to settle (or it is a follow-up), so the call skips to Closing.
+//  - pending: an offer is made but the creditor has not approved it, so Counter Offer and Payment are skipped.
+//  - settle: every stage is reached. ATC is usually already on file, so it is not required.
+const SO_SCEN_NR = { notConn: [0, 1, 2, 3, 4, 5, 6, 7], auth: [3, 4, 5, 6], nonSettle: [4, 5, 6], pending: [5, 6], settle: [] };
+const SO_SCEN_TAGS = {
+  settle: ["Settlement Approval"],
+  nonSettle: ["Non-Settlement Call"],
+  auth: ["Authorization required call", "Non-Settlement Call"],
+  notConn: ["Not Connected"],
+  pending: ["Settlement Pending Creditor Approval"],
+};
+// Share of calls per scenario, from the ground truth sheets. Most inbound calls are creditor callbacks that never reach a settlement.
+const SO_SCEN_MIX = {
+  Outbound: [["settle", 0.42], ["nonSettle", 0.33], ["auth", 0.1], ["notConn", 0.09], ["pending", 0.06]],
+  Inbound: [["nonSettle", 0.65], ["settle", 0.2], ["pending", 0.08], ["auth", 0.07]],
+};
+const SO_SCEN_NOTE = {
+  auth: "The creditor did not have authorization on file and it could not be processed on the call, so the account information and negotiation steps were skipped.",
+  nonSettle: "The account was not eligible to settle on this call, so the negotiation steps were skipped.",
+  pending: "An offer was presented but the creditor has not approved it yet, so there was no counter offer or payment arrangement.",
+};
+
+function soScenario(tags) {
+  if (tags.includes("Not Connected")) return "notConn";
+  if (tags.includes("Authorization required call")) return "auth";
+  if (tags.includes("Settlement Approval")) return "settle";
+  if (tags.includes("Settlement Pending Creditor Approval")) return "pending";
+  return "nonSettle";
+}
+
+// Tags for a generated call: pick a scenario, then add the optional tags that can go with it. `j` is the call's position
+// in its list; the first two calls are always settlements so that every stage has calls behind it.
+function soPickTags(rand, dir, j) {
+  const mix = SO_SCEN_MIX[dir];
+  let r = rand();
+  let scen = mix[mix.length - 1][0];
+  for (const [name, p] of mix) {
+    if (r < p) {
+      scen = name;
+      break;
+    }
+    r -= p;
+  }
+  if (j < 2) scen = "settle";
+  const tags = [...SO_SCEN_TAGS[scen]];
+  const extra = [rand(), rand(), rand(), rand(), rand()];
+  if (scen === "settle" && extra[0] < 0.5) tags.push("Settlement Offer SNIP");
+  if (scen === "notConn" && extra[1] < 0.4) tags.push("Non-Settlement Call");
+  if (scen !== "notConn" && extra[2] < 0.3) tags.push("Follow up calls");
+  if (scen !== "notConn" && j >= 2 && extra[3] < 0.25) tags.push("Multiple Account call");
+  if (dir === "Inbound" && extra[4] < 0.9) tags.push("Inbound call Creditor callback");
+  return SO_TAGS.filter((t) => tags.includes(t));
+}
+
+// A multiple account call covers 2-5 accounts. Opening and Closing are scored once (first and last account); every other
+// stage is scored per account. The drawn call for Lucas Scott covers two accounts.
+const soAccountCount = (call) => (call.client === "Lucas Scott" ? 2 : call.tags.includes("Multiple Account call") ? 2 + (hash(call.id + "so-accounts") % 4) : 1);
+
+// Stages that are not required for one account of a call.
+function soNrSet(call, k, n) {
+  const nr = new Set();
+  if (n > 1) {
+    if (k > 0) nr.add(0);
+    if (k < n - 1) nr.add(7);
+  }
+  if (call.design) return nr;
+  const r = hash(`${call.id}|${k}|so-nr`);
+  let scen = soScenario(call.tags);
+  // On a multiple account call each account can go its own way: some settle and others do not.
+  if (n > 1 && k > 0 && scen === "settle" && r % 100 < 45) scen = "nonSettle";
+  SO_SCEN_NR[scen].forEach((i) => nr.add(i));
+  if (scen !== "auth" && !(scen === "settle" && r % 10 === 0)) nr.add(2);
+  if (scen === "nonSettle" && (r >>> 8) % 5 === 0) nr.add(3);
+  return nr;
+}
+
+// The rubric text and agent quote for a rating. Inbound uses its own wording where the inbound rubric differs.
+function soStageResult(s, g, dir) {
+  const text = (dir === "Inbound" && s.rubIn && s.rubIn[g]) || s.rub[g];
+  const quote = g === "Not required" ? "" : SO_LEVEL[g] >= 3 ? s.qg : s.qw;
+  return { name: s.res, chip: s.chip, grade: g, text, quote };
+}
+
+// Results for one account. Drawn calls grade their top stages well and their bottom stages poorly; every other stage
+// mostly follows the agent's rating for that stage, with some variation and the occasional Incomplete.
+function soAccountStages(call, k, n) {
+  const rand = rng(hash(`${call.id}|${k}|so-stages`));
+  const base = soAgentRatings(call.agent, call.dir);
+  const nr = soNrSet(call, k, n);
+  return SO_STAGES.map((s, i) => {
+    const forced = k === 0 && call.force ? call.force[i] : undefined;
+    let g;
+    if (forced) g = forced;
+    else if (nr.has(i)) g = "Not required";
+    else if (call.design && call.top.includes(s.chip)) g = rand() < 0.5 ? "Excellent" : "Good";
+    else if (call.design && call.bottom.includes(s.chip)) g = rand() < 0.5 ? "Poor" : "Fair";
+    else if (base[i] === "Not required") g = genRating(rand, call.score);
+    else g = rand() < 0.7 ? base[i] : genRating(rand, call.score);
+    if (!forced && g === "Poor" && rand() < 0.2) g = "Incomplete";
+    return soStageResult(s, g, call.dir);
+  });
+}
+
+const SO_ACCT_CACHE = new Map();
+const SO_STAGE_CACHE = new Map();
+const SO_STITCH_CACHE = new Map();
+const soResetCall = (call) => {
+  SO_ACCT_CACHE.delete(call.id);
+  SO_STAGE_CACHE.delete(call.id);
+  SO_STITCH_CACHE.delete(call.id);
+};
+
+// Dropped calls (rubric note on Opening & Disclosures): when a call drops and the agent calls back, the two related calls are
+// stitched into one scorecard. The second call repeats the opening and some account verification, then picks up at the step
+// where the first call dropped, and repeating steps is not scored down. About 1 in 8 single account calls that reached a live
+// representative are stitched. Returns null for a call that was not stitched. Times are in seconds, `restart` in minutes of the day.
+function soStitch(call) {
+  if (SO_STITCH_CACHE.has(call.id)) return SO_STITCH_CACHE.get(call.id);
+  let out = null;
+  if (!call.design && soAccountCount(call) === 1 && soScenario(call.tags) !== "notConn" && hash(call.id + "so-stitch") % 100 < 12) {
+    const stages = soCallStages(call);
+    const reached = SO_STAGES.map((s, i) => i).filter((i) => i >= 1 && i <= 6 && stages[i].grade !== "Not required");
+    if (reached.length) {
+      const total = secs(call.duration);
+      const first = Math.round(total * (0.35 + (hash(call.id + "so-split") % 25) / 100));
+      const gap = 60 + (hash(call.id + "so-gap") % 300);
+      out = {
+        dropped: SO_STAGES[reached[hash(call.id + "so-drop") % reached.length]].chip,
+        first,
+        second: total - first,
+        gap,
+        at: first / total,
+        restart: call.start + Math.round((first + gap) / 60),
+      };
+    }
+  }
+  SO_STITCH_CACHE.set(call.id, out);
+  return out;
+}
+
+// The accounts on a call, each with its own stage results.
+function soCallAccounts(call) {
+  if (SO_ACCT_CACHE.has(call.id)) return SO_ACCT_CACHE.get(call.id);
+  const n = soAccountCount(call);
+  const accounts = Array.from({ length: n }, (_, k) => ({
+    label: n > 1 ? `Last 4 SSN ${String(hash(`${call.id}|${k}|so-ssn`) % 10000).padStart(4, "0")}` : "",
+    stages: soAccountStages(call, k, n),
+  }));
+  SO_ACCT_CACHE.set(call.id, accounts);
+  return accounts;
+}
+
+// Call-level result per stage. With several accounts it is the mean of the accounts that were rated.
+function soCallStages(call) {
+  if (SO_STAGE_CACHE.has(call.id)) return SO_STAGE_CACHE.get(call.id);
+  const accounts = soCallAccounts(call);
+  const stages =
+    accounts.length === 1
+      ? accounts[0].stages
+      : SO_STAGES.map((s, i) => {
+          const lv = accounts.map((a) => SO_LEVEL[a.stages[i].grade]).filter((l) => l >= 0);
+          return soStageResult(s, lv.length ? SO_NAMES[soClamp(Math.round(soAvg(lv)), 0, 4)] : "Not required", call.dir);
+        });
+  SO_STAGE_CACHE.set(call.id, stages);
+  return stages;
+}
+
+// Top and bottom stage of a generated call: its best and worst rated stages (stages that were not required are left out).
+function soTopBottom(stages) {
+  const rated = stages.filter((s) => s.grade !== "Not required");
+  if (!rated.length) return [[], []];
+  const lv = rated.map((s) => SO_LEVEL[s.grade]);
+  const max = Math.max(...lv);
+  const min = Math.min(...lv);
+  const top = rated.filter((s) => SO_LEVEL[s.grade] === max).slice(0, 2).map((s) => s.chip);
+  const bottom = max === min ? [] : rated.filter((s) => SO_LEVEL[s.grade] === min).slice(0, 2).map((s) => s.chip);
+  return [top, bottom];
+}
+
+// Makes sure every rating an agent has in a stage is backed by at least one call, so a matrix cell, agent view row or
+// dashboard slice never links to an empty list. A call that fits the stage takes the missing rating.
+function soEnsureRatings(a, dir, list) {
+  const base = soAgentRatings(a, dir);
+  const fits = (i, c) => {
+    if (c.design || soAccountCount(c) > 1) return false;
+    const scen = soScenario(c.tags);
+    if (i === 0 || i === 1 || i === 7) return scen !== "notConn";
+    if (i === 2) return scen === "settle" || scen === "auth";
+    if (i === 3 || i === 4) return scen === "settle" || scen === "pending";
+    return scen === "settle";
+  };
+  SO_STAGES.forEach((s, i) => {
+    const want = base[i];
+    if (want === "Not required" || list.some((c) => soCallStages(c)[i].grade === want)) return;
+    const c = list.find((x) => fits(i, x));
+    if (!c) return;
+    c.force = { ...c.force, [i]: want };
+    soResetCall(c);
+  });
 }
 
 function soCalls(a, dir) {
@@ -607,18 +1049,21 @@ function soCalls(a, dir) {
   const list = [];
   let day = 18;
   if (a.name === "Sara Chen" && dir === "Outbound") {
-    SO_SARA_CALLS.forEach((s) => list.push(soNewCall(a, dir, rand, s)));
+    SO_SARA_CALLS.forEach((s) => list.push(soNewCall(a, dir, rand, s, true)));
     day = 16;
   }
+  const generated = [];
   while (list.length < 15) {
     const score = Math.round(soClamp(a.score + (rand() - 0.5) * 50, 20, 98));
-    const order = SO_CHIPS.map((c) => [rand(), c]).sort((x, y) => x[0] - y[0]).map((x) => x[1]);
-    const top = order.slice(0, 1 + (rand() < 0.4 ? 1 : 0));
-    const bottom = order.slice(2, 3 + (rand() < 0.35 ? 1 : 0));
-    const tags = SO_TAGS.map((t) => [rand(), t]).sort((x, y) => x[0] - y[0]).slice(0, 1 + Math.floor(rand() * 3)).map((x) => x[1]);
-    list.push(soNewCall(a, dir, rand, [day, score, top, bottom, tags]));
+    const call = soNewCall(a, dir, rand, [day, score, [], [], soPickTags(rand, dir, generated.length)]);
+    generated.push(call);
+    list.push(call);
     if (rand() < 0.65) day = Math.max(1, day - 1);
   }
+  soEnsureRatings(a, dir, list);
+  generated.forEach((c) => {
+    [c.top, c.bottom] = soTopBottom(soCallStages(c));
+  });
   SO_CALL_LISTS.set(key, list);
   return list;
 }
@@ -630,44 +1075,27 @@ function soInit() {
   SO_AGENTS.forEach((a) => ["Outbound", "Inbound"].forEach((d) => soCalls(a, d)));
 }
 
-// Stage results for a call: top stages grade well, bottom stages grade poorly, the rest mostly follow the agent's rating
-// for that stage (so a matrix cell or dashboard slice always has calls behind it) with some variation.
-const SO_STAGE_CACHE = new Map();
-function soCallStages(call) {
-  if (SO_STAGE_CACHE.has(call.id)) return SO_STAGE_CACHE.get(call.id);
-  const rand = rng(hash(call.id + "so-stages"));
-  const base = soAgentRatings(call.agent, call.dir);
-  const stages = SO_STAGES.map((s, i) => {
-    let g;
-    if (call.top.includes(s.chip)) g = rand() < 0.5 ? "Excellent" : "Good";
-    else if (call.bottom.includes(s.chip)) g = rand() < 0.5 ? "Poor" : "Fair";
-    else if (base[i] === "Not required" || (s.nr && rand() < 0.12)) g = "Not required";
-    else g = rand() < 0.7 ? base[i] : genRating(rand, call.score);
-    const bucket = g === "Not required" ? "nr" : SO_LEVEL[g] >= 3 ? "good" : "weak";
-    const text = bucket === "nr" ? s.nr : bucket === "good" ? s.good : s.weak;
-    const quote = bucket === "good" ? s.qg : bucket === "weak" ? s.qw : "";
-    return { name: s.res, chip: s.chip, grade: g, text, quote };
-  });
-  SO_STAGE_CACHE.set(call.id, stages);
-  return stages;
-}
-
 const SO_DESIGN_SUMMARY =
   "The agent performed well in the initial stages of the call, providing a clear introduction and disclosure, and effectively verifying the account information. For the first account, the agent correctly identified that it was not ready for settlement, which appropriately led to 'Not Required' grades for subsequent negotiation steps. For the second account, the creditor stated it had already been taken care of, again leading to 'Not Required' for negotiation-related steps. The closing was professional. The agent handled the call efficiently and followed proper procedures for accounts not yet eligible for settlement.";
 
-function soSummary(call, stages) {
+// `stages` are the results being shown: one account's results on a multiple account call (account `k` of `n`).
+function soSummary(call, stages, n = 1, k = 0) {
   if (call.client === "Lucas Scott") return SO_DESIGN_SUMMARY;
+  const scen = call.design ? "" : soScenario(call.tags);
+  if (scen === "notConn") return "The agent did not connect to a live representative, so every step is marked 'Not Required'.";
   const list = (g) => stages.filter(g).map((s) => s.chip);
   const good = list((s) => SO_LEVEL[s.grade] >= 3);
-  const weak = list((s) => s.grade === "Fair" || s.grade === "Poor");
+  const weak = list((s) => SO_LEVEL[s.grade] >= 0 && SO_LEVEL[s.grade] <= 2);
   const nr = list((s) => s.grade === "Not required");
   const join = (a) => a.slice(0, 3).join(", ");
   const tone = call.score >= 80 ? "well" : call.score >= 60 ? "adequately" : "poorly";
+  const note = SO_SCEN_NOTE[scen];
   return [
-    `The agent handled this ${call.dir.toLowerCase()} call ${tone} overall.`,
+    n > 1 ? `This multiple account call covered ${n} accounts; the opening and closing are scored once, on the first and last account, and the other steps per account. The agent handled account ${k + 1} ${tone}.` : `The agent handled this ${call.dir.toLowerCase()} call ${tone} overall.`,
     good.length ? `The strongest steps were ${join(good)}.` : "",
     weak.length ? `The agent fell short on ${join(weak)}, where required steps were missed or incomplete.` : "All required steps were completed.",
-    nr.length ? `${nr.length} step${nr.length === 1 ? " was" : "s were"} marked 'Not Required' because the account was not eligible for that part of the conversation.` : "",
+    note || (nr.length ? `${nr.length} step${nr.length === 1 ? " was" : "s were"} marked 'Not Required' per the rubric.` : ""),
+    soStitch(call) ? `The call dropped during ${soStitch(call).dropped}, and the agent called back and picked up where it left off. The two calls were stitched into one scorecard, and the repeated opening and account verification were not scored down.` : "",
     call.score >= 60 ? "The call closed professionally." : "Coaching is recommended before the next review.",
   ]
     .filter(Boolean)
@@ -695,8 +1123,11 @@ function soResultsHtml(stages) {
 
 function soTranscriptHtml(call) {
   const phone = soPhone(call.id);
+  const stitch = soStitch(call);
+  // A stitched call shows where the first call dropped and the agent called back.
+  const cut = stitch ? soClamp(Math.round(SO_TX.length * stitch.at), 1, SO_TX.length - 1) : -1;
   return `<div class="tx-list">${SO_TX.map(
-    ([who, t, text], i) => `<article class="tx tx-${who === "a" ? "agent" : "client"}" id="sotx-${i}" data-i="${i}" data-t="${secs(t)}">
+    ([who, t, text], i) => `${i === cut ? `<div class="so-stitch-div" role="separator">Call dropped during ${esc(stitch.dropped)}. The agent called back at ${soTime(stitch.restart)}, ${clock(stitch.gap)} later.</div>` : ""}<article class="tx tx-${who === "a" ? "agent" : "client"}" id="sotx-${i}" data-i="${i}" data-t="${secs(t)}">
       <div class="tx-top"><b>${who === "a" ? `Agent ${esc(call.agent.name)}` : `Client ${phone}`}</b><span class="tx-time">${t}</span></div>
       <p>${esc(text)}</p>
     </article>`
@@ -707,32 +1138,43 @@ function renderSoCall() {
   const st = soState.call;
   const c = st.call;
   if (!c) return;
-  const stages = soCallStages(c);
+  const accounts = soCallAccounts(c);
+  if (st.acct >= accounts.length) st.acct = 0;
+  const stages = accounts[st.acct].stages;
   if (!st.open) st.open = new Set(stages.map((s) => s.name));
   document.getElementById("soc-title").textContent = `${c.client} • Call Details`;
 
+  const stitch = soStitch(c);
   const [dm, ds] = c.duration.split(":").map(Number);
-  const end = c.start + dm + Math.round(ds / 60);
+  const end = stitch ? stitch.restart + Math.round(stitch.second / 60) : c.start + dm + Math.round(ds / 60);
   document.getElementById("soc-overview").innerHTML = `<h2>Call Overview</h2>
     <div class="so-kv"><span class="k">Overall Grade</span>${soGrade(c.score)}<b>${c.score}%</b></div>
     <div class="so-kv"><span class="k">Completion Rate:</span><b>${c.completion}%</b></div>
+    <div class="so-kv"><span class="k">Creditor:</span><b>${esc(c.creditor)}</b></div>
+    ${accounts.length > 1 ? `<div class="so-kv"><span class="k">Accounts Discussed:</span><b>${accounts.length}</b></div>` : ""}
     <div class="so-kv"><span class="k">Call Start Time:</span><b>${soTime(c.start)}</b></div>
-    <div class="so-kv"><span class="k">Call End Time:</span><b>${soTime(end)}</b></div>`;
+    <div class="so-kv"><span class="k">Call End Time:</span><b>${soTime(end)}</b></div>
+    ${stitch ? `<div class="so-kv"><span class="k">Stitched Calls:</span><b>2 calls, dropped during ${esc(stitch.dropped)}</b></div>` : ""}`;
 
   const counts = SO_GRADE_ORDER.map((g) => stages.filter((s) => s.grade === g).length);
   const bar = SO_GRADE_ORDER.map((g, i) => (counts[i] ? `<i style="flex:${counts[i]};background:${SO_COLOR[g]}" title="${g}: ${counts[i]}"></i>` : "")).join("");
   const legend = SO_GRADE_ORDER.map((g) => `<span><i style="background:${SO_COLOR[g]}"></i>${g === "Not required" ? "Not Required" : g}</span>`).join("");
-  document.getElementById("soc-steps").innerHTML = `<div class="step-results"><h3>Step Results</h3><div class="step-bar">${bar}</div><div class="step-legend">${legend}</div></div>`;
-  document.getElementById("soc-summary").innerHTML = `<h2>Call Summary</h2><p>${esc(soSummary(c, stages))}</p>`;
+  document.getElementById("soc-steps").innerHTML = `<div class="step-results"><h3>Step Results${accounts.length > 1 ? ` • Account ${st.acct + 1}` : ""}</h3><div class="step-bar">${bar}</div><div class="step-legend">${legend}</div></div>`;
+  document.getElementById("soc-summary").innerHTML = `<h2>Call Summary</h2><p>${esc(soSummary(c, stages, accounts.length, st.acct))}</p>`;
 
-  document.getElementById("soc-meta").innerHTML = `<span><b>Call Duration:</b> ${esc(c.duration)}</span>`;
+  document.getElementById("soc-meta").innerHTML = `<span><b>Call Duration:</b> ${esc(c.duration)}${stitch ? ` (${clock(stitch.first)} + ${clock(stitch.second)})` : ""}</span>`;
   document.querySelectorAll("#soc-tabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tab === st.tab)));
   const results = document.getElementById("soc-results");
   const tx = document.getElementById("soc-transcript");
   results.hidden = st.tab !== "results";
   tx.hidden = st.tab !== "transcript";
-  if (st.tab === "results") results.innerHTML = soResultsHtml(stages);
-  else {
+  if (st.tab === "results") {
+    const picker =
+      accounts.length > 1
+        ? `<div class="so-accts seg" role="group" aria-label="Account">${accounts.map((a, k) => `<button type="button" data-acct="${k}" aria-pressed="${k === st.acct}">Account ${k + 1} • ${esc(a.label)}</button>`).join("")}</div>`
+        : "";
+    results.innerHTML = picker + soResultsHtml(stages);
+  } else {
     tx.innerHTML = soTranscriptHtml(c);
     soMarkCurrent();
   }
@@ -743,7 +1185,7 @@ function soOpenCall(c, cameFrom) {
   const st = soState.call;
   if (st.call !== c) {
     soStopCall();
-    Object.assign(st, { call: c, tab: "results", open: null, pos: 0 });
+    Object.assign(st, { call: c, tab: "results", open: null, pos: 0, acct: 0 });
   }
   const back = document.getElementById("soc-back");
   // Coming from Call Records, go back to that list with its filters intact.
@@ -801,68 +1243,97 @@ function soToggleCall() {
   }, 1000);
 }
 
-// ---------- Agent Matrix ----------
-// Agents in the user's scope against every call stage. `withLevel` false skips the Performance Level filter (legend counts).
-// Every multi-select filter is a list where empty means "all"; an agent shows when any selected stage has any selected level.
-const soIn = (sel, v) => !sel.length || sel.includes(v);
-function soMatrixAgents(withLevel = true) {
-  const m = soState.matrix;
-  const q = m.query.toLowerCase();
-  return soScopeAgents()
-    .filter((a) => soIn(m.wg, a.wg) && soIn(m.sup, soUserOf(a.sup).name) && (!q || a.name.toLowerCase().includes(q)))
-    .map((a) => {
-      const r = soAgentRatings(a, m.dir);
-      return { ...a, r, lv: r.map((g) => SO_LEVEL[g]), score: soAgentBase(a, m.dir).score, supName: soUserOf(a.sup).name };
+// ---------- Creditors overview ----------
+const soCredFactor = () => {
+  const c = soState.cred;
+  const tagF = c.tag === SO_TAG_ALL ? 1 : 0.15 + (hash(c.tag) % 30) / 100;
+  return SO_RANGES[c.date].f * SO_DIR_F[c.dir] * tagF;
+};
+const soCredPool = () => soScopeAgents().filter((a) => soState.cred.wg === "All" || a.wg === soState.cred.wg);
+function soCredCalls(pool) {
+  const c = soState.cred;
+  const dirs = c.dir === SO_DIR_BOTH ? ["Outbound", "Inbound"] : [c.dir];
+  return pool.flatMap((a) => dirs.flatMap((d) => soCalls(a, d))).filter((x) => c.tag === SO_TAG_ALL || x.tags.includes(c.tag));
+}
+// Link from the Creditors overview to the Call Records behind it; keeps the page's own filters.
+const soCredDrill = (p, html, title) => {
+  const c = soState.cred;
+  return soDrillLink({ wg: c.wg, tag: c.tag, dir: c.dir, ...p }, html, title);
+};
+
+// One row per creditor, built from the calls in the current scope. `means` is the mean rating level per call stage
+// (null when every call was "Not required"); call totals are scaled to the date range like the dashboard.
+function soCredRows() {
+  const c = soState.cred;
+  const q = c.query.toLowerCase();
+  const pool = soCredPool();
+  const all = soCredCalls(pool);
+  const total = 8445 * soCredFactor() * (soSum(pool.map((a) => a.calls)) / soSum(SO_AGENTS.map((a) => a.calls)));
+  return SO_CREDITORS.filter((n) => !q || n.toLowerCase().includes(q))
+    .map((name) => {
+      const calls = all.filter((x) => x.creditor === name);
+      if (!calls.length) return null;
+      const stages = calls.map(soCallStages);
+      const means = SO_STAGES.map((s, i) => {
+        const lv = stages.map((st) => SO_LEVEL[st[i].grade]).filter((l) => l >= 0);
+        return lv.length ? soAvg(lv) : null;
+      });
+      const ranked = means.map((m, i) => ({ i, m })).filter((x) => x.m !== null).sort((x, y) => y.m - x.m);
+      return {
+        name,
+        calls: Math.max(1, Math.round((total * calls.length) / all.length)),
+        agents: new Set(calls.map((x) => x.agent.slug)).size,
+        score: Math.round(soAvg(calls.map((x) => x.score))),
+        means,
+        ratings: means.map(soLevelOf),
+        top: ranked.length ? [SO_CHIPS[ranked[0].i]] : [],
+        bottom: ranked.length ? [SO_CHIPS[ranked[ranked.length - 1].i]] : [],
+      };
     })
-    .filter((a) => SO_STAGES.some((s, i) => soIn(m.stage, s.chip) && (!withLevel || soIn(m.level, a.r[i]))));
-}
-const soMatrixStages = () => SO_STAGES.map((s, i) => ({ s, i })).filter(({ s }) => soIn(soState.matrix.stage, s.chip));
-
-// A rating cell links to the calls behind it. With a Performance Level filter set, other levels are dimmed.
-function soMatrixCell(r, i) {
-  const m = soState.matrix;
-  const g = r.r[i];
-  const dim = !soIn(m.level, g);
-  const href = soDrill({ agent: r.slug, stage: SO_STAGES[i].chip, level: g, dir: m.dir });
-  return `<a class="so-cell${dim ? " so-dim" : ""}" href="${esc(href)}" title="${esc(`${r.name} • ${SO_STAGES[i].chip}: ${g}. View calls`)}">${soChip(g)}</a>`;
+    .filter(Boolean);
 }
 
-const soMatrixCols = () => [
-  { key: "name", label: "Agent", px: 170, sortable: true, render: (r) => soAgentLink(r) },
-  { key: "supName", label: "Supervisor", px: 130, sortable: true },
-  { key: "wg", label: "Workgroup", px: 100, sortable: true },
-  { key: "score", label: "Avg. Scoring", px: 120, sortable: true, render: (r) => soScore(r.score) },
-  ...soMatrixStages().map(({ s, i }) => ({ key: "s" + i, label: s.chip, px: 125, sortable: true, render: (r) => soMatrixCell(r, i) })),
+const soCredStageChip = (cls, creditor) => (n) => soCredDrill({ creditor, stage: n }, `<span class="chip chip-${cls} chip-so-stage">${esc(n)}</span>`, `View ${creditor} calls for ${n}`);
+const SO_CRED_COLS = [
+  { key: "name", label: "Creditor", w: 20, sortable: true, render: (r) => soCredDrill({ creditor: r.name }, esc(r.name), `View ${r.name} calls`) },
+  { key: "score", label: "Avg. Scoring", w: 16, sortable: true, render: (r) => soScore(r.score) },
+  { key: "calls", label: "Calls", w: 10, sortable: true, render: (r) => soCredDrill({ creditor: r.name }, soN(r.calls), `View ${r.name} calls`) },
+  { key: "agents", label: "Agents", w: 10, sortable: true },
+  { key: "top", label: "Avg. Top Call Stage", w: 22, cls: "so-wrap", render: (r) => r.top.map(soCredStageChip("Good", r.name)).join("") },
+  { key: "bottom", label: "Avg. Bottom Call Stage", w: 22, cls: "so-wrap", render: (r) => r.bottom.map(soCredStageChip("Poor", r.name)).join("") },
 ];
+const SO_CRED_MATRIX_COLS = [
+  { key: "name", label: "Creditor", px: 170, sortable: true, render: (r) => soCredDrill({ creditor: r.name }, esc(r.name), `View ${r.name} calls`) },
+  ...SO_STAGES.map((s, i) => ({ key: "s" + i, label: s.chip, px: 125, sortable: true, render: (r) => soCredDrill({ creditor: r.name, stage: s.chip, level: r.ratings[i] }, soChip(r.ratings[i]), `View ${r.name}'s ${r.ratings[i]} calls for ${s.chip}`) })),
+];
+const soCredValue = (r, k) => (/^s\d$/.test(k) ? r.means[+k[1]] ?? 0 : r[k]);
 
-// Footer: each stage's average rating across the agents shown ("Not required" ratings are left out of the mean).
-function soMatrixFoot(agents) {
-  if (!agents.length) return "";
-  const cells = soMatrixStages().map(({ i }) => `<td>${soChip(soLevelOf(soStageMean(agents, i)))}</td>`).join("");
-  return `<tfoot><tr><td>Average (${agents.length} agent${agents.length === 1 ? "" : "s"})</td><td></td><td></td><td>${soScore(Math.round(soAvg(agents.map((a) => a.score))))}</td>${cells}</tr></tfoot>`;
+function soCredKpis(rows) {
+  const c = soState.cred;
+  const r = SO_RANGES[c.date];
+  const el = document.getElementById("socr-kpis");
+  if (!rows.length) {
+    el.innerHTML = soKpi("Creditors", ["<b>–</b>"]) + soKpi("Calls Evaluated", ["<b>–</b>", "<b>–</b>"]) + soKpi("Avg. Scoring", ["<b>–</b>", "<b>–</b>"]);
+    return;
+  }
+  const calls = soSum(rows.map((x) => x.calls));
+  const cur = soClamp(Math.round(soSum(rows.map((x) => x.score * x.calls)) / calls) + r.d, 0, 100);
+  const prev = soClamp(cur - 6 + (hash(soState.user.id + c.wg + "so-cred-prev") % 9), 0, 100);
+  el.innerHTML =
+    soKpi("Creditors", [`<b class="so-big">${rows.length}</b><span>of ${SO_CREDITORS.length} creditors</span>`]) +
+    soKpi("Calls Evaluated", [`<b>${soN(calls)}</b><span>${r.cur}</span>`, `<b>${soN(calls * 0.62)}</b><span>${r.prev}</span>`]) +
+    soKpi("Avg. Scoring", [`${soGrade(cur)}<b>${cur}%</b><span>${r.cur}</span>`, `${soGrade(prev)}<b>${prev}%</b><span>${r.prev}</span>`]);
 }
 
-function renderSoMatrix() {
-  const m = soState.matrix;
-  const scope = soScopeAgents();
-  const sups = new Set(scope.map((a) => a.sup));
-  document.getElementById("dd-som-sup").hidden = sups.size < 2;
-  const supNames = [...sups].map((id) => soUserOf(id).name);
-  m.sup = m.sup.filter((n) => supNames.includes(n));
-
-  const stages = soMatrixStages();
-  const rows = sortRows(soMatrixAgents(), m.sort, soDashValue);
-  const cols = soMatrixCols();
-  fillTable("som-grid", cols, m.sort, wsRows(cols, rows), scope.length ? "No agents match your filters." : "No agents are assigned to you yet.");
-  document.getElementById("som-grid").insertAdjacentHTML("beforeend", soMatrixFoot(rows));
-  document.getElementById("som-sub").textContent = `Showing ${rows.length} of ${scope.length} agent${scope.length === 1 ? "" : "s"} in your hierarchy across ${stages.length} call stage${stages.length === 1 ? "" : "s"}. Select a rating to see the calls behind it.`;
-
-  // The legend doubles as the Performance Level filter (select several) and counts the cells at each level.
-  const counts = Object.fromEntries(SO_LEVEL_OPTS.map((g) => [g, 0]));
-  soMatrixAgents(false).forEach((a) => stages.forEach(({ i }) => (counts[a.r[i]] += 1)));
-  document.getElementById("som-legend").innerHTML = SO_LEVEL_OPTS.map(
-    (g) => `<button class="so-slice" type="button" data-level="${g}" aria-pressed="${m.level.includes(g)}"><i style="background:${SO_COLOR[g]}"></i>${g}<b>${counts[g]}</b></button>`
-  ).join("");
+function renderSoCreditors() {
+  const c = soState.cred;
+  const rows = soCredRows();
+  const empty = soScopeAgents().length === 0 ? "No agents are assigned to you yet." : "No creditors match your filters.";
+  soCredKpis(rows);
+  fillTable("socr-table", SO_CRED_COLS, c.sort, wsRows(SO_CRED_COLS, sortRows(rows, c.sort, soCredValue)), empty);
+  fillTable("socr-matrix", SO_CRED_MATRIX_COLS, c.mSort, wsRows(SO_CRED_MATRIX_COLS, sortRows(rows, c.mSort, soCredValue)), empty);
+  const n = soScopeAgents().length;
+  document.getElementById("socr-sub").textContent = `Showing ${rows.length} of ${SO_CREDITORS.length} creditors across ${n} agent${n === 1 ? "" : "s"} in your hierarchy. Select a creditor or rating to see the calls behind it.`;
 }
 
 // ---------- Call Records (drill-down list) ----------
@@ -878,6 +1349,7 @@ function soListBase() {
       dirs.forEach((d) =>
         soCalls(a, d).forEach((c) => {
           if (f.tag !== SO_TAG_ALL && !c.tags.includes(f.tag)) return;
+          if (f.creditor !== SO_CRED_ALL && c.creditor !== f.creditor) return;
           out.push({ ...c, agentName: a.name, wg: a.wg, st: soCallStages(c).filter((s) => f.stage === SO_STAGE_ALL || s.chip === f.stage) });
         })
       )
@@ -893,16 +1365,19 @@ function soListRows(base) {
     .map((r) => ({ ...r, hits: f.level === SO_LEVEL_ALL ? r.st : r.st.filter((s) => s.grade === f.level) }));
 }
 
+// Column widths are percentages so the table always fits the page. A creditor's own page drops the Creditor column.
+const SO_LIST_W = { date: 9, agentName: 12, wg: 9, creditor: 11, dir: 8, score: 12, hits: 14, tags: 15, details: 10 };
+const SO_LIST_W_CRED = { date: 10, agentName: 13, wg: 10, dir: 9, score: 13, hits: 16, tags: 17, details: 12 };
 const SO_LIST_COLS = [
-  { key: "date", label: "Call Date", px: 110, sortable: true, render: (r) => fmtDate(r.date) },
-  { key: "agentName", label: "Agent", px: 150, sortable: true, render: (r) => soAgentLink(r.agent) },
-  { key: "wg", label: "Workgroup", px: 100, sortable: true },
-  { key: "dir", label: "Direction", px: 100, sortable: true },
-  { key: "score", label: "Call Scoring", px: 130, sortable: true, render: (r) => soScore(r.score) },
+  { key: "date", label: "Call Date", sortable: true, render: (r) => fmtDate(r.date) },
+  { key: "agentName", label: "Agent", sortable: true, render: (r) => soAgentLink(r.agent) },
+  { key: "wg", label: "Workgroup", sortable: true },
+  { key: "creditor", label: "Creditor", sortable: true },
+  { key: "dir", label: "Direction", sortable: true },
+  { key: "score", label: "Call Scoring", sortable: true, render: (r) => soScore(r.score) },
   {
     key: "hits",
     label: "Stage Ratings",
-    px: 330,
     cls: "so-wrap",
     render: (r) => {
       const f = soState.calls;
@@ -910,9 +1385,14 @@ const SO_LIST_COLS = [
       return r.hits.map((h) => `<span class="so-hit">${esc(h.chip)}${soChip(h.grade)}</span>`).join("");
     },
   },
-  { key: "tags", label: "Call Tags", px: 240, cls: "so-wrap", render: (r) => r.tags.map(soTagChip).join("") },
-  { key: "details", label: "Call Details", px: 140, render: (r) => `<a class="text-btn" href="#/setops/call/${r.id}">View call details</a>` },
+  { key: "tags", label: "Call Tags", cls: "so-wrap", render: soCallTags },
+  { key: "details", label: "Call Details", render: (r) => `<a class="text-btn" href="#/setops/call/${r.id}">View call details</a>` },
 ];
+const soListCols = () => {
+  const byCreditor = soState.calls.creditor !== SO_CRED_ALL;
+  const w = byCreditor ? SO_LIST_W_CRED : SO_LIST_W;
+  return SO_LIST_COLS.filter((c) => w[c.key]).map((c) => ({ ...c, w: w[c.key] }));
+};
 
 function soListKpis(base, rows) {
   const f = soState.calls;
@@ -927,15 +1407,19 @@ function soListKpis(base, rows) {
     .map((g) => `<button class="so-seg${f.level !== SO_LEVEL_ALL && f.level !== g ? " so-dim" : ""}" type="button" data-level="${g}" style="flex:${counts[g]};background:${SO_COLOR[g]}" title="${g}: ${counts[g]}" aria-label="${g}: ${counts[g]}"></button>`)
     .join("");
   const legend = SO_LEVEL_OPTS.map((g) => `<button class="so-slice" type="button" data-level="${g}" aria-pressed="${f.level === g}"><i style="background:${SO_COLOR[g]}"></i>${g}<b>${counts[g]}</b></button>`).join("");
-  document.getElementById("sol-kpis").innerHTML =
-    soKpi("Calls Matching", [`<b class="so-big">${soN(rows.length)}</b><span>of ${soN(total)} calls</span>`, `<b>${agents}</b><span>agent${agents === 1 ? "" : "s"}</span>`]) +
-    soKpi("Avg. Call Scoring", [avg === null ? "<b>–</b>" : `${soGrade(avg)}<b>${avg}%</b>`]) +
-    `<article class="card so-dist-card">
+  const dist = `<article class="card so-dist-card">
       <div><div class="kpi-title">Performance Levels</div></div>
       <div class="so-dist" role="group" aria-label="Performance level breakdown">${bar || '<span class="so-muted">No ratings</span>'}</div>
       <div class="so-legend">${legend}</div>
       <div class="kpi-metric"><div><span>${esc(f.stage === SO_STAGE_ALL ? "All call stages" : f.stage)} • ${soN(results)} rating${results === 1 ? "" : "s"}</span></div></div>
     </article>`;
+  const avgKpi = soKpi("Avg. Call Scoring", [avg === null ? "<b>–</b>" : `${soGrade(avg)}<b>${avg}%</b>`]);
+  // A creditor's page leaves out Calls Matching and shows the Performance Levels card under the Calls heading.
+  const own = f.creditor !== SO_CRED_ALL;
+  document.getElementById("sol-kpis").innerHTML = own
+    ? avgKpi
+    : soKpi("Calls Matching", [`<b class="so-big">${soN(rows.length)}</b><span>of ${soN(total)} calls</span>`, `<b>${agents}</b><span>agent${agents === 1 ? "" : "s"}</span>`]) + avgKpi + dist;
+  document.getElementById("sol-dist").innerHTML = own ? dist : "";
 }
 
 function renderSoList() {
@@ -945,13 +1429,15 @@ function renderSoList() {
   soListKpis(base, rows);
 
   const parts = [f.agent && SO_BY_SLUG.get(f.agent).name, f.wg !== "All" && f.wg, f.stage !== SO_STAGE_ALL && f.stage, f.level !== SO_LEVEL_ALL && f.level, f.tag !== SO_TAG_ALL && f.tag, f.dir !== SO_DIR_BOTH && f.dir].filter(Boolean);
+  document.getElementById("sol-title").textContent = f.creditor !== SO_CRED_ALL ? f.creditor : "Call Records";
   document.getElementById("sol-sub").textContent = parts.length ? parts.join(" • ") : "All calls in your hierarchy";
   const back = document.getElementById("sol-back");
   back.href = f.back.href;
   document.getElementById("sol-back-name").textContent = f.back.label;
 
   const sorted = sortRows(rows, f.sort, (r, k) => r[k]);
-  fillTable("sol-table", SO_LIST_COLS, f.sort, wsRows(SO_LIST_COLS, soPager("sol", f, sorted), (r) => ` data-id="${r.id}"`), soScopeAgents().length ? "No calls match your filters." : "No agents are assigned to you yet.");
+  const listCols = soListCols();
+  fillTable("sol-table", listCols, f.sort, wsRows(listCols, soPager("sol", f, sorted), (r) => ` data-id="${r.id}"`), soScopeAgents().length ? "No calls match your filters." : "No agents are assigned to you yet.");
 }
 
 // Reads the filters from the URL. Returns false when the link points at an agent outside the user's roster.
@@ -961,7 +1447,7 @@ function soOpenCalls(cameFrom) {
   const c = soState.calls;
   Object.assign(c, f, { page: 1, sort: { key: "date", dir: "desc" } });
   // Remember where the drill-down started; returning from a call keeps the earlier origin.
-  if (cameFrom.startsWith("#/setops/matrix")) c.back = { href: "#/setops/matrix", label: "Agent Matrix" };
+  if (cameFrom.startsWith("#/setops/creditors")) c.back = { href: "#/setops/creditors", label: "Creditors" };
   else if (cameFrom.startsWith("#/setops/agent/") && SO_BY_SLUG.has(cameFrom.split("/")[3])) c.back = { href: cameFrom, label: SO_BY_SLUG.get(cameFrom.split("/")[3]).name };
   else if (cameFrom === "#/setops" || cameFrom === "") c.back = { href: "#/setops", label: "Dashboard" };
   document.title = "EvalAI - SetOps - Call Records";
@@ -972,7 +1458,7 @@ function soOpenCalls(cameFrom) {
 
 // ---------- Routing hooks (called from route() in app.js) ----------
 function soShow(view) {
-  ["dash", "matrix", "calls", "agent", "call"].forEach((v) => (document.getElementById("page-so" + v).hidden = v !== view));
+  ["dash", "creditors", "calls", "agent", "call"].forEach((v) => (document.getElementById("page-so" + v).hidden = v !== view));
   if (view !== "call") soStopCall();
 }
 
@@ -982,9 +1468,9 @@ function soRoute(view, slug, cameFrom) {
     document.title = "EvalAI - SetOps";
     return renderSoDash();
   }
-  if (view === "matrix") {
-    document.title = "EvalAI - SetOps - Agent Matrix";
-    return renderSoMatrix();
+  if (view === "creditors") {
+    document.title = "EvalAI - SetOps - Creditors";
+    return renderSoCreditors();
   }
   // Deep links are checked against the roster too, so hiding rows is not the only protection.
   const deny = () => {
@@ -1003,43 +1489,6 @@ function soRoute(view, slug, cameFrom) {
 }
 
 // ---------- Init ----------
-// Multi-select dropdown: `get()` returns the chosen values (empty = all) and `set(list)` stores a new list in option order.
-// The menu stays open while choosing; a click outside closes it like the other dropdowns.
-function setupMultiDropdown(id, options, get, set, { title }) {
-  const root = document.getElementById(id);
-  const btn = root.querySelector(".dd-trigger");
-  const menu = root.querySelector(".dd-menu");
-  const opts = () => (typeof options === "function" ? options() : options);
-  root.classList.add("dd-multi");
-  menu.setAttribute("aria-multiselectable", "true");
-
-  const paint = () => {
-    const sel = get();
-    const label = !sel.length ? "All" : sel.length === 1 ? sel[0] : `${sel.length} selected`;
-    btn.innerHTML = `<span>${esc(`${title}: ${label}`)}</span>${icon("i-chevron", 24)}`;
-    menu.innerHTML =
-      (sel.length ? '<button class="dd-option dd-clear" type="button" data-clear="1">Clear selection</button>' : "") +
-      opts().map((o) => `<button class="dd-option" type="button" role="option" aria-selected="${sel.includes(o)}" data-v="${esc(o)}"><span class="dd-check">${sel.includes(o) ? icon("i-check", 14) : ""}</span>${esc(o)}</button>`).join("");
-  };
-  dropdownPainters.push(paint);
-
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const open = root.dataset.open === "true";
-    closeMenus();
-    root.setAttribute("data-open", String(!open));
-  });
-  menu.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const opt = e.target.closest(".dd-option");
-    if (!opt) return;
-    const sel = get();
-    if (opt.dataset.clear) set([]);
-    else set(opts().filter((o) => (o === opt.dataset.v ? !sel.includes(o) : sel.includes(o))));
-    dropdownPainters.forEach((p) => p());
-  });
-  paint();
-}
 const SO_DATES = Object.keys(SO_RANGES);
 const soDashChange = () => {
   soState.dash.a.page = 1;
@@ -1049,17 +1498,21 @@ const soUserLabel = (u) => `${u.name} (${u.role})`;
 // Prototype-only: stands in for the signed-in user so each role's scope can be checked.
 setupDropdown("dd-so-user", SO_USERS.map(soUserLabel), () => soUserLabel(soState.user), (v) => {
   soState.user = SO_USERS.find((u) => soUserLabel(u) === v);
-  Object.assign(soState.dash, { wg: "All", query: "" });
-  Object.assign(soState.matrix, { wg: [], sup: [], query: "" });
+  Object.assign(soState.dash, { wg: "All", creditor: SO_CRED_ALL, query: "" });
+  Object.assign(soState.cred, { wg: "All", query: "" });
   soState.dash.a.page = 1;
   document.getElementById("sod-search").value = "";
-  document.getElementById("som-search").value = "";
+  document.getElementById("socr-search").value = "";
   route();
 }, { prefix: "View as: " });
 setupDropdown("dd-sod-wg", () => ["All", ...soScopeWgs().map((w) => w.name)], () => soState.dash.wg, (v) => {
   soState.dash.wg = v;
   soDashChange();
 }, { prefix: "Workgroup: " });
+setupDropdown("dd-sod-creditor", [SO_CRED_ALL, ...SO_CREDITORS], () => soState.dash.creditor, (v) => {
+  soState.dash.creditor = v;
+  soDashChange();
+});
 setupDropdown("dd-sod-tag", [SO_TAG_ALL, ...SO_TAGS], () => soState.dash.tag, (v) => {
   soState.dash.tag = v;
   soDashChange();
@@ -1114,54 +1567,54 @@ setupDropdown("dd-soa-c-size", ["5", "10", "15"], () => String(soState.agent.c.s
 
 bindSort("sod-wg", () => soState.dash.wgSort, renderSoDash);
 bindSort("sod-stages", () => soState.dash.stSort, renderSoDash);
+bindSort("sod-creditors", () => soState.dash.crSort, renderSoDash);
 bindSort("sod-agents", () => soState.dash.a.sort, () => {
   renderSoDash();
 });
-bindSort("soa-stages", () => soState.agent.st, renderSoAgent);
 bindSort("soa-calls", () => soState.agent.c.sort, renderSoAgent);
-
-// Agent Matrix (multi-select filters)
-setupMultiDropdown("dd-som-wg", () => soScopeWgs().map((w) => w.name), () => soState.matrix.wg, (v) => {
-  soState.matrix.wg = v;
-  renderSoMatrix();
-}, { title: "Workgroup" });
-setupMultiDropdown("dd-som-sup", () => [...new Set(soScopeAgents().map((a) => a.sup))].map((id) => soUserOf(id).name), () => soState.matrix.sup, (v) => {
-  soState.matrix.sup = v;
-  renderSoMatrix();
-}, { title: "Supervisor" });
-setupMultiDropdown("dd-som-stage", SO_CHIPS, () => soState.matrix.stage, (v) => {
-  soState.matrix.stage = v;
-  renderSoMatrix();
-}, { title: "Call Stage" });
-setupMultiDropdown("dd-som-level", SO_LEVEL_OPTS, () => soState.matrix.level, (v) => {
-  soState.matrix.level = v;
-  renderSoMatrix();
-}, { title: "Performance Level" });
-setupDropdown("dd-som-dir", SO_DIR_OPTS, () => soState.matrix.dir, (v) => {
-  soState.matrix.dir = v;
-  renderSoMatrix();
-}, SO_DIR_PREFIX);
-bindSort("som-grid", () => soState.matrix.sort, renderSoMatrix);
-document.getElementById("som-search").addEventListener("input", (e) => {
-  soState.matrix.query = e.target.value.trim();
-  renderSoMatrix();
-});
-document.getElementById("som-legend").addEventListener("click", (e) => {
-  const b = e.target.closest("button[data-level]");
+bindSort("soa-creditors", () => soState.agent.cr, renderSoAgent);
+// Call Stage Trends legend: click a stage to show or hide its line.
+document.getElementById("soa-legend").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-i]");
   if (!b) return;
-  const m = soState.matrix;
-  m.level = m.level.includes(b.dataset.level) ? m.level.filter((l) => l !== b.dataset.level) : SO_LEVEL_OPTS.filter((l) => l === b.dataset.level || m.level.includes(l));
-  dropdownPainters.forEach((p) => p());
-  renderSoMatrix();
+  const hidden = soState.agent.hidden;
+  const i = Number(b.dataset.i);
+  if (hidden.has(i)) hidden.delete(i);
+  else hidden.add(i);
+  renderSoAgent();
 });
-document.getElementById("som-download").addEventListener("click", () => {
-  const stages = soMatrixStages();
-  const rows = sortRows(soMatrixAgents(), soState.matrix.sort, soDashValue);
+
+// Creditors overview
+const soCredChange = () => renderSoCreditors();
+setupDropdown("dd-socr-wg", () => ["All", ...soScopeWgs().map((w) => w.name)], () => soState.cred.wg, (v) => {
+  soState.cred.wg = v;
+  soCredChange();
+}, { prefix: "Workgroup: " });
+setupDropdown("dd-socr-tag", [SO_TAG_ALL, ...SO_TAGS], () => soState.cred.tag, (v) => {
+  soState.cred.tag = v;
+  soCredChange();
+});
+setupDropdown("dd-socr-dir", SO_DIR_OPTS, () => soState.cred.dir, (v) => {
+  soState.cred.dir = v;
+  soCredChange();
+}, SO_DIR_PREFIX);
+setupDropdown("dd-socr-date", SO_DATES, () => soState.cred.date, (v) => {
+  soState.cred.date = v;
+  soCredChange();
+}, { lead: "i-calendar" });
+bindSort("socr-table", () => soState.cred.sort, renderSoCreditors);
+bindSort("socr-matrix", () => soState.cred.mSort, renderSoCreditors);
+document.getElementById("socr-search").addEventListener("input", (e) => {
+  soState.cred.query = e.target.value.trim();
+  soCredChange();
+});
+document.getElementById("socr-download").addEventListener("click", () => {
+  const rows = sortRows(soCredRows(), soState.cred.sort, soCredValue);
   saveCsv(
-    [["Agent", "Supervisor", "Workgroup", "Avg. Scoring", ...stages.map(({ s }) => s.col)], ...rows.map((r) => [r.name, r.supName, r.wg, `${soLetter(r.score)} ${r.score}%`, ...stages.map(({ i }) => r.r[i])])],
-    `agent-matrix-${soState.matrix.dir.toLowerCase()}.csv`
+    [["Creditor", "Calls", "Avg. Scoring", "Agents", ...SO_STAGES.map((s) => s.col)], ...rows.map((r) => [r.name, r.calls, `${soLetter(r.score)} ${r.score}%`, r.agents, ...r.ratings])],
+    "creditor-performance.csv"
   );
-  toast(`Exported ${rows.length} agents`);
+  toast(`Exported ${rows.length} creditors`);
 });
 
 // Call Records. Filters are mirrored into the URL without adding history entries or re-running the route.
@@ -1178,6 +1631,10 @@ setupDropdown("dd-sol-wg", () => ["All", ...soScopeWgs().map((w) => w.name)], ()
   soState.calls.wg = v;
   soListChange();
 }, { prefix: "Workgroup: " });
+setupDropdown("dd-sol-creditor", [SO_CRED_ALL, ...SO_CREDITORS], () => soState.calls.creditor, (v) => {
+  soState.calls.creditor = v;
+  soListChange();
+});
 setupDropdown("dd-sol-stage", [SO_STAGE_ALL, ...SO_CHIPS], () => soState.calls.stage, (v) => {
   soState.calls.stage = v;
   soListChange();
@@ -1201,14 +1658,17 @@ setupDropdown("dd-sol-size", ["5", "10", "15"], () => String(soState.calls.size)
 }, { prefix: "View " });
 bindSort("sol-table", () => soState.calls.sort, renderSoList);
 // Clicking a slice of the Performance Levels card filters to that level; clicking it again clears the filter.
-document.getElementById("sol-kpis").addEventListener("click", (e) => {
-  const b = e.target.closest("button[data-level]");
-  if (!b) return;
-  const f = soState.calls;
-  f.level = f.level === b.dataset.level ? SO_LEVEL_ALL : b.dataset.level;
-  dropdownPainters.forEach((p) => p());
-  soListChange();
-});
+// The card sits in the KPI row, or under the Calls heading on a creditor's page.
+["sol-kpis", "sol-dist"].forEach((id) =>
+  document.getElementById(id).addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-level]");
+    if (!b) return;
+    const f = soState.calls;
+    f.level = f.level === b.dataset.level ? SO_LEVEL_ALL : b.dataset.level;
+    dropdownPainters.forEach((p) => p());
+    soListChange();
+  })
+);
 document.getElementById("sol-table").addEventListener("click", (e) => {
   if (e.target.closest("a")) return;
   const row = e.target.closest("tbody tr[data-id]");
@@ -1218,7 +1678,7 @@ document.getElementById("sol-download").addEventListener("click", () => {
   const f = soState.calls;
   const rows = sortRows(soListRows(soListBase()), f.sort, (r, k) => r[k]);
   saveCsv(
-    [["Call ID", "Call Date", "Agent", "Workgroup", "Direction", "Call Scoring", "Stage Ratings", "Call Tags"], ...rows.map((r) => [r.id, fmtDate(r.date), r.agentName, r.wg, r.dir, `${soLetter(r.score)} ${r.score}%`, r.hits.map((h) => `${h.chip}: ${h.grade}`).join("; "), r.tags.join("; ")])],
+    [["Call ID", "Call Date", "Agent", "Workgroup", "Creditor", "Direction", "Call Scoring", "Stage Ratings", "Call Tags"], ...rows.map((r) => [r.id, fmtDate(r.date), r.agentName, r.wg, r.creditor, r.dir, `${soLetter(r.score)} ${r.score}%`, r.hits.map((h) => `${h.chip}: ${h.grade}`).join("; "), r.tags.join("; ")])],
     "call-records.csv"
   );
   toast(`Exported ${rows.length} calls`);
@@ -1260,7 +1720,7 @@ document.getElementById("soa-calls").addEventListener("click", (e) => {
 document.getElementById("sod-download").addEventListener("click", () => {
   const rows = soDashAgents();
   saveCsv(
-    [["Agent", "Workgroup", "Calls", "Avg. Scoring", ...SO_STAGES.map((s) => s.col)], ...rows.map((r) => [r.name, r.wg, r.calls, soLetter(r.score), ...r.r])],
+    [["Agent", "Supervisor", "Workgroup", "Calls", "Avg. Scoring", ...SO_STAGES.map((s) => s.col)], ...rows.map((r) => [r.name, r.supName, r.wg, r.calls, `${soLetter(r.score)} ${r.score}%`, ...r.r])],
     "agent-performance.csv"
   );
   toast(`Exported ${rows.length} agents`);
@@ -1283,9 +1743,10 @@ document.getElementById("soc-download").addEventListener("click", () => {
     toast(`Exported ${rows.length} lines`);
     return;
   }
-  const rows = soCallStages(c).map((s) => [s.name, s.grade, s.text + (s.quote ? ` Agent: "${s.quote}"` : "")]);
-  saveCsv([["Call Stage", "Rating", "Summary"], ...rows], `call-${c.id}-results.csv`);
-  toast(`Exported ${rows.length} stages`);
+  const accts = soCallAccounts(c);
+  const rows = accts.flatMap((ac, k) => ac.stages.map((s) => [accts.length > 1 ? `Account ${k + 1} (${ac.label})` : "", s.name, s.grade, s.text + (s.quote ? ` Agent: "${s.quote}"` : "")]));
+  saveCsv([["Account", "Call Stage", "Rating", "Summary"], ...rows], `call-${c.id}-results.csv`);
+  toast(`Exported ${rows.length} stage results`);
 });
 
 document.getElementById("soc-tabs").addEventListener("click", (e) => {
@@ -1295,6 +1756,12 @@ document.getElementById("soc-tabs").addEventListener("click", (e) => {
   renderSoCall();
 });
 document.getElementById("soc-results").addEventListener("click", (e) => {
+  const acct = e.target.closest("button[data-acct]");
+  if (acct) {
+    Object.assign(soState.call, { acct: Number(acct.dataset.acct), open: null });
+    renderSoCall();
+    return;
+  }
   const head = e.target.closest(".stage-head");
   if (!head) return;
   const st = soState.call;

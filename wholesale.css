@@ -8,6 +8,7 @@
   align-items: flex-start;
 }
 
+/* Two columns at every width; a table scrolls inside its card once it gets too narrow to read. */
 .ws-split > .card {
   flex: 1 1 0;
   min-width: 0;
@@ -21,11 +22,154 @@
   flex-grow: 632;
 }
 
+.ws-split.even > .card:first-child,
+.ws-split.even > .card:last-child {
+  flex-grow: 1;
+}
+
+#wsd-top,
+#wsd-bottom {
+  min-width: 380px;
+}
+
+#wsd-matrix {
+  min-width: 1100px;
+}
+
+#wsd-matrix thead th {
+  vertical-align: middle;
+}
+
+#wsd-matrix thead th.ws-grp {
+  text-align: center;
+  border-left: 1px solid var(--border-primary);
+}
+
+#wsd-matrix .ws-gl {
+  border-left: 1px solid var(--border-primary);
+}
+
+/* ---------- Bar charts ---------- */
+.ws-chart {
+  --lab: 170px;
+}
+
+.ws-bar-row {
+  display: grid;
+  grid-template-columns: var(--lab) 1fr 56px;
+  column-gap: 12px;
+  align-items: center;
+}
+
+.ws-bar-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  font-size: 14px;
+}
+
+.ws-bar-track {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  border-left: 1px solid var(--border-primary);
+  border-right: 1px solid var(--border-primary);
+  background-image: linear-gradient(to right, var(--border-primary) 1px, transparent 1px);
+  background-size: calc(100% / var(--n)) 100%;
+}
+
+.ws-bar-track i {
+  display: block;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.ws-bar-row b {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ws-axis {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--content-secondary);
+}
+
+.ws-axis > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+#wsd-partners {
+  min-width: 700px;
+}
+
+#wsd-cats {
+  min-width: 900px;
+}
+
+/* Header text that does not fit is cut with an ellipsis instead of running into the next column. */
+main[id^="page-ws"] .th-plain {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+tbody tr.ws-sum td {
+  font-weight: 700;
+  background: var(--bg-secondary);
+}
+
+.ws-note {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--content-accent);
+  background: var(--bg-accent-light);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--content-secondary);
+}
+
 .ws-kpis .kpi-title {
   margin-top: 0;
 }
 
+/* Dashboard KPIs: value on its own line (slightly larger), label beneath it. */
+/* Partner and agent KPIs use the same stacked cards as the dashboard. */
+#wp-kpis .kpi-metric div,
+#wa-kpis .kpi-metric div {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+#wp-kpis .kpi-metric b,
+#wa-kpis .kpi-metric b {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+#wsd-kpis .card:not(:last-child) .kpi-metric div {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+#wsd-kpis .card .kpi-metric b {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
 /* ---------- Tables ---------- */
+/* Cell padding (8px all around, header and body) now lives in styles.css and applies to every table. */
+
+.ws-more {
+  margin-left: 4px;
+  font-size: 12px;
+  color: var(--content-secondary);
+  cursor: help;
+}
+
 td.wrap {
   white-space: normal;
 }
@@ -40,6 +184,13 @@ a.text-btn:hover {
 
 .ws-status {
   display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ws-status[data-tip] {
+  width: fit-content;
+  cursor: help;
 }
 
 .ws-status.pass {
@@ -83,23 +234,72 @@ a.chip-view {
 }
 
 a.chip-view:hover {
-  background: #dfeaff;
+  background: var(--bg-accent-light-hover);
   color: var(--content-accent);
 }
 
 .chip-Fail {
-  background: #fff5f8;
+  background: var(--bg-negative);
   color: var(--content-negative);
 }
 
 .chip-Pass {
-  background: #ecf9f4;
+  background: var(--bg-positive);
   color: var(--content-positive);
 }
 
 .chip-lg {
   padding: 4px 12px;
   font-size: 14px;
+}
+
+.chip-warn {
+  background: var(--bg-warning);
+  color: var(--content-warning);
+}
+
+/* ---------- Agent Analysis and Statement Audit ---------- */
+.wan-a[hidden],
+.wan-s[hidden] {
+  display: none !important;
+}
+
+#wan-tabs {
+  align-self: flex-start;
+}
+
+/* Header stacks so the title and the filters never run into each other. */
+#page-wsanalysis .page-header {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+#page-wsanalysis .filters {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+#wan-a-kpis .kpi-metric div,
+#wan-s-kpis .kpi-metric div {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+#wan-a-kpis .kpi-metric b,
+#wan-s-kpis .kpi-metric b {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+#wan-a-table tbody .chip-info,
+#wan-s-table tbody .chip-info,
+#wan-top-table tbody .chip-info {
+  max-width: none;
+}
+
+#wan-top-cat {
+  flex-wrap: wrap;
 }
 
 /* ---------- Tooltip ---------- */
@@ -112,7 +312,7 @@ a.chip-view:hover {
   padding: 12px 16px;
   border: 1px solid var(--border-opaque);
   border-radius: var(--radius-md);
-  background: #eff2f8;
+  background: var(--bg-informational);
   box-shadow: var(--shadow-3);
   color: var(--content-primary);
   font-size: 12px;
@@ -426,7 +626,7 @@ a.btn-secondary {
 .wcd-step.done .wcd-dot {
   border-color: var(--content-positive);
   background: var(--content-positive);
-  color: #fff;
+  color: var(--content-inverse);
 }
 
 .wcd-step.next .wcd-dot {
@@ -459,13 +659,14 @@ a.btn-secondary {
   border: 0;
   border-radius: var(--radius-md);
   background: var(--content-accent);
-  color: #fff;
+  color: var(--content-inverse);
   font-size: 14px;
   font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .wcd-btn:hover {
-  opacity: 0.9;
+  background: var(--bg-accent-hover);
 }
 
 .wcd-select {

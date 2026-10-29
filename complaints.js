@@ -29,8 +29,8 @@ const WC_SOURCES = [
 
 const WC_TOPICS = [
   { name: "Credit impact not disclosed", cat: "Credit Impact/Disclosure", claim: "Client says they were never told that enrolling would hurt their credit and has since seen their score drop." },
-  { name: "Program described as a loan", cat: "Charge-Up/Loan Language", claim: "Client believed the program was a loan and did not understand that they would stop paying their creditors." },
-  { name: "Told to run up cards", cat: "Charge-Up/Loan Language", claim: `Client says the agent told them to keep charging their cards to "maximize the profit" before enrolling.` },
+  { name: "Program described as a loan", cat: "Misrepresentation", claim: "Client believed the program was a loan and did not understand that they would stop paying their creditors." },
+  { name: "Told to run up cards", cat: "Misrepresentation", claim: `Client says the agent told them to keep charging their cards to "maximize the profit" before enrolling.` },
   { name: "Outcome or timeline promised", cat: "Misrepresentation", claim: "Client says they were promised every account would be settled within a fixed time for a fixed monthly payment." },
   { name: "Told they would not be sued", cat: "Legal Action", claim: `Client was contacted about a lawsuit after enrolling and says the agent told them "you won't be sued".` },
   { name: "Program Summary recording downplayed", cat: "Downplaying Program Summary Recording", claim: "Client says the agent told them to skip the Program Summary recording and they did not know about the program fees." },
@@ -65,7 +65,8 @@ const WC_ROLE_NOTE = {
   "Customer Service": "Tier 2 to 4 complaints. Open the call yourself instead of waiting on a summary.",
 };
 
-const WC_WEIGHTS = { Symple: 5, "Rescue 1 financial": 4, Iconic: 2, "Absolute Debt Relief": 2 };
+// The notes name Symple, Penni and Rescue One as the partners with the most complaints.
+const WC_WEIGHTS = { Symple: 5, Penni: 4, "Rescue 1 financial": 4, Iconic: 2, "Absolute Debt Relief": 2, "United Financial Network": 3, Empower: 2 };
 const WC_OWNERS = ["Rachel Green", "Monica Geller", "Chandler Bing"];
 const WC_FIRST = ["Maria", "James", "Linda", "Robert", "Patricia", "Michael", "Barbara", "David", "Susan", "Carlos"];
 const WC_LAST = ["Alvarez", "Brooks", "Chen", "Dawson", "Ellis", "Foster", "Garcia", "Hughes", "Ibarra", "Jensen"];
@@ -100,9 +101,11 @@ function wcInit() {
     const rand = rng(hash("wc-" + i));
     const pick = (list) => list[Math.floor(rand() * list.length)];
     const p = pick(partners);
-    const calls = wsPartnerCalls(p);
-    const fails = calls.filter((x) => !x.pass && !WC_BY_CALL.has(x.id));
-    const call = pick(fails.length ? fails : calls);
+    // A complaint needs a failed call with a known category (the coaching draft quotes it).
+    const failed = wsPartnerCalls(p).filter((x) => !x.pass && x.cats.length && WS_CAT[x.cats[0]]);
+    if (!failed.length) continue;
+    const fresh = failed.filter((x) => !WC_BY_CALL.has(x.id));
+    const call = pick(fresh.length ? fresh : failed);
     const cat = call.cats[0];
     const src = pick(sources);
     const daysAgo = 1 + Math.floor(rand() * 70);
@@ -126,7 +129,7 @@ function wcInit() {
       agent: call.agent,
       call,
       cat,
-      topic: pick(WC_TOPICS.filter((t) => t.cat === cat)),
+      topic: pick(WC_TOPICS.filter((t) => t.cat === cat).concat(WC_TOPICS.some((t) => t.cat === cat) ? [] : WC_TOPICS)),
       inEvalAI,
       steps,
       done,

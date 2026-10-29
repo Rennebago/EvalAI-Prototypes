@@ -58,30 +58,31 @@ const UM_NAME = "Keeley";
 // First 9 agents and their metrics come from Figma node 4825:42946; the other 6 fill out "15 Results".
 // Columns: name, team, avg score, close rate, connect-to-close, ACE, handle time (min), stage ratings
 // (X = Excellent, G = Good, F = Fair, P = Poor).
+const TEAM_NAMES = ["Amsbaugh", "CClark", "Clarke", "Clough", "Cottrell", "De La Cerda", "Flynn", "Galan", "Hood", "Hopewell", "Jaami", "Koski", "Lewis", "Lichnerowicz", "NEO", "Pereida"];
 const AGENTS = [
-  ["Ryan Atwood", "Team A", 87.25, 76.23, 86.77, 5.6, 32, "XXPFGPGF"],
-  ["Seth Cohen", "Team A", 87.25, 72.1, 84.5, 6.2, 28, "FPXGPFXG"],
-  ["Marissa Cooper", "Team B", 72.1, 81.5, 79.3, 4.8, 35, "GXPFFPGF"],
-  ["Summer Roberts", "Team B", 81.5, 68.75, 91.0, 7.1, 30, "XXPFFGPG"],
-  ["Sandy Cohen", "Team C", 54.3, 91.0, 72.1, 3.9, 41, "FXPGGPGP"],
-  ["Kirsten Cohen", "Team C", 68.75, 54.3, 87.25, 5.3, 27, "GPFFGGGG"],
-  ["Julie Cooper", "Team A", 91.0, 79.6, 68.75, 8.0, 33, "XFPXGPGF"],
-  ["Caleb Nichol", "Team B", 49.8, 87.25, 54.3, 4.1, 38, "XXPFFGPG"],
-  ["Taylor Townsend", "Team C", 75.6, 49.8, 81.5, 6.7, 29, "FXPGPPGF"],
-  ["Dan Scott", "Team A", 58.9, 64.2, 70.4, 4.4, 36, "FGPFGFPG"],
-  ["Lucas Scott", "Team B", 79.4, 71.8, 83.2, 6.0, 31, "GXFGGPGF"],
-  ["Brooke Davis", "Team C", 83.2, 78.9, 76.5, 6.5, 30, "XGGFXFGG"],
-  ["Peyton Sawyer", "Team A", 66.1, 59.4, 62.8, 4.9, 39, "FFPPGFFG"],
-  ["Nathan Scott", "Team B", 93.5, 88.3, 90.1, 8.4, 26, "XXGXGGXG"],
-  ["Haley James", "Team C", 71.7, 74.6, 77.0, 5.8, 34, "GFGFGPGF"],
+  ["Ryan Atwood", TEAM_NAMES[0], 87.25, 76.23, 86.77, 5.6, 32, "XXPFGPGF"],
+  ["Seth Cohen", TEAM_NAMES[1], 87.25, 72.1, 84.5, 6.2, 28, "FPXGPFXG"],
+  ["Marissa Cooper", TEAM_NAMES[2], 72.1, 81.5, 79.3, 4.8, 35, "GXPFFPGF"],
+  ["Summer Roberts", TEAM_NAMES[3], 81.5, 68.75, 91.0, 7.1, 30, "XXPFFGPG"],
+  ["Sandy Cohen", TEAM_NAMES[4], 54.3, 91.0, 72.1, 3.9, 41, "FXPGGPGP"],
+  ["Kirsten Cohen", TEAM_NAMES[5], 68.75, 54.3, 87.25, 5.3, 27, "GPFFGGGG"],
+  ["Julie Cooper", TEAM_NAMES[6], 91.0, 79.6, 68.75, 8.0, 33, "XFPXGPGF"],
+  ["Caleb Nichol", TEAM_NAMES[7], 49.8, 87.25, 54.3, 4.1, 38, "XXPFFGPG"],
+  ["Taylor Townsend", TEAM_NAMES[8], 75.6, 49.8, 81.5, 6.7, 29, "FXPGPPGF"],
+  ["Dan Scott", TEAM_NAMES[9], 58.9, 64.2, 70.4, 4.4, 36, "FGPFGFPG"],
+  ["Lucas Scott", TEAM_NAMES[10], 79.4, 71.8, 83.2, 6.0, 31, "GXFGGPGF"],
+  ["Brooke Davis", TEAM_NAMES[11], 83.2, 78.9, 76.5, 6.5, 30, "XGGFXFGG"],
+  ["Peyton Sawyer", TEAM_NAMES[12], 66.1, 59.4, 62.8, 4.9, 39, "FFPPGFFG"],
+  ["Nathan Scott", TEAM_NAMES[13], 93.5, 88.3, 90.1, 8.4, 26, "XXGXGGXG"],
+  ["Haley James", TEAM_NAMES[14], 71.7, 74.6, 77.0, 5.8, 34, "GFGFGPGF"],
 ].map(makeAgent);
 
 // Agents that appear in Top/Bottom Agent cells but not in the agent table. They only resolve via ALL_AGENTS.
 const EXTRA_AGENTS = [
-  ["Luke Ward", "Team A", 62.4, 58.1, 66.3, 4.6, 37, "FPFGPFPG"],
-  ["Keith Scott", "Team B", 77.2, 70.5, 80.9, 5.9, 32, "GGFXGFGG"],
-  ["Rachel Gatina", "Team C", 69.8, 66.7, 74.2, 5.1, 35, "FGGFGPGF"],
-  ["Mouth McFadden", "Team A", 64.3, 61.9, 69.4, 4.7, 38, "PFFGFFPG"],
+  ["Luke Ward", TEAM_NAMES[15], 62.4, 58.1, 66.3, 4.6, 37, "FPFGPFPG"],
+  ["Keith Scott", TEAM_NAMES[0], 77.2, 70.5, 80.9, 5.9, 32, "GGFXGFGG"],
+  ["Rachel Gatina", TEAM_NAMES[1], 69.8, 66.7, 74.2, 5.1, 35, "FGGFGPGF"],
+  ["Mouth McFadden", TEAM_NAMES[2], 64.3, 61.9, 69.4, 4.7, 38, "PFFGFFPG"],
 ].map(makeAgent);
 const ALL_AGENTS = [...AGENTS, ...EXTRA_AGENTS];
 
@@ -159,13 +160,13 @@ const AGENT_VIEWS = {
 };
 
 // Recent Calls table on the Agent Overview (Figma node 4060:46751).
-const callCols = () => [
+const callCols = (shown = () => true) => [
   { key: "brand", label: "Source", px: 64, kind: "brand" },
   { key: "date", label: "Call Date", px: 125, sortable: true, kind: "date" },
   { key: "duration", label: "Duration", px: 98 },
   { key: "lead", label: "Lead ID", px: 98, kind: "lead" },
   { key: "score", label: "Avg. Scoring", px: 163, num: true, sortable: true, bold: true, fmt: score2, tone: tone },
-  ...cats().map((s, i) => ({ key: "r" + i, label: s, px: 112, sortable: true, rating: i })),
+  ...cats().map((s, i) => ({ key: "r" + i, label: s, px: 112, sortable: true, rating: i })).filter((c) => shown(c.label)),
   { key: "details", label: "Call Details", px: 139, kind: "details" },
 ];
 
@@ -190,8 +191,7 @@ const state = {
   viewTeam: null,
   query: "",
   playbook: "Call Behavior",
-  team: "All teams",
-  smTeam: "All teams",
+  teams: new Set(),
   date: "This week",
   view: STAGE_VIEW,
   page: 1,
@@ -204,7 +204,7 @@ const agentPage = {
   agent: null,
   query: "",
   weeks: 6,
-  hidden: new Set(),
+  stages: new Set(), // call stages shown in the trend chart and Recent Calls; empty = all
   ptHidden: new Set(),
   sort: { key: null, dir: "asc" },
 };
@@ -459,7 +459,7 @@ function visibleAgents() {
   const q = state.query.toLowerCase();
   const sm = state.role === "SM";
   const vt = !sm && state.viewTeam;
-  const inTeam = (a) => (vt ? true : sm ? state.smTeam === "All teams" || a.name === state.smTeam : state.team === "All teams" || a.team === state.team);
+  const inTeam = (a) => (vt ? true : state.teams.size === 0 || state.teams.has(sm ? a.name : a.team));
   return (sm ? TEAMS : vt ? teamAgents(vt) : AGENTS).filter((a) => inTeam(a) && (!q || a.name.toLowerCase().includes(q))).map(forPlaybook);
 }
 
@@ -553,6 +553,43 @@ function setupDropdown(id, options, get, set, { prefix = "", lead = "i-chevron" 
 
 function closeMenus() {
   document.querySelectorAll(".dd").forEach((d) => d.setAttribute("data-open", "false"));
+}
+
+// Multi-select dropdown: checkbox options, the menu stays open while picking. An empty selection means everything.
+function setupMultiDropdown(id, options, selected, onChange, { allLabel = "All", noun = "selected", prefix = "" } = {}) {
+  const root = document.getElementById(id);
+  const btn = root.querySelector(".dd-trigger");
+  const menu = root.querySelector(".dd-menu");
+  menu.classList.add("dd-menu-multi");
+  menu.setAttribute("aria-multiselectable", "true");
+
+  const paint = () => {
+    const sel = selected();
+    const label = sel.size === 0 ? allLabel : sel.size === 1 ? [...sel][0] : `${sel.size} ${noun}`;
+    btn.innerHTML = `<span>${esc(prefix + label)}</span>${icon("i-chevron", 24)}`;
+    const row = (v, checked, text) =>
+      `<button class="dd-option dd-tick" type="button" role="option" aria-selected="${checked}" data-v="${esc(v)}"><i aria-hidden="true"></i><span>${esc(text)}</span></button>`;
+    menu.innerHTML = row("", sel.size === 0, allLabel) + options().map((o) => row(o, sel.has(o), o)).join("");
+  };
+  dropdownPainters.push(paint);
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = root.dataset.open === "true";
+    closeMenus();
+    root.setAttribute("data-open", String(!open));
+  });
+  menu.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const opt = e.target.closest(".dd-option");
+    if (!opt) return;
+    const sel = selected();
+    if (opt.dataset.v === "") sel.clear();
+    else if (!sel.delete(opt.dataset.v)) sel.add(opt.dataset.v);
+    onChange();
+    dropdownPainters.forEach((p) => p());
+  });
+  paint();
 }
 
 function toast(msg) {
@@ -671,11 +708,12 @@ function smoothPath(pts) {
   return d;
 }
 
+const stageShown = (name) => agentPage.stages.size === 0 || agentPage.stages.has(name);
+
 function renderLegend() {
-  document.getElementById("legend").innerHTML = cats().map(
-    (s, i) =>
-      `<button class="legend-item" type="button" data-i="${i}" aria-pressed="${!agentPage.hidden.has(i)}"><span class="dot" style="background:${catColor(i)}"></span>${esc(s)}</button>`
-  ).join("");
+  document.getElementById("legend").innerHTML = cats()
+    .map((s, i) => (stageShown(s) ? `<span class="legend-item"><span class="dot" style="background:${catColor(i)}"></span>${esc(s)}</span>` : ""))
+    .join("");
 }
 
 // Shared line chart. Series values are 0-1 (bottom to top); `tip(i)` returns the tooltip text for week i.
@@ -746,7 +784,7 @@ function renderChart() {
       tip: (i) => LEVEL_NAME[levels[s][i]],
       s,
     }))
-    .filter((x) => !agentPage.hidden.has(x.s));
+    .filter((x) => stageShown(x.name));
 
   drawChart({
     plot: document.getElementById("plot"),
@@ -817,10 +855,12 @@ function visibleCalls() {
 
 function renderCalls() {
   const rows = visibleCalls();
-  const cols = callCols();
+  const cols = callCols(stageShown);
   const body = rows.map((c) => `<tr data-lead="${c.lead}">${cols.map((col) => cellHtml(col, c)).join("")}</tr>`).join("");
   fillTable("calls-table", cols, agentPage.sort, body, "No calls match your search.");
-  document.getElementById("calls-note").textContent = `Filtered by ${state.playbook} Playbook`;
+  const total = cats().length;
+  const shown = agentPage.stages.size === 0 ? total : cats().filter(stageShown).length;
+  document.getElementById("calls-note").textContent = `Filtered by ${state.playbook} Playbook${shown < total ? ` • ${shown} of ${total} call stages` : ""}`;
 }
 
 function renderAgentPage() {
@@ -832,8 +872,8 @@ function renderAgentPage() {
 
 function openAgent(a) {
   if (agentPage.agent !== a) {
-    Object.assign(agentPage, { agent: a, query: "", hidden: new Set(), ptHidden: new Set(), sort: { key: null, dir: "asc" } });
-    document.getElementById("ag-search").value = "";
+    Object.assign(agentPage, { agent: a, query: "", stages: new Set(), ptHidden: new Set(), sort: { key: null, dir: "asc" } });
+    dropdownPainters.forEach((p) => p());
     document.getElementById("ag-avatar").textContent = a.initials;
     document.getElementById("ag-name").textContent = a.name;
     document.getElementById("ag-email").textContent = a.email;
@@ -1274,19 +1314,14 @@ function renderCallBody() {
   if (!c.call) return;
   const stages = callStages(c.call);
   if (!c.open) c.open = new Set(stages.filter((s) => s.grade !== "Good").map((s) => s.name));
-  document.getElementById("cd-pb-title").textContent = c.tab === "timeline" ? "Customer Timeline" : `${state.playbook} Playbook`;
+  document.getElementById("cd-pb-title").textContent = `${state.playbook} Playbook`;
   document.getElementById("cd-meta").innerHTML = `<span><b>Agent:</b> ${esc(c.agent.name)}</span><span><b>Call Duration:</b> ${esc(c.call.duration)}</span>`;
   document.querySelectorAll("#cd-tabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tab === c.tab)));
   const results = document.getElementById("cd-results");
   const tx = document.getElementById("cd-transcript");
-  const tl = document.getElementById("cd-timeline");
   results.hidden = c.tab !== "results";
   tx.hidden = c.tab !== "transcript";
-  tl.hidden = c.tab !== "timeline";
-  document.getElementById("dd-cd-grade").hidden = c.tab === "timeline";
-  document.getElementById("cd-player").hidden = c.tab === "timeline";
   if (c.tab === "results") results.innerHTML = resultsHtml(stages);
-  else if (c.tab === "timeline") tl.innerHTML = timelineHtml();
   else {
     tx.innerHTML = transcriptHtml(stages);
     markCurrent();
@@ -1301,6 +1336,7 @@ function renderCall() {
   if (!callPage.call) return;
   renderCallSummary();
   renderInsights();
+  renderTouchpoints();
   renderCallBody();
   paintPlayer();
 }
@@ -1549,43 +1585,95 @@ function viewLead(leadNo) {
 
 const pendingTab = { value: null };
 const OUTCOME_CHIP = { Enrolled: "Good", "Pending docs": "Fair", "Callback scheduled": "Excellent", Declined: "Poor" };
-const outcomeChip = (o) => `<span class="chip chip-${OUTCOME_CHIP[o] || "Incomplete"}">${esc(o)}</span>`;
+const outcomeChip = (o, lg) => `<span class="chip${lg ? " chip-lg" : ""} chip-${OUTCOME_CHIP[o] || "Incomplete"}">${esc(o)}</span>`;
 
-function timelineHtml() {
-  const cust = timelineCustomer();
-  const calls = cust.calls;
-  const first = calls[0];
-  const last = calls[calls.length - 1];
-  const days = Math.round((dayStart(last.date) - dayStart(first.date)) / 86400000);
-  const delta = last.score - first.score;
-  const ids = [["Phone (ANI)", cust.phone], ["FDR ID", cust.fdrId], ["Salesforce Lead ID", cust.sfLead]];
-  const items = calls
+const GRADE_RANK = { Poor: 0, Fair: 1, Good: 2, Excellent: 3 };
+const TONE_GRADE = { accent: "Excellent", positive: "Good", warning: "Fair", negative: "Poor" };
+const scoreChip = (v, text) => `<span class="chip chip-lg chip-${TONE_GRADE[tone(v)]}">${text}</span>`;
+// One score per playbook for a call. The selected playbook uses the call's score; the others are generated.
+const playbookCallScore = (t, pb) => (pb === state.playbook ? t.score : Math.min(98, Math.max(20, t.score + (rng(hash(t.lead + "|" + pb + "|pbs"))() - 0.5) * 40)));
+const LEVEL_ORDER = ["Incomplete", "Poor", "Fair", "Good", "Excellent"];
+// UM notes on coaching steps, keyed by call ID and step. Written from the Add note popover.
+const noteKey = (lead, step) => lead + "|" + step;
+
+// Lead journey on Call Results (Figma 5050:28685): newest touchpoint first. Each row shows the call, playbook scores, the
+// call average with a bar of step ratings, and the DPR outcome. A row expands to the areas to coach (AI insight and a UM note).
+function journeyHtml(cust) {
+  const names = cats();
+  const total = cust.calls.length;
+  const items = cust.calls
     .map((t, i) => {
-      const gap = i ? Math.round((dayStart(t.date) - dayStart(calls[i - 1].date)) / 86400000) : 0;
-      const gapText = !i ? "First contact" : gap === 0 ? "Same day" : `${gap} day${gap === 1 ? "" : "s"} later`;
-      const current = t.lead === callPage.call.lead;
-      return `<li class="tl-item${current ? " cur" : ""}"${current ? ' aria-current="true"' : ""}>
-        <span class="tl-dot">${i + 1}</span>
+      const prev = cust.calls[i - 1];
+      const gap = prev ? Math.round((dayStart(t.date) - dayStart(prev.date)) / 86400000) : 0;
+      const gapText = !prev ? "First contact" : gap === 0 ? "Same day" : `${gap} day${gap === 1 ? "" : "s"} later`;
+      const callType = t.type === "Initial" ? "Initial" : i === total - 1 && t.outcome === "Enrolled" ? "Close" : "Follow up";
+      const ratings = srRatings(t);
+      const counts = LEVEL_ORDER.map((l) => ratings.filter((g) => g === l).length);
+      const barTitle = LEVEL_ORDER.map((l, k) => (counts[k] ? `${counts[k]} ${l}` : "")).filter(Boolean).join(", ");
+      const bar = `<span class="tl-bar" role="img" aria-label="Step ratings: ${esc(barTitle)}" title="${esc(barTitle)}">${counts.map((c, k) => (c ? `<i class="lv-${k}" style="flex-grow:${c}"></i>` : "")).join("")}</span>`;
+      const scorings = PLAYBOOKS.map((pb) => {
+        const v = playbookCallScore(t, pb);
+        return `<span title="${esc(pb)}">${scoreChip(v, Math.round(v) + "%")}</span>`;
+      }).join("");
+      const weak = names
+        .map((name, k) => ({ name, g: ratings[k] }))
+        .filter((x) => x.g === "Poor" || x.g === "Fair")
+        .sort((a, b) => GRADE_RANK[a.g] - GRADE_RANK[b.g])
+        .slice(0, 4);
+      const open = sr.open.has(t.lead);
+      const id = "tp-" + t.lead;
+      const metrics = [["Duration", t.duration], ["Eligible debt", t.eligibleDebt + "%"]];
+      const tags = t.tags.length ? t.tags.map((x) => `<span class="chip chip-lg chip-Incomplete">${esc(x)}</span>`).join("") : `<span class="sr-none">\u2014</span>`;
+      const coach = weak
+        .map((x) => {
+          const note = sr.notes.get(noteKey(t.lead, x.name)) || "";
+          return `<li class="coach">
+            <span class="chip chip-lg chip-${x.g}">${x.g}</span>
+            <b class="coach-step">${esc(x.name)}</b>
+            <span class="insight">${icon("i-ai", 16)}<span>${esc(GRADE_REASON[x.g])}</span></span>
+            <div class="um-note"><b>UM Note:</b><span${note ? "" : ' class="sr-none"'}>${note ? esc(note) : "-"}</span></div>
+            <button class="note-btn" type="button" data-note="${esc(noteKey(t.lead, x.name))}" data-step="${esc(x.name)}" aria-haspopup="dialog" aria-label="${note ? "Edit" : "Add"} UM note for ${esc(x.name)}">${icon("i-edit", 16)}</button>
+          </li>`;
+        })
+        .join("");
+      return `<li class="tl-item${open ? " open" : ""}">
+        <span class="tl-dot" aria-hidden="true">${i + 1}</span>
         <div class="tl-card">
-          <div class="tl-cell"><b>Touchpoint ${i + 1}</b><span class="sub">${fmtDateTime(t.date)}</span><span class="sub">${gapText}</span></div>
-          <div class="tl-cell"><b>${esc(t.agent)}</b><span class="sub">${esc(t.agentEmail)}</span></div>
-          <div class="tl-cell"><span class="chip chip-${t.type === "Initial" ? "Excellent" : "Incomplete"}">${t.type}</span><span class="sub" title="Genesys Interaction ${esc(t.genesys)}">Call #${t.lead}</span></div>
-          <div class="tl-cell"><b class="tone-${tone(t.score)}">${score2(t.score)}</b><span class="sub">Call score</span></div>
-          <div class="tl-cell">${outcomeChip(t.outcome)}<span class="sub">DPR outcome</span></div>
-          <div class="tl-cell tl-act">${current ? `<span class="tl-now">Viewing</span>` : `<a class="text-btn" href="#/agent/${t.agentSlug}/call/${t.lead}">View call</a>`}</div>
+          <div class="tl-row">
+            <div class="tl-cell"><b>${fmtDateTime(t.date).replace(" \u00b7 ", " \u2022 ")}</b><span class="sub">${gapText}</span></div>
+            <div class="tl-cell"><b><a class="agent-link" href="#/agent/${t.agentSlug}">${esc(t.agent)}</a></b><span class="sub">${esc(t.agentEmail)}</span></div>
+            <div class="tl-cell"><b>Call ID:</b><span class="sub" title="Genesys Interaction ${esc(t.genesys)}">#${t.lead} \u2022 ${callType}</span></div>
+            <div class="tl-cell"><b>Playbook Scorings</b><span class="tl-chips">${scorings}</span></div>
+            <div class="tl-cell"><b>${esc(state.playbook)} Avg.</b>${scoreChip(t.score, score2(t.score))}${bar}</div>
+            <div class="tl-cell tl-out"><b>Outcome:</b>${outcomeChip(t.outcome, true)}</div>
+            <div class="tl-cell tl-act"><button class="tl-btn tl-toggle" type="button" data-tp="${t.lead}" aria-expanded="${open}" aria-controls="${id}">${icon("i-chevron", 16)}Coaching details</button></div>
+          </div>
+          <div class="tl-detail" id="${id}"${open ? "" : " hidden"}>
+            <div class="tl-meta">
+              ${metrics.map(([k, v]) => `<div class="tl-stat"><b>${k}:</b><span>${esc(v)}</span></div>`).join("")}
+              <div class="tl-stat tl-tagbox"><b>Behavior Tags:</b><span class="tl-chips">${tags}</span></div>
+            </div>
+            <div class="tl-weak">
+              <b>Areas to Coach:</b>
+              ${weak.length ? `<ul>${coach}</ul>` : `<p class="sr-none">Every step on this call was rated Good or Excellent.</p>`}
+            </div>
+          </div>
+          <div class="tl-foot"${open ? "" : " hidden"}><a class="btn-secondary" href="#/agent/${t.agentSlug}/call/${t.lead}">Open call scoring &amp; transcript</a></div>
         </div>
       </li>`;
     })
+    .reverse()
     .join("");
-  return `<div class="tl-top">
-      <div class="tl-stat"><span>Touchpoints</span><b>${calls.length}</b></div>
-      <div class="tl-stat"><span>Time span</span><b>${days} day${days === 1 ? "" : "s"}</b></div>
-      <div class="tl-stat"><span>Score change</span><b class="tone-${delta >= 0 ? "positive" : "negative"}">${delta >= 0 ? "+" : ""}${delta.toFixed(2)} pts</b></div>
-      <div class="tl-stat"><span>Latest outcome</span>${outcomeChip(last.outcome)}</div>
-      <button class="btn-secondary tl-all" type="button" data-leadcalls>View all ${calls.length} calls for lead #${esc(cust.leadNo)}</button>
-    </div>
-    <div class="tl-ids"><span class="tl-linked">Linked by</span>${ids.map(([k, v]) => `<span class="tl-id">${icon("i-check", 14)}<span class="k">${k}</span>${esc(v)}</span>`).join("")}</div>
-    <ol class="tl" aria-label="Customer touchpoints in chronological order">${items}</ol>`;
+  return `<ol class="tl" aria-label="Touchpoints for lead #${esc(cust.leadNo)}, newest first">${items}</ol>`;
+}
+
+// Touchpoint position and previous / next links in the Call Details header, so a lead's calls can be reviewed back to back.
+function renderTouchpoints() {
+  const calls = timelineCustomer().calls;
+  const i = calls.findIndex((t) => t.lead === callPage.call.lead);
+  const step = (t, cls, label) =>
+    t ? `<a class="tp-btn ${cls}" href="#/agent/${t.agentSlug}/call/${t.lead}" aria-label="${label}">${icon("i-chevron", 16)}</a>` : `<span class="tp-btn ${cls}" aria-disabled="true">${icon("i-chevron", 16)}</span>`;
+  document.getElementById("cd-tp").innerHTML = `<span class="k">Touchpoint</span>${step(calls[i - 1], "prev", "Previous touchpoint")}<span>${i + 1} of ${calls.length}</span>${step(calls[i + 1], "next", "Next touchpoint")}`;
 }
 
 // ---------- Call Results page ----------
@@ -1597,9 +1685,8 @@ const SR_FIELDS = [
   { type: "email", label: "Email", ph: "jane@example.com" },
   { type: "customer", label: "Customer name", ph: "Jane Smith" },
 ];
-const SR_TYPE_LABEL = { phone: "Phone", lead: "Lead ID", fdr: "FDR ID", email: "Email", address: "Address", customer: "Name", text: "Keyword" };
+const SR_TYPE_LABEL = { phone: "Phone", lead: "Lead ID", fdr: "FDR ID", email: "Email", address: "Address", customer: "Name", date: "Date", text: "Keyword" };
 const SR_GROUPS = [
-  { key: "date", label: "Call date", single: true, options: ["Last 7 days", "Last 30 days"] },
   { key: "tod", label: "Time of day", options: SR_TOD },
   { key: "type", label: "Call type", options: ["Initial", "Follow-up"] },
   { key: "outcome", label: "DPR outcome", options: SR_OUTCOMES },
@@ -1610,8 +1697,15 @@ const SR_GROUPS = [
   { key: "tags", label: "Behavior tags", options: SR_TAGS },
 ];
 const SR_VIEWS = ["Call Details", STAGE_VIEW, METRICS_VIEW];
+// Categories in the Advanced Filters drawer, in display order. Ticking one reveals its options beneath it.
+const SR_SECTIONS = ["fields", "tod", "outcome", "opp", "utm", "dur", "date", "type", "leadSource", "abi", "tags", "debt"];
+const srDay = (s) => {
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d).getTime();
+};
 
-const sr = { tokens: [], match: "any", sel: {}, dur: ["", ""], debt: ["", ""], view: SR_VIEWS[0], hl: false, panel: false, page: 1, pageSize: 10, sort: { key: "date", dir: "desc" } };
+// `open` holds the touchpoints expanded in the lead journey; `openFor` is the lead it was last set for (the newest call opens by default).
+const sr = { tokens: [], match: "any", sel: {}, dur: ["", ""], debt: ["", ""], date: ["", ""], sections: new Set(), secOpen: false, view: SR_VIEWS[0], hl: false, panel: false, page: 1, pageSize: 10, sort: { key: "date", dir: "desc" }, open: new Set(), openFor: null, leadCalls: [], notes: new Map(), note: null };
 
 function srDetect(raw) {
   const s = raw.trim();
@@ -1619,6 +1713,7 @@ function srDetect(raw) {
   if (/^fdr/i.test(s)) return "fdr";
   if (/^#?\d{4,6}$/.test(s)) return "lead";
   if (/^[\d\s().+-]+$/.test(s) && s.replace(/\D/g, "").length >= 7) return "phone";
+  if (/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}(,?\s*\d{4})?$/i.test(s) || /^\d{1,2}\/\d{1,2}(\/\d{2,4})?$/.test(s)) return "date";
   if (/\d/.test(s) && /[a-z]/i.test(s) && /\s/.test(s)) return "address";
   return "text";
 }
@@ -1650,15 +1745,17 @@ function srMatchToken({ raw, type }, r) {
       return r.address.toLowerCase().includes(q);
     case "customer":
       return r.customer.toLowerCase().includes(q);
+    case "date": {
+      const d = new Date(r.date);
+      return [fmtDate(r.date), d.toLocaleDateString("en-US")].some((t) => t.toLowerCase().includes(q));
+    }
     default:
       return [r.customer, r.address, r.email, r.agent].some((t) => t.toLowerCase().includes(q));
   }
 }
 
-function srGroupMatch(key, s, r, now) {
+function srGroupMatch(key, s, r) {
   switch (key) {
-    case "date":
-      return r.date >= now - (s.has("Last 7 days") ? 7 : 30) * 86400000;
     case "tod":
       return s.has(todOf(r.date));
     case "tags":
@@ -1670,9 +1767,11 @@ function srGroupMatch(key, s, r, now) {
 
 function srFiltered() {
   const toks = srAllTokens();
-  const now = Date.now();
   const inRange = (v, [lo, hi]) => (lo === "" || v >= Number(lo)) && (hi === "" || v <= Number(hi));
+  const dateLo = sr.date[0] ? srDay(sr.date[0]) : -Infinity;
+  const dateHi = sr.date[1] ? srDay(sr.date[1]) + 86400000 : Infinity;
   return SR_CALLS.filter((r) => {
+    if (r.date < dateLo || r.date >= dateHi) return false;
     if (toks.length) {
       // Several values of one field always match any; "all" then requires every field that has values to match.
       if (sr.match === "all") {
@@ -1682,7 +1781,7 @@ function srFiltered() {
     }
     for (const g of SR_GROUPS) {
       const s = sr.sel[g.key];
-      if (s && s.size && !srGroupMatch(g.key, s, r, now)) return false;
+      if (s && s.size && !srGroupMatch(g.key, s, r)) return false;
     }
     return inRange(r.durSec / 60, sr.dur) && inRange(r.eligibleDebt, sr.debt);
   }).map((r) => ({ ...r, r: srRatings(r) }));
@@ -1730,7 +1829,7 @@ function srCols() {
     { key: "abi", label: "ABI", px: 80, sortable: true, render: (r) => esc(r.abi) },
     { key: "eligibleDebt", label: "Eligible Debt", px: 120, num: true, sortable: true, fmt: (v) => v + "%", hl: true },
     { key: "tags", label: "Behavior Tags", px: 330, render: tagsCell },
-    { key: "touch", label: "Touchpoints", px: 120, num: true, sortable: true, render: (r) => `<button class="link-btn" type="button" data-act="timeline">${r.touch} call${r.touch === 1 ? "" : "s"}</button>` },
+    { key: "touch", label: "Touchpoints", px: 120, num: true, sortable: true, render: (r) => `<button class="link-btn" type="button" data-act="timeline" title="View this lead's touchpoints">${r.touch} call${r.touch === 1 ? "" : "s"}</button>` },
     ...SR_END,
   ];
 }
@@ -1772,17 +1871,22 @@ function srPaint(all = srFiltered()) {
   );
   document.getElementById("sr-toks").innerHTML = tokHtml.join("");
   const input = document.getElementById("sr-input");
-  input.placeholder = sr.tokens.length ? "Add another value" : "Smart Search: phone, address, FDR ID, Lead ID, email or name";
+  input.placeholder = sr.tokens.length ? "Add another value" : "Search by lead ID, agent, date, etc.";
   document.querySelectorAll("#sg-match button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.match === sr.match)));
 
-  document.getElementById("sr-groups").innerHTML = SR_GROUPS.map(
-    (g) => `<div class="sr-group"><h3>${g.label}</h3><div class="sr-opts">${g.options
-      .map((o) => `<button class="sr-opt" type="button" data-g="${g.key}" data-v="${esc(o)}" aria-pressed="${Boolean(sr.sel[g.key] && sr.sel[g.key].has(o))}">${esc(o)}</button>`)
-      .join("")}</div></div>`
-  ).join("");
+  SR_GROUPS.forEach((g) => {
+    document.getElementById("fc-opts-" + g.key).innerHTML = g.options
+      .map((o) => `<button class="fc-chip" type="button" data-g="${g.key}" data-v="${esc(o)}" aria-pressed="${Boolean(sr.sel[g.key] && sr.sel[g.key].has(o))}">${esc(o)}</button>`)
+      .join("");
+  });
+  srPaintSections();
 
   const chips = [];
   SR_GROUPS.forEach((g) => (sr.sel[g.key] ? [...sr.sel[g.key]] : []).forEach((v) => chips.push(`<span class="sr-tok"><b>${g.label}</b>${esc(v)}<button type="button" data-g="${g.key}" data-v="${esc(v)}" aria-label="Remove ${esc(v)}">×</button></span>`)));
+  if (sr.date.some((v) => v !== "")) {
+    const d = (v) => (v ? fmtDate(srDay(v)) : "…");
+    chips.push(`<span class="sr-tok"><b>Call date</b>${d(sr.date[0])} – ${d(sr.date[1])}<button type="button" data-range="date" aria-label="Remove call date filter">×</button></span>`);
+  }
   if (sr.dur.some((v) => v !== "")) chips.push(`<span class="sr-tok">${srRangeText("Duration", sr.dur, " min")}<button type="button" data-range="dur" aria-label="Remove duration filter">×</button></span>`);
   if (sr.debt.some((v) => v !== "")) chips.push(`<span class="sr-tok">${srRangeText("Eligible debt", sr.debt, "%")}<button type="button" data-range="debt" aria-label="Remove eligible debt filter">×</button></span>`);
   // The results page repeats the active values and filters so they can be removed without opening the panel.
@@ -1793,8 +1897,7 @@ function srPaint(all = srFiltered()) {
   badge.hidden = chips.length === 0;
   badge.textContent = chips.length;
   srSetPanel(sr.panel);
-  const customers = new Set(all.map((r) => r.cid)).size;
-  document.getElementById("sg-count").innerHTML = `<b>${all.length}</b> call${all.length === 1 ? "" : "s"} from ${customers} customer${customers === 1 ? "" : "s"} match`;
+  document.getElementById("sg-count").textContent = `${all.length} result${all.length === 1 ? "" : "s"} found`;
   document.getElementById("sg-x").hidden = !(chips.length || srAllTokens().length);
 }
 
@@ -1807,19 +1910,39 @@ function renderSearch() {
   const banner = document.getElementById("sr-lead");
   banner.hidden = !focus;
   document.getElementById("sr-card").hidden = !focus && document.getElementById("sr-active").hidden;
+  // One lead: the journey (touchpoints, scoring, coaching detail) replaces the call table.
+  const journey = document.getElementById("sr-journey");
+  journey.hidden = !focus;
+  document.getElementById("sr-table-card").hidden = focus;
+  // Lead view: the page title becomes "Lead Call Results" with the lead, customer and phone beside it; the date range does not apply.
+  document.getElementById("sr-h1").textContent = focus ? "Lead Call Results" : "Call Results";
+  document.getElementById("sr-sub").hidden = focus;
+  document.getElementById("sr-lead-sub").hidden = !focus;
+  document.getElementById("dd-sr-date").hidden = focus;
   if (focus) {
     const cust = SR_CUSTOMERS.get(all[0].cid);
     const cs = cust.calls;
     const newest = cs[cs.length - 1];
     const span = Math.round((dayStart(newest.date) - dayStart(cs[0].date)) / 86400000);
-    banner.innerHTML = `<div class="sr-lead-id"><span>Lead</span><b>#${esc(cust.leadNo)}</b></div>
-      <div><span>Customer</span>${esc(cust.customer)}</div>
-      <div><span>Phone (ANI)</span>${esc(cust.phone)}</div>
-      <div><span>FDR ID</span>${esc(cust.fdrId)}</div>
-      <div><span>Salesforce Lead ID</span>${esc(cust.sfLead)}</div>
-      <div><span>Calls</span>${cs.length} over ${span} day${span === 1 ? "" : "s"}</div>
-      <div><span>Latest outcome</span>${outcomeChip(newest.outcome)}</div>
-      <button class="btn-secondary" type="button" data-timeline data-agent="${newest.agentSlug}" data-call="${newest.lead}">View timeline</button>`;
+    const change = newest.score - cs[0].score;
+    const tag = (k, v) => `<span class="tag"><span class="k">${k}</span><span class="v">${esc(v)}</span></span>`;
+    document.getElementById("sr-lead-sub").innerHTML = [tag("Lead ID:", cust.leadNo), tag("Customer:", cust.customer), tag("Phone:", cust.phone)].join('<span class="divider"></span>');
+    banner.innerHTML = `<div><b>FDR ID:</b><span class="v">${esc(cust.fdrId)}</span></div>
+      <div><b>Salesforce ID:</b><span class="v">${esc(cust.sfLead)}</span></div>
+      <div><b>Touchpoints</b><span class="v">${cs.length} over ${span} day${span === 1 ? "" : "s"}</span></div>
+      <div><b>Score Changes</b><span class="v lead-delta"><span class="tone-${change >= 0 ? "positive" : "negative"}">${icon(change >= 0 ? "i-trend-up" : "i-trend-down", 16)}</span>${change >= 0 ? "+" : ""}${change.toFixed(2)} pts</span></div>
+      <div><b>Latest Outcome</b>${outcomeChip(newest.outcome, true)}</div>`;
+    if (sr.openFor !== cust.leadNo) {
+      sr.openFor = cust.leadNo;
+      sr.open = new Set([newest.lead]);
+    }
+    sr.leadCalls = cs.map((c) => c.lead);
+    const allOpen = sr.leadCalls.every((l) => sr.open.has(l));
+    document.getElementById("sr-j-note").textContent = `${cs.length} touchpoint${cs.length === 1 ? "" : "s"} • Step ratings use the ${state.playbook} Playbook`;
+    const expand = document.getElementById("sr-j-expand");
+    expand.setAttribute("aria-pressed", String(allOpen));
+    expand.innerHTML = `${icon("i-chevron", 16)}${allOpen ? "Collapse All" : "Expand All"}`;
+    document.getElementById("sr-j-list").innerHTML = journeyHtml(cust);
   }
   const pages = Math.max(1, Math.ceil(all.length / sr.pageSize));
   sr.page = Math.min(sr.page, pages);
@@ -1852,23 +1975,95 @@ function srToggle(key, v) {
 const srRefresh = () => (location.hash === "#/calls" ? renderSearch() : srPaint());
 
 function srSetPanel(open) {
+  const was = sr.panel;
   sr.panel = open;
   document.getElementById("sr-panel").hidden = !open;
+  document.getElementById("sr-scrim").hidden = !open;
   document.getElementById("sr-filter-btn").setAttribute("aria-expanded", String(open));
-  document.getElementById("sr-input").setAttribute("aria-expanded", String(open));
+  // Opening moves focus into the drawer and remembers the filters, so Cancel can put them back.
+  if (open && !was) {
+    sr.snap = srSnapshot();
+    document.getElementById("sg-close").focus();
+  }
+  if (!open) sr.snap = null;
+}
+
+function srSnapshot() {
+  return {
+    tokens: sr.tokens.map((t) => ({ ...t })),
+    match: sr.match,
+    sel: Object.fromEntries(Object.entries(sr.sel).map(([k, s]) => [k, new Set(s)])),
+    sections: new Set(sr.sections),
+    date: [...sr.date],
+    dur: [...sr.dur],
+    debt: [...sr.debt],
+    fields: [...document.querySelectorAll("#sg-fields input[data-sf]")].map((i) => i.value),
+  };
+}
+
+// Closes the drawer without applying what was changed since it opened.
+function srCancel() {
+  if (!sr.panel) return;
+  const s = sr.snap;
+  if (s) {
+    sr.tokens = s.tokens;
+    sr.match = s.match;
+    sr.sel = s.sel;
+    sr.sections = s.sections;
+    srSetRange("date", s.date);
+    srSetRange("dur", s.dur);
+    srSetRange("debt", s.debt);
+    document.querySelectorAll("#sg-fields input[data-sf]").forEach((i, k) => (i.value = s.fields[k]));
+    sr.page = 1;
+  }
+  sr.panel = false;
+  srRefresh();
+  srSetPanel(false);
+  document.getElementById("sr-filter-btn").focus();
+}
+
+// Ticks the categories that are in use and reveals the options of each.
+function srPaintSections() {
+  SR_SECTIONS.forEach((k) => {
+    const on = sr.sections.has(k);
+    document.getElementById("sec-" + k).hidden = !on;
+    document.querySelector(`#sr-cats input[data-sec="${k}"]`).checked = on;
+  });
+}
+
+// Turns a section on or off. Turning one off clears the values it held.
+function srSecSet(key, on) {
+  if (on) sr.sections.add(key);
+  else {
+    sr.sections.delete(key);
+    if (key === "fields") document.querySelectorAll("#sg-fields input[data-sf]").forEach((i) => (i.value = ""));
+    else if (key === "date") srSetRange("date", ["", ""]);
+    else if (key === "dur") srSetRange("dur", ["", ""]);
+    else if (key === "debt") srSetRange("debt", ["", ""]);
+    else delete sr.sel[key];
+  }
+  sr.page = 1;
+  srRefresh();
+}
+
+const SR_RANGE_IDS = { date: ["sr-date-from", "sr-date-to"], dur: ["sr-dur-min", "sr-dur-max"], debt: ["sr-debt-min", "sr-debt-max"] };
+function srSetRange(key, vals) {
+  sr[key] = vals;
+  SR_RANGE_IDS[key].forEach((id, i) => (document.getElementById(id).value = vals[i]));
 }
 
 function srClearFilters() {
   sr.sel = {};
-  sr.dur = ["", ""];
-  sr.debt = ["", ""];
-  ["sr-dur-min", "sr-dur-max", "sr-debt-min", "sr-debt-max"].forEach((id) => (document.getElementById(id).value = ""));
+  srSetRange("date", ["", ""]);
+  srSetRange("dur", ["", ""]);
+  srSetRange("debt", ["", ""]);
   sr.page = 1;
   srRefresh();
 }
 
 function srClearAll() {
   sr.tokens = [];
+  sr.sections.clear();
   document.getElementById("sr-input").value = "";
   document.querySelectorAll("#sg-fields input[data-sf]").forEach((i) => (i.value = ""));
   srClearFilters();
@@ -1923,9 +2118,9 @@ function route() {
   const isOverview = Boolean(agent && m[2]);
   const isCall = Boolean(agent && m[3]);
   const isSearch = location.hash === "#/calls";
-  const wm = location.hash.match(/^#\/wholesale(?:\/(partner|agent|call|complaint)\/([a-z0-9-]+)|\/(complaints))?$/);
+  const wm = location.hash.match(/^#\/wholesale(?:\/(partner|agent|call|complaint)\/([a-z0-9-]+)|\/(complaints|analysis))?$/);
   const wv = wm ? wm[1] || wm[3] || "dash" : null;
-  const sm = location.hash.match(/^#\/setops(?:\/(agent|call)\/([a-z0-9-]+)|\/(matrix|calls)(?:\?.*)?)?$/);
+  const sm = location.hash.match(/^#\/setops(?:\/(agent|call)\/([a-z0-9-]+)|\/(calls|creditors)(?:\?.*)?)?$/);
   const line = wm ? "Wholesale" : sm ? "SetOps" : "Retail";
   const isLine = line !== "Retail";
   const tm = location.hash.match(/^#\/team\/([a-z0-9-]+)$/);
@@ -1954,9 +2149,22 @@ function route() {
   document.getElementById("nav-dash").href = { Retail: "#/", Wholesale: "#/wholesale", SetOps: "#/setops" }[line];
   document.getElementById("dd-role").hidden = isLine;
   document.getElementById("gs").hidden = isLine;
+  document.getElementById("gs-adv").hidden = isLine;
+  // The search and Advanced filters sit under the page header on every Retail page, beside the page's filters. Not in the top bar.
+  const gsEl = document.getElementById("gs");
+  const advEl = document.getElementById("gs-adv");
+  const gsSlot = isLine ? null : isSearch ? "search" : isCall ? "call" : isOverview ? "overview" : agent ? "agent" : "team";
+  if (gsSlot) {
+    const gsHost = document.getElementById("gs-slot-" + gsSlot);
+    const advHost = document.getElementById("gs-adv-slot-" + gsSlot);
+    if (gsEl.parentElement !== gsHost) gsHost.appendChild(gsEl);
+    if (advEl.parentElement !== advHost) advHost.appendChild(advEl);
+  }
   srSetPanel(false);
+  closeNote();
   document.getElementById("dd-so-user").hidden = line !== "SetOps";
-  document.getElementById("nav-matrix").hidden = line !== "SetOps";
+  document.getElementById("nav-creditors").hidden = line !== "SetOps";
+  document.getElementById("nav-analysis").hidden = line !== "Wholesale";
   document.getElementById("nav-complaints").hidden = line !== "Wholesale";
   document.getElementById("page-search").hidden = !isSearch;
   document.getElementById("page-agent").hidden = !agent || isOverview || isCall;
@@ -1964,8 +2172,9 @@ function route() {
   document.getElementById("page-call").hidden = !isCall;
   const setCurrent = (id, on) => (on ? document.getElementById(id).setAttribute("aria-current", "page") : document.getElementById(id).removeAttribute("aria-current"));
   const inComplaints = wv === "complaints" || wv === "complaint";
-  setCurrent("nav-dash", !isSearch && !(sm && sm[3] === "matrix") && !inComplaints);
-  setCurrent("nav-matrix", Boolean(sm && sm[3] === "matrix"));
+  setCurrent("nav-dash", !isSearch && !(sm && sm[3] === "creditors") && !inComplaints && wv !== "analysis");
+  setCurrent("nav-analysis", wv === "analysis");
+  setCurrent("nav-creditors", Boolean(sm && sm[3] === "creditors"));
   setCurrent("nav-complaints", inComplaints);
   stopClip();
   if (!isCall) stopCall();
@@ -2010,7 +2219,7 @@ const setPlaybook = (v) => {
   // Category columns differ per playbook, so sort keys and hidden chart series no longer apply.
   state.agents = { key: null, dir: "asc" };
   agentPage.sort = { key: null, dir: "asc" };
-  agentPage.hidden = new Set();
+  agentPage.stages = new Set();
   if (agentPage.agent) renderLegend();
   ov.stage = "All";
   ov.open = null;
@@ -2024,15 +2233,16 @@ const setDate = (v) => {
   state.date = v;
 };
 setupDropdown("dd-playbook", PLAYBOOKS, () => state.playbook, setPlaybook, { prefix: "Select Playbook: " });
-setupDropdown("dd-team", () => ["All teams", ...(state.role === "SM" ? TEAMS.map((t) => t.name) : ["Team A", "Team B", "Team C"])], () => (state.role === "SM" ? state.smTeam : state.team), (v) => {
-  if (state.role === "SM") state.smTeam = v;
-  else state.team = v;
+setupMultiDropdown("dd-team", () => TEAM_NAMES, () => state.teams, () => {
   state.page = 1;
   renderAll();
-});
+}, { allLabel: "All teams", noun: "teams" });
 setupDropdown("dd-date", DATES, () => state.date, setDate, { lead: "i-calendar" });
 setupDropdown("dd-ag-playbook", PLAYBOOKS, () => state.playbook, setPlaybook, { prefix: "Select Playbook: " });
 setupDropdown("dd-ag-date", DATES, () => state.date, setDate, { lead: "i-calendar" });
+setupDropdown("dd-sr-date", DATES, () => state.date, setDate, { lead: "i-calendar" });
+setupDropdown("dd-ov-date", DATES, () => state.date, setDate, { lead: "i-calendar" });
+setupDropdown("dd-cd-date", DATES, () => state.date, setDate, { lead: "i-calendar" });
 setupDropdown("dd-ov-playbook", PLAYBOOKS, () => state.playbook, setPlaybook, { prefix: "Select Playbook: " });
 setupDropdown("dd-cd-playbook", PLAYBOOKS, () => state.playbook, setPlaybook, { prefix: "Select Playbook: " });
 setupDropdown("dd-cd-grade", ["All", ...GRADES, "Incomplete"], () => callPage.grade, (v) => {
@@ -2063,6 +2273,11 @@ setupDropdown("dd-range", ["Last 4 weeks", "Last 6 weeks", "Last 8 weeks"], () =
   renderPlaybookChart();
   renderChart();
 });
+setupMultiDropdown("dd-stage", () => cats(), () => agentPage.stages, () => {
+  renderLegend();
+  renderChart();
+  renderCalls();
+}, { allLabel: "All", noun: "selected", prefix: "Call Stage: " });
 
 const ROLE_COPY = {
   UM: { h1: "Welcome back, Keeley", sub: "Overview at your team’s call scoring and outcomes" },
@@ -2101,12 +2316,6 @@ function paintRole() {
 // The dropdown lives in the top bar, so it also works from other Sales pages: it switches the view and returns to the dashboard.
 setupDropdown("dd-role", ["UM", "SM"], () => state.role, setRole, { prefix: "View as: " });
 
-document.getElementById("search").addEventListener("input", (e) => {
-  state.query = e.target.value.trim();
-  state.page = 1;
-  renderSteps();
-  renderAgents();
-});
 document.getElementById("pg-prev").addEventListener("click", () => {
   state.page -= 1;
   renderAgents();
@@ -2117,10 +2326,6 @@ document.getElementById("pg-next").addEventListener("click", () => {
 });
 document.getElementById("download").addEventListener("click", downloadCsv);
 
-document.getElementById("ag-search").addEventListener("input", (e) => {
-  agentPage.query = e.target.value.trim();
-  renderCalls();
-});
 document.getElementById("ag-download").addEventListener("click", () => {
   const rows = visibleCalls();
   saveCsv(
@@ -2128,14 +2333,6 @@ document.getElementById("ag-download").addEventListener("click", () => {
     `${agentPage.agent.slug}-recent-calls.csv`
   );
   toast(`Exported ${rows.length} calls`);
-});
-document.getElementById("legend").addEventListener("click", (e) => {
-  const btn = e.target.closest(".legend-item");
-  if (!btn) return;
-  const i = Number(btn.dataset.i);
-  if (!agentPage.hidden.delete(i)) agentPage.hidden.add(i);
-  renderLegend();
-  renderChart();
 });
 document.getElementById("pt-legend").addEventListener("click", (e) => {
   const btn = e.target.closest(".legend-item");
@@ -2219,8 +2416,6 @@ setupDropdown("dd-sr-size", ["10", "25", "50"], () => String(sr.pageSize), (v) =
 bindSort("sr-table", () => sr.sort, renderSearch);
 
 const srInput = document.getElementById("sr-input");
-const gs = document.getElementById("gs");
-srInput.addEventListener("focus", () => srSetPanel(true));
 srInput.addEventListener("input", () => {
   if (/[,;\n]/.test(srInput.value)) srCommit();
   sr.page = 1;
@@ -2250,6 +2445,8 @@ document.getElementById("sr-toks").addEventListener("click", (e) => {
   srRefresh();
 });
 document.getElementById("sr-filter-btn").addEventListener("click", () => srSetPanel(!sr.panel));
+document.getElementById("sg-close").addEventListener("click", srCancel);
+document.getElementById("sg-cancel").addEventListener("click", srCancel);
 document.getElementById("sg-x").addEventListener("click", () => {
   srClearAll();
   srInput.focus();
@@ -2267,7 +2464,7 @@ sgFields.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
     srGo();
-  } else if (e.key === "Escape") srSetPanel(false);
+  } else if (e.key === "Escape") srCancel();
 });
 document.getElementById("sg-match").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-match]");
@@ -2276,13 +2473,21 @@ document.getElementById("sg-match").addEventListener("click", (e) => {
   sr.page = 1;
   srRefresh();
 });
-// The panel re-renders its buttons on every change, so the click path is read from the event instead of the (detached) target.
-document.addEventListener("click", (e) => {
-  if (sr.panel && !e.composedPath().includes(gs)) srSetPanel(false);
+// The scrim covers the page behind the drawer; clicking it, or pressing Escape, cancels like the Cancel button.
+document.getElementById("sr-scrim").addEventListener("click", srCancel);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") srCancel();
 });
-document.getElementById("sr-groups").addEventListener("click", (e) => {
-  const b = e.target.closest(".sr-opt");
-  if (b) srToggle(b.dataset.g, b.dataset.v);
+// Option chips toggle a value; ticking a category reveals or hides its options.
+document.getElementById("sr-cats").addEventListener("click", (e) => {
+  const b = e.target.closest(".fc-chip");
+  if (!b) return;
+  srToggle(b.dataset.g, b.dataset.v);
+  [...document.querySelectorAll(`#sr-cats .fc-chip[data-g="${b.dataset.g}"]`)].find((x) => x.dataset.v === b.dataset.v)?.focus();
+});
+document.getElementById("sr-cats").addEventListener("change", (e) => {
+  const c = e.target.closest("input[data-sec]");
+  if (c) srSecSet(c.dataset.sec, c.checked);
 });
 document.getElementById("sr-active").addEventListener("click", (e) => {
   const b = e.target.closest("button");
@@ -2294,16 +2499,13 @@ document.getElementById("sr-active").addEventListener("click", (e) => {
     return srRefresh();
   }
   if (b.dataset.range) {
-    const [a, z] = b.dataset.range === "dur" ? ["sr-dur-min", "sr-dur-max"] : ["sr-debt-min", "sr-debt-max"];
-    document.getElementById(a).value = "";
-    document.getElementById(z).value = "";
-    sr[b.dataset.range] = ["", ""];
+    srSetRange(b.dataset.range, ["", ""]);
     sr.page = 1;
     return srRefresh();
   }
   srToggle(b.dataset.g, b.dataset.v);
 });
-[["sr-dur-min", "dur", 0], ["sr-dur-max", "dur", 1], ["sr-debt-min", "debt", 0], ["sr-debt-max", "debt", 1]].forEach(([id, key, i]) =>
+[["sr-date-from", "date", 0], ["sr-date-to", "date", 1], ["sr-dur-min", "dur", 0], ["sr-dur-max", "dur", 1], ["sr-debt-min", "debt", 0], ["sr-debt-max", "debt", 1]].forEach(([id, key, i]) =>
   document.getElementById(id).addEventListener("input", (e) => {
     sr[key][i] = e.target.value;
     sr.page = 1;
@@ -2327,20 +2529,78 @@ document.getElementById("sr-table").addEventListener("click", (e) => {
   if (e.target.closest("a, .th-btn")) return;
   const row = e.target.closest("tbody tr[data-lead]");
   if (!row) return;
-  if (e.target.closest('[data-act="lead"]')) return viewLead(row.dataset.leadno);
-  if (e.target.closest('[data-act="timeline"]')) pendingTab.value = "timeline";
+  if (e.target.closest('[data-act="lead"], [data-act="timeline"]')) return viewLead(row.dataset.leadno);
   location.hash = `#/agent/${row.dataset.agent}/call/${row.dataset.lead}`;
 });
-document.getElementById("sr-lead").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-timeline]");
+document.getElementById("sr-j-list").addEventListener("click", (e) => {
+  const n = e.target.closest("[data-note]");
+  if (n) return openNote(n);
+  const b = e.target.closest("[data-tp]");
   if (!b) return;
-  pendingTab.value = "timeline";
-  location.hash = `#/agent/${b.dataset.agent}/call/${b.dataset.call}`;
+  if (!sr.open.delete(b.dataset.tp)) sr.open.add(b.dataset.tp);
+  renderSearch();
+});
+
+// Add note popover (Figma 5061:7549): a UM writes a coaching note on one step of one call.
+function openNote(btn) {
+  const key = btn.dataset.note;
+  if (sr.note && sr.note.key === key) return closeNote(true);
+  const pop = document.getElementById("note-pop");
+  const existing = sr.notes.get(key) || "";
+  sr.note = { key, step: btn.dataset.step };
+  document.getElementById("note-title").textContent = existing ? "Edit note" : "Add note";
+  pop.setAttribute("aria-label", `${existing ? "Edit" : "Add"} note for ${btn.dataset.step}`);
+  const text = document.getElementById("note-text");
+  text.value = existing;
+  pop.hidden = false;
+  // Right edge in line with the edit button, top just above it; kept inside the window.
+  const r = btn.getBoundingClientRect();
+  const w = pop.offsetWidth;
+  const h = pop.offsetHeight;
+  const left = Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8));
+  const top = Math.max(8, Math.min(r.top - 16, window.innerHeight - h - 16));
+  Object.assign(pop.style, { left: `${left + window.scrollX}px`, top: `${top + window.scrollY}px` });
+  text.focus();
+}
+
+function closeNote(restoreFocus) {
+  if (!sr.note) return;
+  const key = sr.note.key;
+  sr.note = null;
+  document.getElementById("note-pop").hidden = true;
+  if (restoreFocus) focusNoteBtn(key);
+}
+
+function focusNoteBtn(key) {
+  const btn = [...document.querySelectorAll("#sr-j-list [data-note]")].find((b) => b.dataset.note === key);
+  if (btn) btn.focus();
+}
+
+document.getElementById("note-x").addEventListener("click", () => closeNote(true));
+document.getElementById("note-cancel").addEventListener("click", () => closeNote(true));
+document.getElementById("note-save").addEventListener("click", () => {
+  if (!sr.note) return;
+  const { key, step } = sr.note;
+  const v = document.getElementById("note-text").value.trim();
+  if (v) sr.notes.set(key, v);
+  else sr.notes.delete(key);
+  closeNote(false);
+  renderSearch();
+  focusNoteBtn(key);
+  toast(v ? `Note saved for ${step}` : `Note removed for ${step}`);
+});
+document.getElementById("note-pop").addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeNote(true);
+});
+document.addEventListener("click", (e) => {
+  if (sr.note && !e.target.closest("#note-pop, [data-note]")) closeNote(false);
+});
+document.getElementById("sr-j-expand").addEventListener("click", () => {
+  const all = sr.leadCalls.every((l) => sr.open.has(l));
+  sr.leadCalls.forEach((l) => (all ? sr.open.delete(l) : sr.open.add(l)));
+  renderSearch();
 });
 document.getElementById("cd-lead").addEventListener("click", () => viewLead(callPage.leadNo));
-document.getElementById("cd-timeline").addEventListener("click", (e) => {
-  if (e.target.closest("[data-leadcalls]")) viewLead(callPage.leadNo);
-});
 document.getElementById("cd-insights").addEventListener("click", (e) => {
   const tab = e.target.closest("button[data-ins]");
   const cite = e.target.closest("[data-cite]");
@@ -2393,6 +2653,7 @@ window.addEventListener("resize", () => {
   }
 });
 window.addEventListener("hashchange", route);
+srPaint();
 renderAll();
 // wholesale.js and setops.js load after this file, so the first route waits for the page to finish loading.
 document.addEventListener("DOMContentLoaded", route);

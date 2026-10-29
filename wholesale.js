@@ -1,28 +1,86 @@
 // ---------- Wholesale ----------
 // Figma nodes: 4106:13345 (entry dashboard), 4106:14405 (partner overview), 4106:16429 (agent overview),
 // 4106:20703 (call details), 4106:21230 (call details transcript). Loaded after app.js and reuses its helpers.
-// Symple's agents and calls, and Haley James's calls, are drawn in the design; everything else is generated.
+// 13 partners come from the "EvalAI Oct 2026 - QA Dashboard" sheet (2,042 calls): call totals, pass rates, relationship managers and
+// per-category results. For those partners, agents, their pass rates, top/bottom agents and recent calls (with the AI fail reasons)
+// come from the partner sheets via wholesale-data.js (WS_REAL, built by EvalAI/wholesale/extract.js); if that file is empty they are
+// generated to add up to the totals instead. The earlier partners that are not in the sheet (Symple, Penni, Iconic, ...) are kept with
+// their earlier sample numbers. Symple's agents and calls, and Haley James's calls, are drawn in the design; the rest is generated.
+// Categories, descriptions and example statements follow the Wholesale scoring sheets (Eval AI Scoring Phase 1, Discrepancy,
+// Call to train model) and the Wholesale Scoring Breakdown.
 
-const WS_PARTNERS = [
+const WS_FILE_CATS = ["Misrepresentation", "Legal Action", "Credit Impact/Disclosure", "Downplaying Program Summary Recording"];
+const wsPct = (n, d) => Math.round((n / d) * 1000) / 10;
+// Partner, relationship manager, total calls, calls passed, then [passed, failed] per category (WS_FILE_CATS order).
+const WS_SHEET_PARTNERS = [
+  ["Puridy", "Joey", 108, 103, [[108, 0], [107, 1], [108, 0], [104, 4]]],
+  ["DM", "Geoff", 28, 25, [[26, 2], [28, 0], [27, 1], [28, 0]]],
+  ["Rescue 1 financial", "Joey", 1008, 779, [[907, 101], [968, 40], [857, 151], [927, 81]]],
+  ["Done with Debt", "Joey", 146, 109, [[131, 15], [140, 6], [131, 15], [133, 13]]],
+  ["Liberty1 (Clear Vision)", "Geoff", 57, 41, [[52, 5], [55, 2], [51, 6], [47, 10]]],
+  ["United Financial Network", "Eric", 258, 171, [[243, 15], [240, 18], [209, 49], [217, 41]]],
+  ["Legacy", "Joey", 101, 64, [[85, 16], [96, 5], [81, 20], [83, 18]]],
+  ["DR Professionals", "Roxana", 19, 9, [[10, 9], [19, 0], [12, 7], [17, 2]]],
+  ["Empower", "Joey", 102, 46, [[84, 18], [97, 5], [67, 35], [80, 22]]],
+  ["Debt Relief Advocates", "Geoff", 29, 13, [[19, 10], [28, 1], [22, 7], [27, 2]]],
+  ["American One Financial", "Eric", 96, 41, [[75, 21], [77, 19], [59, 37], [88, 8]]],
+  ["Financial Catalyst", "Roxana", 26, 7, [[19, 7], [20, 6], [17, 9], [15, 11]]],
+  ["Easy Finance", "Eric", 64, 16, [[45, 19], [52, 12], [34, 30], [52, 12]]],
+]
+  .map(([name, rm, total, passed, cats]) => ({
+    name,
+    rm,
+    total,
+    passed,
+    failed: total - passed,
+    catCounts: cats.map(([ok, bad]) => ({ passed: ok, failed: bad })),
+    pass: wsPct(passed, total),
+    fail: wsPct(total - passed, total),
+    catPass: Object.fromEntries(WS_FILE_CATS.map((c, i) => [c, wsPct(cats[i][0], cats[i][0] + cats[i][1])])),
+    slug: slugify(name).replace(/-$/, ""),
+    domain: name.toLowerCase().replace(/\(.*\)/, "").replace(/[^a-z0-9]/g, "") + ".com",
+  }));
+
+// Category pass rates the earlier sample data was built on (Symple's are drawn).
+const WS_BASE_CAT_PASS = { Misrepresentation: 31, "Credit Impact/Disclosure": 52, "Downplaying Program Summary Recording": 88, "Legal Action": 76 };
+
+// Earlier partners that are not in the sheet: name, pass, fail. They have no relationship manager. Symple's totals are drawn; the
+// others' call totals and category rates are generated.
+const WS_EXTRA_PARTNERS = [
   ["Iconic", 15, 85],
   ["Absolute Debt Relief", 31, 69],
-  ["Liberty1 (Clear Vision)", 31, 69],
-  ["EasyFi", 38, 47],
-  ["Financial Catalyst", 43, 47],
   ["Advantage First", 45, 55],
   ["Complete Debt Relief", 48, 52],
-  ["Done with Debt", 52, 48],
-  ["Rescue 1 financial", 57, 43],
+  ["Penni", 61, 39],
   ["Symple", 92, 8],
-  ["United Financial Network", 88, 12],
   ["Debtmerica", 78, 22],
-].map(([name, pass, fail]) => ({
-  name,
-  pass,
-  fail,
-  slug: slugify(name).replace(/-$/, ""),
-  domain: name.toLowerCase().replace(/\(.*\)/, "").replace(/[^a-z0-9]/g, "") + ".com",
-}));
+].map(([name, pass, fail]) => {
+  const slug = slugify(name).replace(/-$/, "");
+  const symple = name === "Symple";
+  const rand = rng(hash(slug + "ws-kpi"));
+  const total = symple ? 344 : 150 + Math.floor(rand() * 600);
+  const failed = symple ? 154 : Math.round((total * fail) / 100);
+  const catRand = rng(hash(slug + "ws-cat-pass"));
+  return {
+    name,
+    rm: "",
+    total,
+    passed: total - failed,
+    failed,
+    // Shown next to the call counts on the dashboard, so they follow those counts.
+    pass: wsPct(total - failed, total),
+    fail: wsPct(failed, total),
+    // Symple's Total Failures card is drawn as 36% and 48.2%.
+    kpi: symple ? { calls: 344, fails: 154, failPct: 36, pass: 48.2 } : null,
+    catPass: Object.fromEntries(
+      Object.entries(WS_BASE_CAT_PASS).map(([c, base]) => [c, symple ? base : Math.max(8, Math.min(96, Math.round(base + (pass - 60) / 2 + (catRand() - 0.5) * 24)))])
+    ),
+    slug,
+    domain: name.toLowerCase().replace(/\(.*\)/, "").replace(/[^a-z0-9]/g, "") + ".com",
+  };
+});
+
+const WS_PARTNERS = [...WS_SHEET_PARTNERS, ...WS_EXTRA_PARTNERS].sort((a, b) => b.pass - a.pass);
 
 // Compliance categories. `cites` are quotes from the transcript (`line` is the TRANSCRIPT index) with the AI reason;
 // a failed category in a call shows these. Descriptions also feed the hover tooltips.
@@ -30,84 +88,73 @@ const WS_CATS = [
   {
     name: "Misrepresentation",
     chips: ["Misrepresentation"],
-    pass: 31,
-    desc: `Agent must not promise or guarantee specific outcomes, including but not limited to the percentage of debt reduction or the maximum time required to resolve debts. This prohibition also applies to potential actions by lenders (e.g., interest forbearance, legal action, referral to collection agencies). If there is evidence that the client believes they have received any assurances of specific outcomes, agent must act to clear up the misunderstanding. Note that agents are not prohibited from using words such as "guarantee". Instead, this prohibition applies to guarantees of specific outcomes or amounts. It should be interpreted in the context of regulations such as UDAAP. Statements such as, "We guarantee that we will reduce your debt" are acceptable because we can support them with solid evidence and they don't promise specific timelines or amounts.`,
+    pass: 81.8,
+    desc: `Agents must not misrepresent program features or lead clients to believe untrue claims. For example, agents must not falsely claim government (Federal or State) approvals or sponsorship. Additionally, agents must not guarantee specific settlement times, amounts, or percentages without clearly stating that these figures are estimates.`,
     cites: [
-      { line: 1, quote: "it'd be 584 a month for 53 months", reason: `The agent promises a specific outcome by stating a fixed program length of 53 months. This violates the prohibition on guaranteeing the maximum time required to resolve debts.` },
-      { line: 5, quote: "every single account will be negotiated and new terms will be, everything will be reduced...within 3-6mo", reason: "The agent promises a specific outcome by stating that all accounts will be negotiated and reduced within a specific timeframe of three to six months." },
-      { line: 12, quote: "I'm like 99% sure. This is getting approved.", reason: `The agent promises a specific outcome by stating he is "99% sure" the program will be approved, which sets a firm expectation of approval.` },
+      { line: 1, quote: "You no longer have to pay $7,100 a year in interest, and you will be guaranteed a savings.", reason: "The agent reiterated a definitive guarantee of savings instead of using estimated or probabilistic language." },
+      { line: 5, quote: "After the first three months, One main will have their first settlement. We reach out to you and you sign off.", reason: "The agent explicitly guaranteed an exact settlement timeframe without stating that it is an estimate." },
+      { line: 12, quote: "Oh, no, 100%. It's a guarantee that all of them are going to be settled and everything will be paid off, 100%.", reason: "The agent makes an absolute guarantee of debt settlement." },
     ],
   },
   {
     name: "Credit Impact/Disclosure",
     chips: ["Credit impact", "Disclosure"],
-    pass: 52,
-    desc: "Agent must not mislead client into believing the company or program possesses an untrue external affiliation, accreditation, or special status (e.g., claiming government backing, unique creditor endorsement, or nonprofit status). Agent must act to clear up any misunderstandings expressed by client.",
+    pass: 77.3,
+    desc: "Debt resolution may negatively impact a client's credit score for an extended period. Agents must never state or imply that enrolling in the debt settlement program will improve the client's credit score.",
     cites: [
-      { line: 1, quote: "This is government regulated. So they put money aside for this already to help.", reason: `The agent misleads the client by claiming the program is "government regulated," which suggests an untrue external affiliation or special status.` },
-      { line: 10, quote: "they put money aside for this and they participated in this tens of thousands of times with our team.", reason: `The agent implies a special status and creditor endorsement by claiming creditors "put money aside for this," which is a misleading claim.` },
+      { line: 1, quote: "Your credit score is finally going to take a turn for the better.", reason: "The agent made a definitive promise that the client's credit score will recover and take a turn for the better." },
+      { line: 10, quote: "So, yeah, this will rebound itself right back to where it was once all of these accounts are paid.", reason: "The agent promised that the client's credit score will definitively rebound right back to where it was, violating credit impact rules." },
     ],
   },
   {
     name: "Downplaying Program Summary Recording",
     chips: ["Downplaying"],
-    pass: 88,
+    pass: 86.0,
     desc: "Agents must present the Program Summary Call Recording as a critical step and clearly communicate its relevance. Instructing clients to disregard the recording, not pay attention, or suggest that any portion does not apply to them is strictly prohibited",
     cites: [
-      { line: 6, quote: "You can skip through that recording, it's mostly just legal language.", reason: "The agent tells the client to skip through the Program Summary recording, which downplays its importance and is strictly prohibited." },
-      { line: 8, quote: "Don't worry about that part of the recording, it doesn't really apply to you.", reason: "The agent suggests that part of the recording does not apply to the client, which is strictly prohibited." },
+      { line: 6, quote: "I will advise, not everything on the recording applies to you. Everyone's situation is a little bit different.", reason: "The agent explicitly downplayed the Program Summary Call Recording by instructing the client that not everything on the recording applies to them." },
+      { line: 8, quote: "Not all of these points apply to you. I don't want you to get deterred or scared off here.", reason: "The agent explicitly stated that not all disclosure points apply to the client, downplaying the mandatory disclosure recording." },
     ],
   },
   {
     name: "Legal Action",
     chips: ["Legal action"],
-    pass: 76,
-    desc: "Agent must not mislead client into believing that the debt resolution program shields them from creditor collection efforts. If there is evidence that the client believes otherwise, agent must act to clear up the misunderstanding.",
+    pass: 92.7,
+    desc: `Agents must never state or imply that clients will not face creditor lawsuits, including making claims that they have never seen it happen. For example, agents cannot state "You won't get sued" or "I've never seen anyone get sued".`,
     cites: [
-      { line: 3, quote: "Once you enroll, none of your creditors can take legal action against you.", reason: "The agent misleads the client into believing the program shields them from creditor collection efforts and legal action." },
+      { line: 3, quote: "No, that's not going to happen. A lot of the things that they say is just for compliance purposes.", reason: "The agent explicitly denies that creditor legal action will occur when directly questioned by the client." },
       { line: 12, quote: "None of my clients have ever been sued by a creditor.", reason: "The agent implies the program prevents lawsuits, which misrepresents the program's protection from creditor collection efforts." },
-    ],
-  },
-  {
-    // Added from the Wholesale Complaint Process notes (Regulatory Review examples). Not in the original design.
-    name: "Charge-Up/Loan Language",
-    chips: ["Charge-up", "Loan language"],
-    pass: 64,
-    desc: `Agent must not tell or suggest that the client should run up credit cards, take on new charges or new debt, or "maximize the profit" before or during the program. Agent must not describe the debt resolution program as a loan, a consolidation loan or any other form of credit, or compare its payments to loan payments. If there is evidence that the client believes the program is a loan or that they may keep using their accounts, agent must act to clear up the misunderstanding.`,
-    cites: [
-      { line: 6, quote: "Go ahead and use your cards for whatever you need now, it won't matter once you're enrolled.", reason: "The agent encourages the client to keep charging their cards, which is prohibited because it increases the debt being enrolled." },
-      { line: 10, quote: "Think of it like a loan where you make one payment and we take care of the rest.", reason: "The agent describes the program as a loan, which misstates what it is and is prohibited." },
     ],
   },
 ];
 const WS_CAT = Object.fromEntries(WS_CATS.map((c) => [c.name, c]));
 
-// "Agent said ..." reasons per category, used for generated calls.
+// Scorecards from the Wholesale Scoring Breakdown. A call is scored against one of them.
+const WS_SCORECARDS = ["Sales Initial", "Sales Initial ARP", "Sales Initial 2.0", "FDR Program Summary", "FDR Program Summary ARP"];
+
+// "Agent said ..." reasons per category, used for generated calls. Most are agent statements from the scoring sheets.
 const WS_SAID = {
   Misrepresentation: [
-    'Agent said "We can settle your debt for 40 cents on the dollar"',
-    'Agent said "Your credit score will recover within 12 months of enrollment"',
-    `Agent said "This offer expires at the end of today's call"`,
-    `Agent said "I'm 99% sure this is getting approved"`,
-  ],
-  "Credit Impact/Disclosure": [
-    `Agent said "You'll see a real improvement in your credit within 6 months"`,
-    'Agent said "We work directly with the credit bureaus on your behalf"',
+    'Agent said "You will be guaranteed a savings"',
+    'Agent said "After the first three months, your main account will have its first settlement"',
+    'Agent said "100%. It\'s a guarantee that all of them are going to be settled"',
     'Agent said "This is government regulated, so there is no downside"',
   ],
+  "Credit Impact/Disclosure": [
+    'Agent said "Your credit score is finally going to take a turn for the better"',
+    'Agent said "This will rebound itself right back to where it was once all of these accounts are paid"',
+    `Agent said "Your credit's actually going to go up, you're going to skyrocket"`,
+    'Agent said "We will start seeing scores go up at about the three- to six-month mark"',
+  ],
   "Downplaying Program Summary Recording": [
+    `Agent said "Not everything on the recording applies to you"`,
     `Agent said "You can skip through the recording, it's mostly legal language"`,
     `Agent said "Don't worry about that part of the recording"`,
   ],
   "Legal Action": [
-    'Agent said "This is a much better option than filing for bankruptcy"',
+    'Agent said "No, that\'s not going to happen. A lot of the things that they say is just for compliance purposes"',
     'Agent said "None of my clients have ever been sued by a creditor"',
     'Agent said "Once you enroll, creditors can no longer take legal action"',
-  ],
-  "Charge-Up/Loan Language": [
-    'Agent said "Go ahead and keep using your cards, it won\'t matter once you enroll"',
-    'Agent said "Think of it like a loan with one monthly payment"',
-    'Agent said "Charge what you need now to maximize the profit for yourself"',
   ],
 };
 
@@ -123,56 +170,60 @@ const WS_SYMPLE_AGENTS = [
 ];
 // Agents that appear in Symple's Recent Calls and Top/Bottom Agent cells but not in the drawn agent rows.
 const WS_SYMPLE_EXTRA = ["Lucas Scott", "Brooke Davis", "Peyton Sawyer", "Haley James", "Dan Scott", "Keith Scott", "Karen Roe", "Mouth McFadden", "Rachel Gatina", "Nathan Scott"];
+// Symple Category Performance as drawn: top agent, bottom agent (WS_CATS order).
+const WS_SYMPLE_CATS = [
+  ["Peyton Sawyer", "Brooke Davis"],
+  ["Pacey Witter", "Haley James"],
+  ["Joey Potter", "Dawson Leery"],
+  ["Lucas Scott", "Nathan Scott"],
+];
+// Haley James's Performance by Category as drawn: pass, fail (WS_CATS order).
+const WS_HALEY_CATS = [[31, 78], [43, 78], [88, 12], [86, 14]];
+const wsIsHaley = (a) => a.slug === "symple-haley-james";
+
+// Recent Calls rows as drawn. `back` is how many days before the latest call date.
+const WS_SYMPLE_CALLS = [
+  { pass: true, back: 0, duration: "00:08:42", agent: "Lucas Scott", cats: ["Misrepresentation", "Credit Impact/Disclosure"], reason: "", failPct: 54 },
+  { pass: false, back: 5, duration: "00:06:55", agent: "Brooke Davis", cats: ["Legal Action"], reason: 'Agent said "This is a much better option than filing for bankruptcy"', failPct: 46 },
+  { pass: false, back: 7, duration: "00:15:03", agent: "Peyton Sawyer", cats: ["Misrepresentation"], reason: 'Agent said "Your credit score will recover within 12 months of enrollment"', failPct: 83 },
+  { pass: true, back: 10, duration: "00:09:28", agent: "Haley James", cats: ["Downplaying Program Summary Recording", "Credit Impact/Disclosure"], reason: "", failPct: 37 },
+  { pass: false, back: 12, duration: "00:11:44", agent: "Dan Scott", cats: ["Legal Action"], reason: `Agent said "You'll see a real improvement in your credit within 6 months"`, failPct: 63 },
+  { pass: false, back: 14, duration: "00:07:31", agent: "Keith Scott", cats: ["Misrepresentation"], reason: 'Agent said "We can settle your debt for 40 cents on the dollar"', failPct: 79 },
+  { pass: false, back: 17, duration: "00:14:09", agent: "Karen Roe", cats: ["Legal Action"], reason: 'Agent said "We work directly with the credit bureaus on your behalf"', failPct: 68 },
+  { pass: false, back: 20, duration: "00:10:22", agent: "Mouth McFadden", cats: ["Downplaying Program Summary Recording"], reason: "", failPct: 91 },
+  { pass: false, back: 23, duration: "00:13:56", agent: "Rachel Gatina", cats: ["Misrepresentation", "Legal Action"], reason: `Agent said "This offer expires at the end of today's call"`, failPct: 76 },
+];
+const WS_HALEY_CALLS = [
+  { pass: true, back: 0, duration: "00:08:42", cats: ["Misrepresentation", "Credit Impact/Disclosure"], reason: `Agent said "This offer expires at the end of today's call"`, failPct: 78 },
+  { pass: false, back: 1, duration: "00:12:17", cats: ["Misrepresentation"], reason: 'Agent said "None of my clients have ever been sued by a creditor"', failPct: 66 },
+  { pass: false, back: 2, duration: "00:06:55", cats: ["Misrepresentation"], reason: 'Agent said "This is a much better option than filing for bankruptcy"', failPct: 74 },
+  { pass: false, back: 4, duration: "00:15:03", cats: ["Credit Impact/Disclosure", "Downplaying Program Summary Recording"], reason: `Agent said "You'll see a real improvement in your credit within 6 months"`, failPct: 82 },
+  { pass: true, back: 5, duration: "00:09:28", cats: ["Misrepresentation"], reason: "", failPct: 88 },
+  { pass: false, back: 7, duration: "00:07:38", cats: ["Misrepresentation"], reason: 'Agent said "We can settle your debt for 40 cents on the dollar"', failPct: 69 },
+];
+
+// Generated agent names.
 const WS_NAMES = [
   "Ryan Atwood", "Seth Cohen", "Marissa Cooper", "Summer Roberts", "Sandy Cohen", "Kirsten Cohen", "Julie Cooper", "Caleb Nichol",
   "Taylor Townsend", "Luke Ward", "Dawson Leery", "Joey Potter", "Pacey Witter", "Jen Lindley", "Andie McPhee", "Jack McPhee",
   "Lucas Scott", "Brooke Davis", "Peyton Sawyer", "Haley James", "Dan Scott", "Keith Scott", "Rachel Gatina", "Nathan Scott",
 ];
-// Symple Category Performance as drawn: pass, fail, top agent, bottom agent.
-const WS_SYMPLE_CATS = [
-  [31, 69, "Peyton Sawyer", "Brooke Davis"],
-  [52, 48, "Pacey Witter", "Haley James"],
-  [88, 12, "Joey Potter", "Dawson Leery"],
-  [76, 24, "Lucas Scott", "Nathan Scott"],
-  [64, 36, "Jack McPhee", "Karen Roe"],
-];
-// Haley James's Performance by Category as drawn: pass, fail.
-const WS_HALEY_CATS = [[31, 78], [43, 78], [88, 12], [86, 14], [72, 28]];
-
-// Recent Calls rows as drawn.
-const WS_SYMPLE_CALLS = [
-  { pass: true, date: "07/15/26", duration: "00:08:42", agent: "Lucas Scott", cats: ["Misrepresentation", "Credit Impact/Disclosure"], reason: "", failPct: 54 },
-  { pass: false, date: "07/10/26", duration: "00:06:55", agent: "Brooke Davis", cats: ["Legal Action"], reason: 'Agent said "This is a much better option than filing for bankruptcy"', failPct: 46 },
-  { pass: false, date: "07/08/26", duration: "00:15:03", agent: "Peyton Sawyer", cats: ["Misrepresentation"], reason: 'Agent said "Your credit score will recover within 12 months of enrollment"', failPct: 83 },
-  { pass: true, date: "07/05/26", duration: "00:09:28", agent: "Haley James", cats: ["Downplaying Program Summary Recording", "Credit Impact/Disclosure"], reason: "", failPct: 37 },
-  { pass: false, date: "07/03/26", duration: "00:11:44", agent: "Dan Scott", cats: ["Legal Action"], reason: `Agent said "You'll see a real improvement in your credit within 6 months"`, failPct: 63 },
-  { pass: false, date: "07/01/26", duration: "00:07:31", agent: "Keith Scott", cats: ["Misrepresentation"], reason: 'Agent said "We can settle your debt for 40 cents on the dollar"', failPct: 79 },
-  { pass: false, date: "06/28/26", duration: "00:14:09", agent: "Karen Roe", cats: ["Legal Action"], reason: 'Agent said "We work directly with the credit bureaus on your behalf"', failPct: 68 },
-  { pass: false, date: "06/25/26", duration: "00:10:22", agent: "Mouth McFadden", cats: ["Downplaying Program Summary Recording"], reason: "", failPct: 91 },
-  { pass: false, date: "06/22/26", duration: "00:13:56", agent: "Rachel Gatina", cats: ["Misrepresentation", "Legal Action"], reason: `Agent said "This offer expires at the end of today's call"`, failPct: 76 },
-];
-const WS_HALEY_CALLS = [
-  { pass: true, date: "07/15/26", duration: "00:08:42", cats: ["Misrepresentation", "Credit Impact/Disclosure"], reason: `Agent said "This offer expires at the end of today's call"`, failPct: 78 },
-  { pass: false, date: "07/14/26", duration: "00:12:17", cats: ["Misrepresentation"], reason: 'Agent said "None of my clients have ever been sued by a creditor"', failPct: 66 },
-  { pass: false, date: "07/13/26", duration: "00:06:55", cats: ["Misrepresentation"], reason: 'Agent said "This is a much better option than filing for bankruptcy"', failPct: 74 },
-  { pass: false, date: "07/11/26", duration: "00:15:03", cats: ["Credit Impact/Disclosure", "Downplaying Program Summary Recording"], reason: `Agent said "You'll see a real improvement in your credit within 6 months"`, failPct: 82 },
-  { pass: true, date: "07/10/26", duration: "00:09:28", cats: ["Misrepresentation"], reason: "", failPct: 88 },
-  { pass: false, date: "07/08/26", duration: "00:07:38", cats: ["Misrepresentation"], reason: 'Agent said "We can settle your debt for 40 cents on the dollar"', failPct: 69 },
-];
 
 // ---------- State ----------
 const WS_NO_SORT = () => ({ key: null, dir: "asc" });
+// The date filter opens on Last 30 days.
 const wsState = {
-  date: "This week",
+  date: "Last 30 days",
   dash: { query: "" },
   partner: { p: null, query: "", agent: "All agents", a: { page: 1, size: 10 }, c: { page: 1, size: 10, sort: WS_NO_SORT() } },
   agent: { a: null, query: "", cats: WS_NO_SORT(), c: { page: 1, size: 10, sort: WS_NO_SORT() } },
   call: { call: null, from: null, tab: "categories", sort: "Score: Ascending", query: "", open: null, jump: null, pos: 0, playing: false, timer: null },
 };
 
-// The date range only scales the KPI numbers and labels; the tables show the same sample calls for every range.
-const WS_SCALE = { "This week": 1, "Last week": 0.93, "Last 30 days": 4.2, "This quarter": 12.4 };
-const WS_PASS_DELTA = { "This week": 0, "Last week": -1.4, "Last 30 days": 0.8, "This quarter": -0.6 };
+// The sheet's numbers are shown on Last 30 days. Other ranges only scale the dashboard numbers and labels; the tables show the same data.
+const WS_DATES = ["Last 30 days", "Last quarter"];
+const WS_SCALE = { "Last 30 days": 1, "Last quarter": 3 };
+const WS_PASS_DELTA = { "Last 30 days": 0, "Last quarter": -0.6 };
 
 const WS_AGENTS = new Map();
 const WS_CALLS = new Map();
@@ -183,122 +234,187 @@ const wsTone = (v) => (v >= 70 ? "positive" : v >= 50 ? "warning" : "negative");
 const wsClamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const wsShort = (name) => {
   const [first, ...rest] = name.split(" ");
-  return `${first} ${rest.join(" ")[0]}.`;
+  return rest.length ? `${first} ${rest.join(" ")[0]}.` : first;
 };
 const wsN = (n) => Math.round(n * WS_SCALE[wsState.date]).toLocaleString("en-US");
 const wsDate = (daysBack) => {
-  const d = new Date(2026, 6, 15 - daysBack);
+  const t = new Date();
+  const d = new Date(t.getFullYear(), t.getMonth(), t.getDate() - daysBack);
   return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${String(d.getFullYear()).slice(2)}`;
 };
+// Sheet dates and durations (10/13/2026, 0:42:48) in the format used here (10/13/26, 00:42:48).
+const wsRealDate = (s) => s.replace(/\/\d{2}(\d{2})$/, "/$1");
+const wsRealDur = (s) => s.replace(/^(\d):/, "0$1:");
 
 function wsRangeText() {
-  const t = new Date();
-  const day = new Date(t.getFullYear(), t.getMonth(), t.getDate());
-  const mon = new Date(day.getFullYear(), day.getMonth(), day.getDate() - ((day.getDay() + 6) % 7));
-  let a = mon;
-  let b = day;
-  if (wsState.date === "Last week") {
-    a = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() - 7);
-    b = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() - 1);
-  } else if (wsState.date === "Last 30 days") a = new Date(day.getFullYear(), day.getMonth(), day.getDate() - 30);
-  else if (wsState.date === "This quarter") a = new Date(day.getFullYear(), Math.floor(day.getMonth() / 3) * 3, 1);
   const f = (d) => `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
-  return `${f(a)} - ${f(b)}`;
+  const today = new Date();
+  const y = today.getFullYear();
+  if (wsState.date === "Last 30 days") return `${f(new Date(y, today.getMonth(), today.getDate() - 30))} - ${f(today)}`;
+  if (wsState.date === "Last quarter") {
+    const q = Math.floor(today.getMonth() / 3);
+    return `${f(new Date(y, (q - 1) * 3, 1))} - ${f(new Date(y, q * 3, 0))}`;
+  }
+  return `${f(new Date(y, today.getMonth(), 1))} - ${f(today)}`;
 }
 
 // ---------- Data ----------
-function wsMakeAgent(p, [name, pass, fail, calls, bottom]) {
+function wsMakeAgent(p, [name, pass, fail, calls, bottom = ""]) {
   const [first, ...rest] = name.split(" ");
   return { name, slug: `${p.slug}-${slugify(name)}`, partner: p, email: `${first[0]}.${rest.join("")}@${p.domain}`.toLowerCase(), pass, fail, calls, bottom };
 }
 
+// Sheet data for a partner (see wholesale-data.js), or null while that file is empty.
+const wsReal = (p) => (typeof WS_REAL === "undefined" ? null : WS_REAL[p.name] || null);
+
+// Agents as listed in the partner's sheet: real emails, pass rates, call counts and bottom categories. `failCats` counts the failed
+// categories of the agent's calls in the sheet; it drives their category rates so that they match the failures shown.
+function wsRealRoster(p, real) {
+  return real.agents.map(([email, pass, fail, calls, bottoms]) => {
+    const local = email.split("@")[0];
+    const name = local.split(/[._]/).filter(Boolean).map((s) => s[0].toUpperCase() + s.slice(1)).join(" ");
+    const failed = real.calls.filter((c) => c[2] === email && c[7] === "Failed");
+    const failCats = {};
+    failed.forEach((c) => c[3].forEach((k) => (failCats[k] = (failCats[k] || 0) + 1)));
+    const bottomsKnown = bottoms.filter((b) => WS_CAT[b]);
+    return { name, slug: `${p.slug}-${slugify(local)}`.replace(/-$/, ""), partner: p, email, pass, fail, calls, bottom: bottomsKnown[0] || "", bottoms: bottomsKnown, failCats, failedCalls: failed.length, real: true };
+  });
+}
+
+// Splits `total` calls across `n` agents; every agent gets at least one.
+function wsSplit(rand, total, n) {
+  const w = Array.from({ length: n }, () => 0.5 + rand());
+  const sum = w.reduce((s, x) => s + x, 0);
+  const out = w.map((x) => Math.max(1, Math.floor((total * x) / sum)));
+  let diff = total - out.reduce((s, x) => s + x, 0);
+  for (let i = 0; diff !== 0; i = (i + 1) % n) {
+    if (diff > 0) {
+      out[i] += 1;
+      diff -= 1;
+    } else if (out[i] > 1) {
+      out[i] -= 1;
+      diff += 1;
+    }
+  }
+  return out;
+}
+
+// Each partner's agents share its call total, and their pass rates average out to the partner's pass rate.
 function wsRoster(p) {
   if (p.agents) return p.agents;
   const rand = rng(hash(p.slug + "ws-roster"));
-  const bottom = () => WS_CATS[Math.floor(rand() * WS_CATS.length)].name;
-  let rows;
-  if (p.name === "Symple") {
-    rows = [
+  const real = wsReal(p);
+  if (real) p.agents = wsRealRoster(p, real);
+  else if (p.name === "Symple") {
+    p.agents = [
       ...WS_SYMPLE_AGENTS,
       ...WS_SYMPLE_EXTRA.map((n) => {
         const pass = Math.round(35 + rand() * 55);
-        return [n, pass, 100 - pass, 2 + Math.floor(rand() * 4), bottom()];
+        return [n, pass, 100 - pass, 2 + Math.floor(rand() * 4)];
       }),
-    ];
+    ].map((r) => wsMakeAgent(p, r));
   } else {
-    const n = 9 + Math.floor(rand() * 6);
+    const n = wsClamp(Math.round(p.total / 12), 3, 14);
     const names = WS_NAMES.map((x) => [rand(), x]).sort((a, b) => a[0] - b[0]).slice(0, n).map((x) => x[1]);
-    rows = names.map((nm) => {
-      const pass = wsClamp(Math.round(p.pass + (rand() - 0.5) * 50), 8, 95);
-      return [nm, pass, 100 - pass, 2 + Math.floor(rand() * 5), bottom()];
+    const calls = wsSplit(rand, p.total, n);
+    const raw = names.map(() => p.pass + (rand() - 0.5) * 50);
+    const shift = p.pass - raw.reduce((s, v, i) => s + v * calls[i], 0) / p.total;
+    p.agents = names.map((nm, i) => {
+      const pass = wsClamp(Math.round(raw[i] + shift), 3, 100);
+      return wsMakeAgent(p, [nm, pass, 100 - pass, calls[i]]);
     });
   }
-  p.agents = rows.map((r) => wsMakeAgent(p, r));
+  // Unless drawn, an agent's bottom category is the one they pass least often.
+  p.agents.forEach((a) => {
+    if (!a.bottom) a.bottom = wsAgentCats(a).reduce((m, c) => (c.pass < m.pass ? c : m)).name;
+  });
   return p.agents;
 }
 
+// Category rows for a partner: pass rates from the sheet, top and bottom agent from the generated roster.
 function wsPartnerCats(p) {
   if (p.cats) return p.cats;
   const roster = wsRoster(p);
-  const rand = rng(hash(p.slug + "ws-cats"));
+  const real = wsReal(p);
+  if (real) {
+    // Top and bottom agents are the lists in the sheet (several agents can tie). If every agent ties there is no top or bottom.
+    const byEmail = new Map(roster.map((a) => [a.email, a]));
+    const pick = (emails) => emails.map((e) => byEmail.get(e)).filter(Boolean);
+    p.cats = WS_CATS.map((c) => {
+      const pass = p.catPass[c.name];
+      const row = real.cats.find((r) => r[0] === c.name);
+      let top = row ? pick(row[3]) : [];
+      let bottom = row ? pick(row[4]) : [];
+      if (top.length >= roster.length) top = bottom = [];
+      return { name: c.name, pass, fail: Math.round((100 - pass) * 10) / 10, top, bottom };
+    });
+    return p.cats;
+  }
   p.cats = WS_CATS.map((c, i) => {
+    const pass = p.catPass[c.name];
+    const fail = Math.round((100 - pass) * 10) / 10;
     if (p.name === "Symple") {
-      const [pass, fail, top, bottom] = WS_SYMPLE_CATS[i];
+      const [top, bottom] = WS_SYMPLE_CATS[i];
       return { name: c.name, pass, fail, top: roster.find((a) => a.name === top), bottom: roster.find((a) => a.name === bottom) };
     }
-    const pass = wsClamp(Math.round(c.pass + (p.pass - 60) / 2 + (rand() - 0.5) * 24), 8, 96);
-    const ti = Math.floor(rand() * roster.length);
-    const bi = (ti + 1 + Math.floor(rand() * (roster.length - 1))) % roster.length;
-    return { name: c.name, pass, fail: 100 - pass, top: roster[ti], bottom: roster[bi] };
+    const ranked = roster.map((a) => ({ a, v: wsAgentCats(a).find((x) => x.name === c.name).pass })).sort((x, y) => y.v - x.v);
+    return { name: c.name, pass, fail, top: ranked[0].a, bottom: ranked[ranked.length - 1].a };
   });
   return p.cats;
 }
 
-const wsIsHaley = (a) => a.slug === "symple-haley-james";
-
+// An agent's category pass rates follow their partner's, moved up or down with the agent's own pass rate.
 function wsAgentCats(a) {
   if (a.cats) return a.cats;
+  if (a.real) {
+    // An agent's failures are spread over the categories of their failed calls in the sheet; with none listed, over their bottom category.
+    a.cats = WS_CATS.map((c) => {
+      let fail = 0;
+      if (a.fail > 0) {
+        if (a.failedCalls) fail = a.failCats[c.name] ? Math.max(1, Math.round((a.fail * a.failCats[c.name]) / a.failedCalls)) : 0;
+        else if (c.name === a.bottom) fail = a.fail;
+      }
+      return { name: c.name, pass: 100 - fail, fail };
+    });
+    return a.cats;
+  }
   const rand = rng(hash(a.slug + "ws-cats"));
+  const p = a.partner;
   a.cats = WS_CATS.map((c, i) => {
     if (wsIsHaley(a)) return { name: c.name, pass: WS_HALEY_CATS[i][0], fail: WS_HALEY_CATS[i][1] };
-    const pass = wsClamp(Math.round(a.pass + (c.pass - 55) / 3 + (rand() - 0.5) * 40), 5, 97);
+    // Symple's agents are drawn on their own rates, not on the partner's average.
+    const pass =
+      p.name === "Symple"
+        ? wsClamp(Math.round(a.pass + (WS_BASE_CAT_PASS[c.name] - 55) / 3 + (rand() - 0.5) * 40), 5, 97)
+        : wsClamp(Math.round(p.catPass[c.name] + (a.pass - p.pass) + (rand() - 0.5) * 20), 3, 100);
     return { name: c.name, pass, fail: 100 - pass };
   });
   return a.cats;
 }
 
-// KPI inputs: Symple and Haley James are drawn; the rest follow their pass/fail rates.
-function wsPartnerBase(p) {
-  if (p.name === "Symple") return { calls: 344, fails: 154, failPct: 36, pass: 48.2 };
-  const rand = rng(hash(p.slug + "ws-kpi"));
-  const calls = 150 + Math.floor(rand() * 600);
-  return { calls, fails: Math.round((calls * p.fail) / 100), failPct: p.fail, pass: Math.round((p.pass + rand() * 0.9) * 10) / 10 };
-}
-function wsAgentBase(a) {
-  if (wsIsHaley(a)) return { calls: 344, fails: 154, failPct: 36, pass: 48.2 };
-  const rand = rng(hash(a.slug + "ws-kpi"));
-  const calls = 40 + Math.floor(rand() * 260);
-  return { calls, fails: Math.round((calls * a.fail) / 100), failPct: a.fail, pass: Math.round((a.pass + rand() * 0.9) * 10) / 10 };
-}
+// KPI inputs: partner totals come from the sheet (Symple's are drawn); an agent's follow their share of it.
+const wsPartnerBase = (p) => p.kpi || { calls: p.total, fails: p.failed, failPct: p.fail, pass: p.pass };
+const wsAgentBase = (a) => (wsIsHaley(a) ? { calls: 344, fails: 154, failPct: 36, pass: 48.2 } : { calls: a.calls, fails: Math.round((a.calls * a.fail) / 100), failPct: a.fail, pass: a.pass });
 
 function wsNewCall(p, agent, s) {
   let n = 100000 + (hash(`${p.slug}|${agent.slug}|${s.date}|${s.duration}|${WS_CALLS.size}`) % 899999);
   while (WS_CALLS.has(String(n))) n += 1;
-  const call = { id: String(n), partner: p, agent, agentShort: wsShort(agent.name), catKey: s.cats.join(", "), ...s };
+  const call = { id: String(n), partner: p, agent, agentShort: wsShort(agent.name), catKey: s.cats.join(", "), scorecard: WS_SCORECARDS[hash(String(n) + "ws-card") % WS_SCORECARDS.length], ...s };
   WS_CALLS.set(call.id, call);
   return call;
 }
 
-function wsGenCalls(rand, p, agents, n, startDay) {
+// A passed call has no failed categories. `forceFail` makes the first call a failure so that every partner has one to review.
+function wsGenCalls(rand, p, agents, n, startDay, passRate, forceFail = false) {
   return Array.from({ length: n }, (_, i) => {
     const agent = agents[Math.floor(rand() * agents.length)];
     const first = Math.floor(rand() * WS_CATS.length);
-    const cats = [WS_CATS[first].name];
-    if (rand() < 0.3) cats.push(WS_CATS[(first + 1 + Math.floor(rand() * 3)) % WS_CATS.length].name);
-    const pass = rand() < 0.3;
-    const said = WS_SAID[cats[0]];
+    const second = rand() < 0.3 ? WS_CATS[(first + 1 + Math.floor(rand() * 3)) % WS_CATS.length].name : null;
+    const pass = !(forceFail && i === 0) && rand() < passRate / 100;
+    const cats = pass ? [] : [WS_CATS[first].name, ...(second ? [second] : [])];
     const mm = String(6 + Math.floor(rand() * 12)).padStart(2, "0");
     const ss = String(Math.floor(rand() * 60)).padStart(2, "0");
+    const said = pass ? [] : WS_SAID[cats[0]];
     return wsNewCall(p, agent, {
       pass,
       date: wsDate(startDay + i * 2 + Math.floor(rand() * 2)),
@@ -312,24 +428,38 @@ function wsGenCalls(rand, p, agents, n, startDay) {
 
 function wsPartnerCalls(p) {
   if (p.calls) return p.calls;
-  const roster = wsRoster(p);
   const rand = rng(hash(p.slug + "ws-calls"));
-  p.calls = [];
+  const roster = wsRoster(p);
+  const real = wsReal(p);
+  if (real) {
+    const byEmail = new Map(roster.map((a) => [a.email, a]));
+    p.calls = real.calls
+      .filter((c) => byEmail.has(c[2]))
+      .map(([date, duration, agent, cats, reason, failPct, uuid, status]) =>
+        wsNewCall(p, byEmail.get(agent), { pass: status === "Passed", date: wsRealDate(date), duration: wsRealDur(duration), cats, reason, failPct, uuid })
+      );
+    return p.calls;
+  }
   if (p.name === "Symple") {
-    WS_SYMPLE_CALLS.forEach(({ agent, ...s }) => p.calls.push(wsNewCall(p, roster.find((a) => a.name === agent), s)));
-    p.calls.push(...wsGenCalls(rand, p, roster, 6, 24));
-  } else p.calls.push(...wsGenCalls(rand, p, roster, 12 + Math.floor(rand() * 6), 0));
+    p.calls = WS_SYMPLE_CALLS.map(({ agent, back, ...s }) => wsNewCall(p, roster.find((a) => a.name === agent), { ...s, date: wsDate(back) }));
+    p.calls.push(...wsGenCalls(rand, p, roster, 6, 26, 48));
+  } else p.calls = wsGenCalls(rand, p, roster, 12 + Math.floor(rand() * 6), 0, p.pass, true);
   return p.calls;
 }
 
 function wsAgentCalls(a) {
   if (a.calls_) return a.calls_;
   const rand = rng(hash(a.slug + "ws-calls"));
-  a.calls_ = [];
+  if (a.real) {
+    // The sheet lists a partner's most recent calls only, so an agent with none there gets a few generated ones that match their pass rate.
+    a.calls_ = wsPartnerCalls(a.partner).filter((c) => c.agent === a);
+    if (!a.calls_.length) a.calls_ = wsGenCalls(rand, a.partner, [a], Math.min(a.calls, 4), 0, a.pass);
+    return a.calls_;
+  }
   if (wsIsHaley(a)) {
-    WS_HALEY_CALLS.forEach((s) => a.calls_.push(wsNewCall(a.partner, a, s)));
-    a.calls_.push(...wsGenCalls(rand, a.partner, [a], 9, 8));
-  } else a.calls_.push(...wsGenCalls(rand, a.partner, [a], 6 + Math.floor(rand() * 9), 0));
+    a.calls_ = WS_HALEY_CALLS.map(({ back, ...s }) => wsNewCall(a.partner, a, { ...s, date: wsDate(back) }));
+    a.calls_.push(...wsGenCalls(rand, a.partner, [a], 9, 8, a.pass));
+  } else a.calls_ = wsGenCalls(rand, a.partner, [a], Math.min(a.calls, 6 + Math.floor(rand() * 9)), 0, a.pass);
   return a.calls_;
 }
 
@@ -345,35 +475,79 @@ function wsInit() {
 
 // ---------- Table columns ----------
 const wsRate = (key) => (r) => `<span class="tone-${wsTone(r.pass)}">${r[key]}%</span>`;
+// Dashboard tables show one decimal, as in the QA Dashboard sheet.
+const wsRate1 = (key) => (r) => `<span class="tone-${wsTone(r.pass)}">${r[key].toFixed(1)}%</span>`;
+const wsCount = (key) => (r) => r[key].toLocaleString("en-US");
+
+// Risk bands for the dashboard categories, by average fail rate. Above 15% is over the risk limit.
+const WS_RISK_LIMIT = 15;
+const WS_RISK_BANDS = [
+  { min: 20, risk: "CRITICAL RISK", priority: "P1 - Immediate Remediation" },
+  { min: 15, risk: "HIGH RISK", priority: "P2 - High Priority" },
+  { min: 10, risk: "MODERATE", priority: "P3 - Monitor" },
+  { min: 0, risk: "LOW RISK", priority: "P4 - Stable" },
+];
+const wsDashCatRow = (c) => {
+  const fail = Math.round((100 - c.pass) * 10) / 10;
+  const band = WS_RISK_BANDS.find((b) => fail >= b.min);
+  return { name: c.name, pass: c.pass, fail, risk: band.risk, priority: band.priority, gap: fail > WS_RISK_LIMIT ? "Exceeds Risk Limit" : "Within Tolerance" };
+};
 const wsCatCell = (r) => `<span class="ws-cat" data-tip="${esc(WS_CAT[r.name].desc)}">${esc(r.name)}</span>`;
 const wsChip = (n) => `<span class="chip chip-info" data-tip="${esc(WS_CAT[n].desc)}">${esc(n)}</span>`;
 const wsAgentLink = (a, label) => (a ? `<a class="agent-link" href="#/wholesale/agent/${a.slug}">${esc(label || a.name)}</a>` : "–");
+// One agent, or several that tie: the first is linked, the rest are named in a tooltip. Agents are identified by email, as in the sheets.
+const wsAgentsCell = (v) => {
+  const list = Array.isArray(v) ? v : v ? [v] : [];
+  if (!list.length) return "–";
+  const more = list.length > 1 ? `<span class="ws-more" data-tip="${esc(list.map((a) => a.email).join(", "))}">+${list.length - 1}</span>` : "";
+  return wsAgentLink(list[0], list[0].email) + more;
+};
+// Bottom categories of an agent: up to two, none for a sheet agent without failures.
+const wsBottomCell = (r) => (r.real && r.fail === 0 ? "–" : (r.bottoms || [r.bottom]).slice(0, 2).map(wsChip).join("") || "–");
 const wsReason = (r) => (r.reason ? esc(r.reason) : "–") + (r.reason && r.cats.length > 1 ? `<a class="chip chip-info chip-view" href="#/wholesale/call/${r.id}">View</a>` : "");
 
 const WS_COLS = {
   partners: [
-    { key: "name", label: "Partner", w: 34, render: (r) => `<a class="agent-link" href="#/wholesale/partner/${r.slug}">${esc(r.name)}</a>` },
-    { key: "pass", label: "Avg. Pass Rate", w: 33, num: true, render: wsRate("pass") },
-    { key: "fail", label: "Avg. Fail Rate", w: 33, num: true, render: wsRate("fail") },
+    { key: "name", label: "Partner Name", w: 25, render: (r) => `<a class="agent-link" href="#/wholesale/partner/${r.slug}">${esc(r.name)}</a>` },
+    { key: "total", label: "Total Calls", w: 15, num: true, render: wsCount("total") },
+    { key: "passed", label: "Calls Passed", w: 15, num: true, render: wsCount("passed") },
+    { key: "failed", label: "Calls Failed", w: 15, num: true, render: wsCount("failed") },
+    { key: "pass", label: "Pass Rate", w: 15, num: true, render: wsRate1("pass") },
+    { key: "fail", label: "Fail Rate", w: 15, num: true, render: wsRate1("fail") },
   ],
   dashCats: [
-    { key: "name", label: "Category", w: 42, render: wsCatCell },
-    { key: "pass", label: "Avg. Pass Rate", w: 29, num: true, render: wsRate("pass") },
-    { key: "fail", label: "Avg. Fail Rate", w: 29, num: true, render: wsRate("fail") },
+    { key: "name", label: "Compliance Category", w: 22, cls: "wrap", render: (r) => (r.sum ? esc(r.name) : wsCatCell(r)) },
+    { key: "pass", label: "Avg. Pass Rate", w: 13, num: true, render: (r) => (r.sum ? `${r.pass.toFixed(1)}%` : wsRate1("pass")(r)) },
+    { key: "fail", label: "Avg. Fail Rate", w: 13, num: true, render: (r) => (r.sum ? `${r.fail.toFixed(1)}%` : wsRate1("fail")(r)) },
+    { key: "risk", label: "Risk Assessment", w: 16, render: (r) => esc(r.risk) },
+    { key: "priority", label: "Priority", w: 21, cls: "wrap", render: (r) => esc(r.priority) },
+    { key: "gap", label: "Benchmark Gap", w: 15, cls: "wrap", render: (r) => esc(r.gap) },
+  ],
+  top: [
+    { key: "name", label: "Partner", w: 44, render: (r) => (r.sum ? esc(r.name) : wsPartnerLink(r)) },
+    { key: "pass", label: "Pass Rate", w: 28, num: true, render: (r) => `<span class="tone-positive">${r.pass.toFixed(1)}%</span>` },
+    { key: "total", label: "Calls", w: 28, num: true, render: wsCount("total") },
+  ],
+  bottom: [
+    { key: "name", label: "Partner", w: 44, render: (r) => (r.sum ? esc(r.name) : wsPartnerLink(r)) },
+    { key: "fail", label: "Fail Rate", w: 28, num: true, render: (r) => `<span class="tone-negative">${r.fail.toFixed(1)}%</span>` },
+    { key: "total", label: "Calls", w: 28, num: true, render: wsCount("total") },
   ],
   agents: [
-    { key: "name", label: "Agent", w: 16, render: (r) => wsAgentLink(r) },
-    { key: "pass", label: "Avg. Pass Rate", w: 22, num: true, render: wsRate("pass") },
-    { key: "fail", label: "Avg. Fail Rate", w: 22, num: true, render: wsRate("fail") },
-    { key: "calls", label: "Ttl. Calls", w: 9, num: true },
-    { key: "bottom", label: "Bottom Categories", w: 31, cls: "wrap", render: (r) => wsChip(r.bottom) },
+    { key: "name", label: "Agent", w: 26, render: (r) => wsAgentLink(r, r.email) },
+    { key: "pass", label: "Avg. Pass Rate", w: 15, num: true, render: wsRate("pass") },
+    { key: "fail", label: "Avg. Fail Rate", w: 15, num: true, render: wsRate("fail") },
+    { key: "calls", label: "Total Calls", w: 10, num: true },
+    { key: "bottom", label: "Bottom Categories", w: 34, cls: "wrap", render: wsBottomCell },
   ],
   partnerCats: [
-    { key: "name", label: "Category", w: 32, render: wsCatCell },
-    { key: "pass", label: "Avg. Pass Rate", w: 17, num: true, render: wsRate("pass") },
-    { key: "fail", label: "Avg. Fail Rate", w: 17, num: true, render: wsRate("fail") },
-    { key: "top", label: "Top Agent", w: 17, render: (r) => wsAgentLink(r.top) },
-    { key: "bottom", label: "Bottom Agent", w: 17, render: (r) => wsAgentLink(r.bottom) },
+    { key: "name", label: "Category", w: 24, render: wsCatCell },
+    { key: "passed", label: "Calls Passed", w: 10, num: true, render: wsCount("passed") },
+    { key: "failed", label: "Calls Failed", w: 10, num: true, render: wsCount("failed") },
+    { key: "pass", label: "Avg. Pass Rate", w: 12, num: true, render: wsRate("pass") },
+    { key: "fail", label: "Avg. Fail Rate", w: 12, num: true, render: wsRate("fail") },
+    { key: "top", label: "Top Agent", w: 16, render: (r) => wsAgentsCell(r.top) },
+    { key: "bottom", label: "Bottom Agent", w: 16, render: (r) => wsAgentsCell(r.bottom) },
   ],
   agentCats: [
     { key: "name", label: "Category", w: 34, sortable: true, render: wsCatCell },
@@ -385,13 +559,13 @@ const WS_COLS = {
 const wsCallCols = (withAgent) => [
   {
     key: "pass",
-    label: "",
-    px: 40,
-    render: (r) => `<span class="ws-status ${r.pass ? "pass" : "fail"}" role="img" aria-label="${r.pass ? "Passed" : "Failed"}">${icon(r.pass ? "i-check-circle" : "i-x-circle", 20)}</span>`,
+    label: "Status",
+    px: 64,
+    render: (r) => `<span class="ws-status ${r.pass ? "pass" : "fail"}" data-tip="${r.pass ? "Passed" : "Failed"}" role="img" aria-label="${r.pass ? "Passed" : "Failed"}">${icon(r.pass ? "i-check-circle" : "i-x-circle", 20)}</span>`,
   },
   { key: "date", label: "Upload Date", px: 100 },
   { key: "duration", label: "Call Duration", px: 110 },
-  ...(withAgent ? [{ key: "agentShort", label: "Agent", px: 110, sortable: true, render: (r) => wsAgentLink(r.agent, r.agentShort) }] : []),
+  ...(withAgent ? [{ key: "agentShort", label: "Agent", px: 200, sortable: true, render: (r) => wsAgentLink(r.agent, r.agent.email) }] : []),
   { key: "catKey", label: "Failed Categories", px: 290, sortable: true, cls: "wrap", render: (r) => r.cats.map(wsChip).join("") },
   { key: "reason", label: "Fail Reason", px: 330, cls: "wrap", render: wsReason },
   { key: "failPct", label: "Agent Fail %", px: 120, num: true, sortable: true, render: (r) => `<span class="tone-${wsTone(r.failPct)}">${r.failPct}%</span>` },
@@ -425,12 +599,21 @@ const wsKpiHtml = (list) =>
 
 const wsPassText = (pass) => (pass + WS_PASS_DELTA[wsState.date]).toFixed(1);
 
+const WS_TOTAL = { calls: 2042, passed: 1424 };
+
+// Dashboard KPIs: the QA Dashboard sheet's top metrics, in the standard cards.
 function wsDashKpis() {
-  const pass = wsPassText(78.2);
+  const pass = (WS_TOTAL.passed / WS_TOTAL.calls) * 100 + WS_PASS_DELTA[wsState.date];
+  const total = Math.round(WS_TOTAL.calls * WS_SCALE[wsState.date]);
+  const passed = Math.round((total * pass) / 100);
+  const fails = total - passed;
+  const n = (v) => v.toLocaleString("en-US");
   return wsKpiHtml([
-    { title: "Total Calls", rows: [`<b>${wsN(2445)}</b>`, `<b class="tone-positive">${wsN(345)}</b><span>passed</span><span>from dates: ${wsRangeText()}</span>`] },
-    { title: "Total Failures", rows: [`<b class="tone-negative">36%</b><span>failures</span>`, `<b>${wsN(144)}</b><span>count</span>`] },
-    { title: "Avg. Pass Rate", rows: [`<b class="tone-${wsTone(+pass)}">${pass}%</b>`] },
+    { title: "Total Calls Reviewed", rows: [`<b>${n(total)}</b><span>${WS_SHEET_PARTNERS.length} Partners</span>`, `<span>from dates: ${wsRangeText()}</span>`] },
+    { title: "Calls Passed", rows: [`<b class="tone-positive">${n(passed)}</b><span>Compliance Cleared</span>`] },
+    { title: "Calls Failed", rows: [`<b class="tone-negative">${n(fails)}</b><span>Non-Compliant Identified</span>`] },
+    { title: "Overall Pass Rate", rows: [`<b class="tone-${wsTone(pass)}">${pass.toFixed(1)}%</b><span>Target: ≥ 75.0%</span>`] },
+    { title: "Overall Fail Rate", rows: [`<b class="tone-negative">${(100 - pass).toFixed(1)}%</b><span>Target: ≤ 25.0%</span>`] },
     wcDashKpi(),
   ]);
 }
@@ -439,8 +622,10 @@ function wsEntityKpis(b) {
   const pass = wsPassText(b.pass);
   return wsKpiHtml([
     { title: "Total Calls", rows: [`<b>${wsN(b.calls)}</b>`, `<span>from dates: ${wsRangeText()}</span>`] },
-    { title: "Total Failures", rows: [`<b class="tone-negative">${wsN(b.fails)}</b><span>failures</span>`, `<b class="tone-negative">${b.failPct}%</b><span>avg.</span>`] },
-    { title: "Avg. Pass Rate", rows: [`<b class="tone-${wsTone(+pass)}">${pass}%</b>`] },
+    { title: "Calls Passed", rows: [`<b class="tone-positive">${wsN(b.calls - b.fails)}</b><span>Compliance Cleared</span>`] },
+    { title: "Total Failures", rows: [`<b class="tone-negative">${wsN(b.fails)}</b><span>Non-Compliant Identified</span>`] },
+    { title: "Avg. Pass Rate", rows: [`<b class="tone-${wsTone(+pass)}">${pass}%</b><span>Target: ≥ 75.0%</span>`] },
+    { title: "Avg. Fail Rate", rows: [`<b class="tone-negative">${b.failPct}%</b><span>Target: ≤ 25.0%</span>`] },
   ]);
 }
 
@@ -450,15 +635,82 @@ function renderWsDash() {
   document.getElementById("wsd-kpis").innerHTML = wsDashKpis();
   const partners = WS_PARTNERS.filter((p) => !q || p.name.toLowerCase().includes(q));
   fillTable("wsd-partners", WS_COLS.partners, WS_NO_SORT(), wsRows(WS_COLS.partners, partners), "No partners match your search.");
-  const cats = WS_CATS.map((c) => ({ name: c.name, pass: c.pass, fail: 100 - c.pass }));
-  fillTable("wsd-cats", WS_COLS.dashCats, WS_NO_SORT(), wsRows(WS_COLS.dashCats, cats), "");
+  const cats = WS_CATS.map(wsDashCatRow).sort((a, b) => b.fail - a.fail);
+  const avg = Math.round((cats.reduce((s, c) => s + c.pass, 0) / cats.length) * 10) / 10;
+  const sum = { sum: true, name: "Category Average", pass: avg, fail: Math.round((100 - avg) * 10) / 10, risk: "BASELINE", priority: "Governance Standard", gap: `Threshold: ≤ ${WS_RISK_LIMIT.toFixed(1)}%` };
+  fillTable("wsd-cats", WS_COLS.dashCats, WS_NO_SORT(), wsRows(WS_COLS.dashCats, [...cats, sum], (r) => (r.sum ? ' class="ws-sum"' : "")), "");
+  const [a, b] = cats;
+  document.getElementById("wsd-cats-note").innerHTML = `<b>KEY COMPLIANCE TAKEAWAY:</b> ${esc(a.name)} (${Math.round(a.fail)}% fail rate) and ${esc(b.name)} (${Math.round(b.fail)}% fail rate) are the highest compliance exposures across the partner network, requiring prioritized script re-training.`;
+  renderWsDashExtras();
+}
+
+// ---------- Dashboard: cohorts, benchmark charts and category breakdown (QA Dashboard sheet partners) ----------
+const wsPartnerLink = (p) => `<a class="agent-link" href="#/wholesale/partner/${p.slug}">${esc(p.name)}</a>`;
+const wsCatShort = (n) => (n === "Downplaying Program Summary Recording" ? "Downplaying PSR" : n);
+const wsMean = (list, key) => Math.round((list.reduce((s, p) => s + p[key], 0) / list.length) * 10) / 10;
+const wsSumAttr = (r) => (r.sum ? ' class="ws-sum"' : "");
+
+// Horizontal bars on a 0..max axis with a gridline every `step`.
+function wsBarChart(rows, { max, step, bar, tone, label = 170 }) {
+  const n = max / step;
+  const ticks = Array.from({ length: n + 1 }, (_, i) => `<span>${(i * step).toFixed(step % 1 ? 1 : 0)}%</span>`).join("");
+  const body = rows
+    .map(
+      (r) => `<div class="ws-bar-row">
+      <span class="ws-bar-label" title="${esc(r.title || r.name)}">${esc(r.name)}</span>
+      <div class="ws-bar-track"><i style="width:${Math.min(100, (r.value / max) * 100)}%;background:${bar}"></i></div>
+      <b class="tone-${tone(r)}">${r.value.toFixed(1)}%</b>
+    </div>`
+    )
+    .join("");
+  return `<div class="ws-chart" style="--n:${n};--lab:${label}px">${body}<div class="ws-bar-row ws-axis"><span></span><div>${ticks}</div><span></span></div></div>`;
+}
+
+function renderWsDashExtras() {
+  const ranked = [...WS_SHEET_PARTNERS].sort((a, b) => b.pass - a.pass);
+  const top = ranked.slice(0, 5);
+  const bottom = ranked.slice(-5).reverse();
+  const cohort = (list, label, key) => [...list, { sum: true, name: label, [key]: wsMean(list, key), total: list.reduce((s, p) => s + p.total, 0) }];
+  fillTable("wsd-top", WS_COLS.top, WS_NO_SORT(), wsRows(WS_COLS.top, cohort(top, "Top 5 Cohort Avg", "pass"), wsSumAttr), "");
+  fillTable("wsd-bottom", WS_COLS.bottom, WS_NO_SORT(), wsRows(WS_COLS.bottom, cohort(bottom, "Bottom 5 Cohort Avg", "fail"), wsSumAttr), "");
+
+  document.getElementById("wsd-chart-partners").innerHTML = wsBarChart(ranked.map((p) => ({ name: p.name, value: p.pass, pass: p.pass })), {
+    max: 100,
+    step: 25,
+    bar: "var(--content-accent)",
+    tone: (r) => wsTone(r.pass),
+  });
+  const cats = WS_CATS.map(wsDashCatRow).sort((a, b) => b.fail - a.fail);
+  document.getElementById("wsd-chart-cats").innerHTML = wsBarChart(cats.map((c) => ({ name: wsCatShort(c.name), title: c.name, value: c.fail })), {
+    max: 25,
+    step: 5,
+    bar: "var(--content-negative)",
+    tone: () => "negative",
+    label: 150,
+  });
+
+  // Breakdown by category: passed, failed and pass rate per category, with totals.
+  const rate = (ok, bad) => (ok + bad ? wsPct(ok, ok + bad) : 0);
+  const group = (c) => `<td class="num ws-gl">${c.passed.toLocaleString("en-US")}</td><td class="num">${c.failed.toLocaleString("en-US")}</td><td class="num"><span class="tone-${wsTone(rate(c.passed, c.failed))}">${rate(c.passed, c.failed).toFixed(1)}%</span></td>`;
+  const totals = WS_FILE_CATS.map((_, i) => ({
+    passed: WS_SHEET_PARTNERS.reduce((s, p) => s + p.catCounts[i].passed, 0),
+    failed: WS_SHEET_PARTNERS.reduce((s, p) => s + p.catCounts[i].failed, 0),
+  }));
+  const colgroup = `<colgroup><col style="width:15%"><col style="width:7%">${WS_FILE_CATS.map(() => '<col style="width:6%"><col style="width:6%"><col style="width:6.5%">').join("")}</colgroup>`;
+  const head = `<thead>
+    <tr><th rowspan="2"><span class="th-plain">Partner</span></th><th rowspan="2"><span class="th-plain">Rel Mgr</span></th>${WS_FILE_CATS.map((c) => `<th class="ws-grp" colspan="3"><span class="th-plain" data-tip="${esc(WS_CAT[c].desc)}">${esc(wsCatShort(c))}</span></th>`).join("")}</tr>
+    <tr>${WS_FILE_CATS.map(() => '<th class="num ws-gl"><span class="th-plain">Passed</span></th><th class="num"><span class="th-plain">Failed</span></th><th class="num"><span class="th-plain">Pass Rate</span></th>').join("")}</tr>
+  </thead>`;
+  const rows = WS_SHEET_PARTNERS.map((p) => `<tr><td>${wsPartnerLink(p)}</td><td>${esc(p.rm || "–")}</td>${p.catCounts.map(group).join("")}</tr>`).join("");
+  const sum = `<tr class="ws-sum"><td>Total</td><td></td>${totals.map(group).join("")}</tr>`;
+  document.getElementById("wsd-matrix").innerHTML = `${colgroup}${head}<tbody>${rows}${sum}</tbody>`;
 }
 
 // ---------- Partner overview ----------
 function wsPartnerCallRows() {
   const st = wsState.partner;
   const q = st.query.toLowerCase();
-  const all = wsPartnerCalls(st.p).filter((c) => (st.agent === "All agents" || c.agent.name === st.agent) && (!q || [c.agent.name, c.catKey, c.reason].some((s) => s.toLowerCase().includes(q))));
+  const all = wsPartnerCalls(st.p).filter((c) => (st.agent === "All agents" || c.agent.email === st.agent) && (!q || [c.agent.email, c.agent.name, c.catKey, c.reason].some((s) => s.toLowerCase().includes(q))));
   return sortRows(all, st.c.sort, (r, k) => r[k]);
 }
 
@@ -469,10 +721,17 @@ function renderWsPartner() {
   const q = st.query.toLowerCase();
   document.getElementById("wp-kpis").innerHTML = wsEntityKpis(wsPartnerBase(p));
 
-  const agents = wsRoster(p).filter((a) => (st.agent === "All agents" || a.name === st.agent) && (!q || a.name.toLowerCase().includes(q) || a.bottom.toLowerCase().includes(q)));
+  const agents = wsRoster(p).filter((a) => (st.agent === "All agents" || a.email === st.agent) && (!q || a.email.toLowerCase().includes(q) || a.name.toLowerCase().includes(q) || a.bottom.toLowerCase().includes(q)));
   fillTable("wp-agents", WS_COLS.agents, WS_NO_SORT(), wsRows(WS_COLS.agents, wsPage("wp-a", st.a, agents)), "No agents match your filters.");
 
-  fillTable("wp-cats", WS_COLS.partnerCats, WS_NO_SORT(), wsRows(WS_COLS.partnerCats, wsPartnerCats(p)), "");
+  // Calls passed and failed per category: the sheet's counts for its partners, otherwise worked out from the call total.
+  const catRows = wsPartnerCats(p).map((r) => {
+    const i = WS_FILE_CATS.indexOf(r.name);
+    if (p.catCounts && i >= 0) return { ...r, ...p.catCounts[i] };
+    const failed = Math.round((p.total * r.fail) / 100);
+    return { ...r, passed: p.total - failed, failed };
+  });
+  fillTable("wp-cats", WS_COLS.partnerCats, WS_NO_SORT(), wsRows(WS_COLS.partnerCats, catRows), "");
   wcRenderPartner(p);
 
   const cols = wsCallCols(true);
@@ -485,6 +744,7 @@ function wsOpenPartner(p) {
     Object.assign(st, { p, query: "", agent: "All agents", a: { page: 1, size: st.a.size }, c: { page: 1, size: st.c.size, sort: WS_NO_SORT() } });
     document.getElementById("wp-search").value = "";
     document.getElementById("wp-name").textContent = p.name;
+    document.getElementById("wp-sub").textContent = `Detailed view for partner’s performance${p.rm ? ` • Relationship manager: ${p.rm}` : ""}`;
     dropdownPainters.forEach((f) => f());
   }
   document.title = `EvalAI - Wholesale - ${p.name}`;
@@ -598,7 +858,7 @@ function renderWsCall() {
   const st = wsState.call;
   const c = st.call;
   if (!c) return;
-  document.getElementById("wc-meta").innerHTML = `<span><b>Agent:</b> ${esc(c.agent.email)}</span><span><b>Call Duration:</b> ${esc(c.duration)}</span><span><b>Upload Date:</b> ${esc(c.date)}</span>`;
+  document.getElementById("wc-meta").innerHTML = `<span><b>Agent:</b> ${esc(c.agent.email)}</span><span><b>Call Duration:</b> ${esc(c.duration)}</span><span><b>Upload Date:</b> ${esc(c.date)}</span><span><b>Scorecard:</b> ${esc(c.scorecard)}</span>`;
   document.querySelectorAll("#wc-tabs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tab === st.tab)));
   const cats = document.getElementById("wc-cats");
   const tx = document.getElementById("wc-transcript");
@@ -707,7 +967,7 @@ function wsToggleCall() {
 
 // ---------- Routing hooks (called from route() in app.js) ----------
 function wsShow(view) {
-  ["dash", "partner", "agent", "call", "complaints", "complaint"].forEach((v) => (document.getElementById("page-ws" + v).hidden = v !== view));
+  ["dash", "partner", "agent", "call", "analysis", "complaints", "complaint"].forEach((v) => (document.getElementById("page-ws" + v).hidden = v !== view));
   if (view !== "call") wsStopCall();
 }
 
@@ -717,6 +977,7 @@ function wsRoute(view, slug, cameFrom) {
     document.title = "EvalAI - Wholesale";
     return renderWsDash();
   }
+  if (view === "analysis") return waRoute();
   if (view === "complaints" || view === "complaint") return wcRoute(view, slug, cameFrom);
   if (view === "partner") {
     const p = WS_PARTNERS.find((x) => x.slug === slug);
@@ -733,7 +994,7 @@ function wsRoute(view, slug, cameFrom) {
 // ---------- Downloads ----------
 function wsCallsCsv(rows, filename) {
   saveCsv(
-    [["Upload Date", "Call Duration", "Agent", "Result", "Failed Categories", "Fail Reason", "Agent Fail %"], ...rows.map((r) => [r.date, r.duration, r.agent.email, r.pass ? "Pass" : "Fail", r.cats.join("; "), r.reason, r.failPct + "%"])],
+    [["Upload Date", "Call Duration", "Agent", "Scorecard", "Result", "Failed Categories", "Fail Reason", "Agent Fail %"], ...rows.map((r) => [r.date, r.duration, r.agent.email, r.scorecard, r.pass ? "Pass" : "Fail", r.cats.join("; "), r.reason, r.failPct + "%"])],
     filename
   );
   toast(`Exported ${rows.length} calls`);
@@ -746,9 +1007,9 @@ const wsDateChange = (v) => {
   else if (!document.getElementById("page-wspartner").hidden) renderWsPartner();
   else renderWsAgent();
 };
-["dd-wsd-date", "dd-wp-date", "dd-wa-date"].forEach((id) => setupDropdown(id, DATES, () => wsState.date, wsDateChange, { lead: "i-calendar" }));
+["dd-wsd-date", "dd-wp-date", "dd-wa-date"].forEach((id) => setupDropdown(id, WS_DATES, () => wsState.date, wsDateChange, { lead: "i-calendar" }));
 
-setupDropdown("dd-wp-agent", () => ["All agents", ...(wsState.partner.p ? wsRoster(wsState.partner.p).map((a) => a.name) : [])], () => wsState.partner.agent, (v) => {
+setupDropdown("dd-wp-agent", () => ["All agents", ...(wsState.partner.p ? wsRoster(wsState.partner.p).map((a) => a.email) : [])], () => wsState.partner.agent, (v) => {
   wsState.partner.agent = v;
   wsState.partner.a.page = 1;
   wsState.partner.c.page = 1;
@@ -816,7 +1077,7 @@ document.getElementById("wc-search").addEventListener("input", (e) => {
 document.getElementById("wsd-download").addEventListener("click", () => {
   const q = wsState.dash.query.toLowerCase();
   const rows = WS_PARTNERS.filter((p) => !q || p.name.toLowerCase().includes(q));
-  saveCsv([["Partner", "Avg. Pass Rate", "Avg. Fail Rate"], ...rows.map((p) => [p.name, p.pass + "%", p.fail + "%"])], "partner-performance.csv");
+  saveCsv([["Partner Name", "Total Calls", "Calls Passed", "Calls Failed", "Pass Rate", "Fail Rate"], ...rows.map((p) => [p.name, p.total, p.passed, p.failed, p.pass.toFixed(1) + "%", p.fail.toFixed(1) + "%"])], "partner-performance.csv");
   toast(`Exported ${rows.length} partners`);
 });
 document.getElementById("wp-download").addEventListener("click", () => wsCallsCsv(wsPartnerCallRows(), `${wsState.partner.p.slug}-recent-calls.csv`));

@@ -1,0 +1,215 @@
+/* Guided walkthrough (tour.js). Ascend tokens only; the tour card is dark so it stays legible over any page. */
+.tour-launcher {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+body.tour-on .tour-launcher {
+  display: none;
+}
+.tour-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-5);
+}
+.tour-menu[hidden] {
+  display: none;
+}
+.tour-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--content-primary);
+  font: 500 14px/1.2 var(--font);
+  text-align: left;
+  cursor: pointer;
+}
+.tour-menu button small {
+  color: var(--content-secondary);
+  font: 400 12px/1.4 var(--font);
+}
+.tour-menu button:hover {
+  background: var(--bg-accent-light);
+}
+.tour-menu button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.tour-launch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--bg-accent);
+  color: var(--content-inverse);
+  font: 700 14px/1.2 var(--font);
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-4);
+  cursor: pointer;
+}
+.tour-launch:hover {
+  background: var(--bg-accent-hover);
+}
+.tour-launch:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.tour-ring {
+  position: fixed;
+  z-index: 9000;
+  border: 2px solid var(--border-accent);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-5);
+  pointer-events: none;
+  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+.tour-ring[hidden] {
+  display: none;
+}
+
+.tour-card {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9001;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 400px;
+  max-width: calc(100vw - 48px);
+  padding: 16px 24px;
+  border-radius: var(--radius-md);
+  background: var(--bg-inverse);
+  color: var(--content-inverse);
+  box-shadow: var(--shadow-7);
+}
+.tour-card[hidden] {
+  display: none;
+}
+.tour-card.left {
+  right: auto;
+  left: 24px;
+}
+.tour-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tour-chip,
+.tour-idea {
+  padding: 4px 8px;
+  border-radius: var(--radius-lg);
+  font: 400 12px/1.4 var(--font);
+}
+.tour-chip {
+  background: var(--bg-accent-light);
+  color: var(--content-accent);
+}
+.tour-idea {
+  background: var(--bg-warning);
+  color: var(--content-warning);
+}
+.tour-idea[hidden] {
+  display: none;
+}
+.tour-count {
+  margin-left: auto;
+  color: var(--bg-accent-dark);
+  font: 400 12px/1.4 var(--font);
+}
+.tour-card h2 {
+  font: 700 18px/1.3 var(--font);
+  color: var(--content-inverse);
+}
+.tour-card p {
+  font: 400 16px/1.4 var(--font);
+  color: var(--content-inverse);
+}
+.tour-bar {
+  height: 4px;
+  border-radius: var(--radius-lg);
+  background: var(--content-primary-hover);
+  overflow: hidden;
+}
+.tour-bar i {
+  display: block;
+  height: 100%;
+  background: var(--bg-accent-dark);
+  transition: width 0.3s ease;
+}
+.tour-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.tour-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  padding: 8px;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--content-inverse);
+  font: 700 14px/1.2 var(--font);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+.tour-btn:hover:not(:disabled) {
+  background: var(--content-informational);
+}
+.tour-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.tour-btn:disabled {
+  border-color: var(--border-disabled);
+  color: var(--content-disabled);
+  cursor: not-allowed;
+}
+.tour-primary {
+  border-color: var(--bg-accent);
+  background: var(--bg-accent);
+}
+.tour-primary:hover:not(:disabled) {
+  border-color: var(--bg-accent-hover);
+  background: var(--bg-accent-hover);
+}
+.tour-close {
+  margin-left: auto;
+}
+.tour-prev svg {
+  transform: rotate(90deg);
+}
+.tour-next svg {
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-ring,
+  .tour-bar i {
+    transition: none;
+  }
+}
